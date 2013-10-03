@@ -1,0 +1,106 @@
+module main(sz1,sbp,sbo,skz1,skz,sz2,skch,spch)
+{
+	input sz1,sbp,sbo,skz1,skz,sz2,skch,spch: boolean;
+	VAR sm1,svp1,svz1,spr1,smc1,smp1,srz,sn1,sp1,sm2,svp2,svz2,spr2,smc2,smp2,srch,sn2,sp2: boolean;
+ASSIGN
+	init(sz1) :=0;
+	init(sbp) :=0;
+	init(sbo) :=0;
+	init(skz1) :=0;
+	init(skz) :=0;
+	init(sz2) :=0;
+	init(skch) :=0;
+	init(spch) :=0;
+	init(sm1) :=0;
+	init(svp1) :=0;
+	init(svz1) :=0;
+	init(spr1) :=0;
+	init(smc1) :=0;
+	init(smp1) :=0;
+	init(srz) :=0;
+	init(sn1) :=0;
+	init(sp1) :=0;
+	init(sm2) :=0;
+	init(svp2) :=0;
+	init(svz2) :=0;
+	init(spr2) :=0;
+	init(smc2) :=0;
+	init(smp2) :=0;
+	init(srch) :=0;
+	init(sn2) :=0;
+	init(sp2) :=0;
+default
+{	next(sm1) :=0;
+	next(svp1) :=0;
+	next(svz1) :=0;
+	next(spr1) :=0;
+	next(smc1) :=0;
+	next(smp1) :=0;
+	next(srz) :=0;
+	next(sn1) :=0;
+	next(sp1) :=0;
+	next(sm2) :=0;
+	next(svp2) :=0;
+	next(svz2) :=0;
+	next(spr2) :=0;
+	next(smc2) :=0;
+	next(smp2) :=0;
+	next(srch) :=0;
+	next(sn2) :=0;
+	next(sp2) :=0;
+}
+in
+{
+	next(sm1):=svp1&svz1&spr1|sm1&~smc1&~sn1;
+	next(svp1):=(sz1|svp1)&~sm1;
+	next(svz1):=~sm2;
+	next(spr1):=~smc1;
+	next(smc1):=sm1&sbp|smc1&~smp1;
+	next(smp1):=smc1&svz1&sp2|smp1&~sn1;
+	next(srz):=(sm1|smp1)&(~sbp&sbo)|srz&(~sbp&~skz1);
+	next(sn1):=srz&(sbp|skz);
+	next(sp1):=sn1&(sm1|smp1)&~smc2|sp1&~smp2;
+	next(sm2):=svp2&svz2&spr2|sm2&~smc2&~sn2;
+	next(svp2):=(sz2|svp2)&~sm2;
+	next(svz2):=~sm1;
+	next(spr2):=~svp1&~smc2;
+	next(smc2):=sm2&sbo|smc2&~smp2;
+	next(smp2):=smc2&svz2&sp1|smp2&~sn2;
+	next(srch):=(sm2|smp2)&(sbp&~sbo)|srch&(~sbo&~skch);
+	next(sn2):=spch&(sbo|skch);
+	next(sp2):=sn2&(sm2|smp2)&~smc1|sp2&~smp1;
+}
+
+--Reachability of states
+	SPEC EF sm1;
+	SPEC EF svp1;
+	SPEC EF svz1;
+	SPEC EF spr1;
+	SPEC EF smc1;
+	SPEC EF smp1;
+	SPEC EF srz;
+	SPEC EF sn1;
+	SPEC EF sp1;
+	SPEC EF sm2;
+	SPEC EF svp2;
+	SPEC EF svz2;
+	SPEC EF spr2;
+	SPEC EF smc2;
+	SPEC EF smp2;
+	SPEC EF srch;
+	SPEC EF sn2;
+	SPEC EF sp2;
+--Recoverability of states
+	SPEC AG ( sm1 -> AF sm1 );
+	SPEC AG ( svp1 -> AF svp1 );
+	SPEC AG ( smc1 -> AF smc1 );
+	SPEC AG ( smp1 -> AF smp1 );
+	SPEC AG ( srz -> AF srz );
+	SPEC AG ( sp1 -> AF sp1 );
+	SPEC AG ( sm2 -> AF sm2 );
+	SPEC AG ( svp2 -> AF svp2 );
+	SPEC AG ( smc2 -> AF smc2 );
+	SPEC AG ( smp2 -> AF smp2 );
+	SPEC AG ( srch -> AF srch );
+	SPEC AG ( sp2 -> AF sp2 );
+}

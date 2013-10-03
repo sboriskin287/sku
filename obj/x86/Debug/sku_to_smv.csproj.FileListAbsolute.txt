@@ -1,0 +1,19 @@
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\ResolveAssemblyReference.cache
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\sku_to_smv.Form1.resources
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\sku_to_smv.Properties.Resources.resources
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\GenerateResource-ResGen.read.1.tlog
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\GenerateResource-ResGen.write.1.tlog
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\bin\Debug\sku_to_smv.exe
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\bin\Debug\sku_to_smv.pdb
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\sku_to_smv.exe
+c:\users\vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Debug\sku_to_smv.pdb
+F:\1111\sku_to_smv\obj\x86\Debug\sku_to_smv.exe
+F:\1111\sku_to_smv\obj\x86\Debug\sku_to_smv.pdb
+F:\1111\sku_to_smv\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\1111\sku_to_smv\obj\x86\Debug\GenerateResource-ResGen.read.1.tlog
+F:\1111\sku_to_smv\obj\x86\Debug\GenerateResource-ResGen.read.4.tlog
+F:\1111\sku_to_smv\obj\x86\Debug\GenerateResource-ResGen.write.1.tlog
+F:\1111\sku_to_smv\bin\Debug\sku_to_smv.exe
+F:\1111\sku_to_smv\bin\Debug\sku_to_smv.pdb
+F:\1111\sku_to_smv\obj\x86\Debug\sku_to_smv.Form1.resources
+F:\1111\sku_to_smv\obj\x86\Debug\sku_to_smv.Properties.Resources.resources

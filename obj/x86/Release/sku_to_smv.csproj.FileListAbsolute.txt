@@ -1,0 +1,11 @@
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\bin\Release\sku_to_smv.exe
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\bin\Release\sku_to_smv.pdb
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\ResolveAssemblyReference.cache
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\sku_to_smv.Form1.resources
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\sku_to_smv.Properties.Resources.resources
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\GenerateResource-ResGen.read.1.tlog
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\GenerateResource-ResGen.write.1.tlog
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\sku_to_smv.exe
+C:\Users\Vovan\documents\visual studio 2010\Projects\sku_to_smv\obj\x86\Release\sku_to_smv.pdb
+F:\1111\sku_to_smv\obj\x86\Release\sku_to_smv.exe
+F:\1111\sku_to_smv\obj\x86\Release\sku_to_smv.pdb
