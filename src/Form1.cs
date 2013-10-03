@@ -13,66 +13,84 @@ using System.Threading;
 namespace sku_to_smv
 {
     enum defines{NO_STATE_SELECTED = -1};
+
+    enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT };
+
     public partial class Form1 : Form
     {
-        string sOpenFileName, sOpenSaveFileName, sSaveFileName;
+        bool StateSelected;
+        bool AddStateButtonSelected;
         bool Saved, TextCH, Inv, Analysed;
         int xs, ys, xM, yM;
         int xT, yT;
         int SelectedState;
-        bool StateSelected;
-        bool AddStateButtonSelected;
-        Graphics g;
-        Bitmap bm;
-        float Scale;
-        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT };
-        Rule[] Rules;//Массив правил, строящийся при анализе
-        string[] LocalStates;//Список локальных состояний
-        string[] Inputs;//Список входных сигналов
-        string[] RecovStates;//Список повторновходимых состояний
-        int RCount;//Количество правил полученных после анализа
+        int RCount;             //Количество правил полученных после анализа
+        string sOpenFileName, sOpenSaveFileName, sSaveFileName;
+        
+        new float Scale;
+
+        Rule[] Rules;           //Массив правил, строящийся при анализе
         State[] States;
         Link[] Links;
+        Graphics g;
+        Bitmap bm;
+        Mutex Mu;
+
+        string[] LocalStates;   //Список локальных состояний
+        string[] Inputs;        //Список входных сигналов
+        string[] RecovStates;   //Список повторновходимых состояний
+
         System.Drawing.Pen penDarkRed, penBlack, penRed, penOrange, penDarkBlue, penDarkGreen;
         System.Drawing.Font TextFont;
-        Mutex Mu;
+        
         public Form1()
         {
             InitializeComponent();
+            //Инициализируем массивы
+            Rules     = new Rule[1];
+            Rules[0]  = new Rule();
+
+            Inputs    = new string[1];
+            Inputs[0] = null; 
+
+            Links     = new Link[1];
+            Links[0]  = new Link();
+
+            RecovStates    = new string[1];
+            RecovStates[0] = null;
+            
+
             Saved = true;
             TextCH = false;
             Inv = false;
             Analysed = false;
-            Rules = new Rule[1];
-            Rules[0] = new Rule();
-            Inputs = new string[1];
-            Inputs[0] = null;
-            RecovStates = new string[1];
-            RecovStates[0] = null;
+            StateSelected = false;
+            AddStateButtonSelected = false;
+
             RCount = 0;
-            Links = new Link[1];
-            Links[0] = new Link();
+            Scale  = 1.0f;
             xs = 50;
             ys = 50;
             xT = 0;
             yT = 0;
-            Scale = 1.0f;
-            StateSelected = false;
-            bm = new Bitmap(3000, 2000);
-            //pictureBox1.Image = bm;
-            g = Graphics.FromImage(bm);
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;//Включаем сглаживание шрифтов
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-            penDarkRed = new System.Drawing.Pen(System.Drawing.Brushes.DarkRed, 2);
-            penBlack = new System.Drawing.Pen(System.Drawing.Brushes.Black, 1);
-            penRed = new System.Drawing.Pen(System.Drawing.Brushes.Red, 3);
-            penOrange = new System.Drawing.Pen(System.Drawing.Brushes.Orange, 3);
-            penDarkBlue = new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 1);
-            penDarkGreen = new System.Drawing.Pen(System.Drawing.Brushes.DarkGreen, 3);
-            TextFont = new System.Drawing.Font(richTextBox1.Font.Name, (14 * Scale));
+
             Mu = new Mutex(false, "MyMutex");
-            AddStateButtonSelected = false;
+            bm = new Bitmap(3000, 2000);            //графический буфер
+            g  = Graphics.FromImage(bm);
+            g.SmoothingMode     = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;//Включаем сглаживание шрифтов
+            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
+            //Определяются цвета
+            penDarkRed   =  new System.Drawing.Pen(System.Drawing.Brushes.DarkRed, 2);
+            penBlack     =  new System.Drawing.Pen(System.Drawing.Brushes.Black, 1);
+            penRed       =  new System.Drawing.Pen(System.Drawing.Brushes.Red, 3);
+            penOrange    =  new System.Drawing.Pen(System.Drawing.Brushes.Orange, 3);
+            penDarkBlue  =  new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 1);
+            penDarkGreen = new System.Drawing.Pen(System.Drawing.Brushes.DarkGreen, 3);
+            //И шрифт
+            TextFont     =  new System.Drawing.Font(richTextBox1.Font.Name, (14 * Scale));
+
+            //Разрешаем отмену асинхронных операций
             this.backgroundWorker1.WorkerSupportsCancellation = true;
         }
 
@@ -86,6 +104,9 @@ namespace sku_to_smv
 
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
+                this.tabControl1.SelectedIndex = 0;
+                Array.Resize(ref States, 0);
+                Array.Resize(ref Links, 1);
                 sOpenFileName = openFileDialog1.FileName;
                 sOpenSaveFileName = openFileDialog1.SafeFileName;
                 this.toolStripStatusLabel1.Text = "Открыт файл: " + sOpenFileName;
@@ -460,6 +481,7 @@ namespace sku_to_smv
         }
         private void CreateGraf(object sender, EventArgs e)
         {
+            this.tabControl1.SelectedIndex = 1;
             //if (Analysed)
             //{
             //CreateStates();
@@ -625,6 +647,7 @@ namespace sku_to_smv
         {
             float gip,DeltaX, DeltaY, cosa, sina, xn, yn;
             g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
+            TextFont = new System.Drawing.Font(richTextBox1.Font.Name, (14 * Scale));
             Mu.WaitOne();                                   //ждем освобождения мьютекса
             
             if (Links != null)
@@ -756,18 +779,17 @@ namespace sku_to_smv
                         g.FillEllipse(System.Drawing.Brushes.White, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
                         if (States[i].Selected) g.DrawEllipse(penOrange, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
                         else g.DrawEllipse(penDarkRed, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 10 + yT) * Scale);
+                        g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 15 + yT) * Scale);
                     }
                 }
-                g.Flush();
-                pictureBox1.Refresh(bm); 
             }
             Mu.ReleaseMutex();
+            g.Flush();
+            pictureBox1.Refresh(bm); 
         }
         private void tabPage2_Click(object sender, EventArgs e)
         {
             RefreshScreen();
-            
         }
         private void CreateStates()
         {
@@ -815,7 +837,7 @@ namespace sku_to_smv
                 {
                     if (Rules[i].Elems[j].Type == "State")
                     {
-                        if (Rules[i].Elems[j].Local == true /*&& Rules[i].Elems[j].Value != Rules[i].Elems[0].Value*/)
+                        if (Rules[i].Elems[j].Local == true)
                         {
                             Array.Resize(ref Links, Links.Length + 1);
                             Links[Links.Length - 2].EndState = Rules[i].Elems[0].Value;
@@ -876,7 +898,7 @@ namespace sku_to_smv
             int dx, dy;
             float r;
             r = 30 * ((float)trackBar1.Value / 100);
-            if(e.Button == MouseButtons.Left && StateSelected /*&& CheckSelectedState((float)e.X, (float)e.Y, r) == SelectedState*/)
+            if(e.Button == MouseButtons.Left && StateSelected)
             {
                 if (xM != e.X)
                 {
@@ -944,18 +966,18 @@ namespace sku_to_smv
             int result;
             if(e.Button == MouseButtons.Left)
             {
-            /*if (AddStateButtonSelected)
-            {
-                Mu.WaitOne();
-                //States[i].Value = LocalStates[i];
-                Array.Resize(ref States, States.Length + 1);
-                States[States.Length - 1] = new State();
-                States[States.Length - 1].x = (int)(((float)e.X - 30 - xT) / Scale);
-                States[States.Length - 1].y = (int)(((float)e.Y - 30 - yT) / Scale);
-                Mu.ReleaseMutex();
-            }
-            else
-            {*/
+                if (AddStateButtonSelected)
+                {
+                    Mu.WaitOne();
+                    //States[i].Value = LocalStates[i];
+                    Array.Resize(ref States, States.Length + 1);
+                    States[States.Length - 1] = new State();
+                    States[States.Length - 1].x = (int)(((float)e.X - 30 - xT) / Scale);
+                    States[States.Length - 1].y = (int)(((float)e.Y - 30 - yT) / Scale);
+                    Mu.ReleaseMutex();
+                }
+//                 else
+//                 {
                 xkur = e.X/* * Scale*/;
                 ykur = e.Y/* * Scale*/;
                 r = 30 * ((float)trackBar1.Value / 100);
@@ -984,7 +1006,7 @@ namespace sku_to_smv
             float f;
             if (States != null)
             {
-                for (int i = 0; i < States.Length; i++)
+                for (int i = States.Length-1; i >= 0; i--)
                 {
                     x0 = (States[i].x + 30 + xT) * Scale;
                     y0 = (States[i].y + 30 + yT) * Scale;
@@ -992,18 +1014,13 @@ namespace sku_to_smv
                     if (f <= (float)System.Math.Pow(r, 2))
                     {
                         States[SelectedState].Selected = false;
-                        //this.textBox1.Clear();
-                        //this.textBox1.Text = States[i].Value;
                         StateSelected = true;
                         SelectedState = i;
                         States[i].Selected = true;
                         return i;
-                        //break;
                     }
                     else
                     {
-                        //this.textBox1.Clear();
-                        //this.textBox1.Text = "no";
                         StateSelected = false;
                         States[i].Selected = false;
                     }
@@ -1059,11 +1076,6 @@ namespace sku_to_smv
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-//             do 
-//             {
-//                 RefreshScreen();
-//                 Thread.Sleep(50);
-//             } while (!e.Cancel);
             
         }
 
@@ -1085,6 +1097,7 @@ namespace sku_to_smv
             }
             else if (this.tabControl1.SelectedTab == tabPage2 && !this.backgroundWorker1.IsBusy)
             {
+                RefreshScreen();
                 this.backgroundWorker1.RunWorkerAsync();
                 this.backgroundWorker1.WorkerSupportsCancellation = true;
             }
