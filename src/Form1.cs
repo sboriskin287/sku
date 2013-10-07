@@ -191,7 +191,6 @@ namespace sku_to_smv
             }
             STR = sb1.ToString();
             STR = STR.ToLower();
-            //добавить перевод в нижний регистр
             sb1.Remove(0, sb1.Length);
             int j = 0;
 
@@ -439,7 +438,7 @@ namespace sku_to_smv
                             break;
                     }
                 }
-                catch (IndexOutOfRangeException e)
+                catch (IndexOutOfRangeException)
                 {
                     st1 = state.EXT;
                     PrintText("Разбор окончен");
@@ -711,6 +710,8 @@ namespace sku_to_smv
                     }
                     else
                     {
+                        //PointF[] curvePoints = {new PointF((Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale), new PointF(100.0f,100.0f), new PointF(((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn)};
+                        //g.DrawCurve(penRed, curvePoints, 1.0f);
                         g.DrawLine(penBlack, (Links[i].x1 + 30 + xT) * Scale, (Links[i].y1 + 30 + yT) * Scale, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale);
                         gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale,2) + Math.Pow((Links[i].x1 + 30 + xT) * Scale-(Links[i].x2 + 30 + xT) * Scale,2));
                         //xn = Math.Abs((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale)/gip*(gip-20);
@@ -727,7 +728,9 @@ namespace sku_to_smv
                                 cosa = DeltaY / gip;
                                 xn = 50 * sina * Scale;
                                 yn = 50 * cosa * Scale;
+                                
                                 g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
+                                
                             }
                             if (Links[i].y2 > Links[i].y1)
                             {//2
@@ -1115,6 +1118,12 @@ namespace sku_to_smv
                 this.toolStripButton3.Image = global::sku_to_smv.Properties.Resources.state1;
                 AddStateButtonSelected = false;
             }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            //TabControl.TabPageCollection tpc = new TabControl.TabPageCollection();
+            this.tabControl1.TabPages.Remove(this.tabControl1.SelectedTab);
         }
          ////if (StateSelected)
          //   //{
