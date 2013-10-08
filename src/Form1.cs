@@ -644,151 +644,152 @@ namespace sku_to_smv
         }
         private void RefreshScreen()
         {
-            float gip,DeltaX, DeltaY, cosa, sina, xn, yn;
-            g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
-            TextFont = new System.Drawing.Font(richTextBox1.Font.Name, (14 * Scale));
+//             float gip,DeltaX, DeltaY, cosa, sina, xn, yn;
+//             g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
+//             TextFont = new System.Drawing.Font(richTextBox1.Font.Name, (14 * Scale));
             Mu.WaitOne();                                   //ждем освобождения мьютекса
             
-            if (Links != null)
-            {
-                for (int i = 0; i < Links.Length - 1; i++)
-                {
-                    if (Links[i].FromInput == true)         //Связи от входных сигналов
-                    {
-                        //рисуем связь(темно-синяя линия)
-                        g.DrawLine(penDarkBlue, (Links[i].x1 + 30 + xT) * Scale, (Links[i].y1 + 30 + yT) * Scale, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale);
-                        //вычисляем гипотенузу
-                        gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + 30 + yT) * Scale - (Links[i].y2 + 30 + yT) * Scale, 2) + Math.Pow((Links[i].x1 + 30 + xT) * Scale - (Links[i].x2 + 30 + xT) * Scale, 2));
-
-                        if (Links[i].x2 > Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//1
-                                DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//2
-                                DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
-                            }
-                        }
-                        if (Links[i].x2 < Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//4
-                                DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//3
-                                DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
-                            }
-                        }
-                    }
-                    else if (Links[i].Arc == true)
-                    {
-                        g.DrawArc(penBlack, (Links[i].x1 - 20 + xT) * Scale, (Links[i].y1 - 20 + yT) * Scale, 50 * Scale, 50 * Scale, 0, 360);
-                        g.DrawArc(penRed, (Links[i].x1 - 20 + xT) * Scale, (Links[i].y1 - 20 + yT) * Scale, 50 * Scale, 50 * Scale, 300, 60);
-                    }
-                    else
-                    {
-                        //PointF[] curvePoints = {new PointF((Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale), new PointF(100.0f,100.0f), new PointF(((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn)};
-                        //g.DrawCurve(penRed, curvePoints, 1.0f);
-                        g.DrawLine(penBlack, (Links[i].x1 + 30 + xT) * Scale, (Links[i].y1 + 30 + yT) * Scale, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale);
-                        gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale,2) + Math.Pow((Links[i].x1 + 30 + xT) * Scale-(Links[i].x2 + 30 + xT) * Scale,2));
-                        //xn = Math.Abs((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale)/gip*(gip-20);
-                        //yn = Math.Abs((Links[i].x1 + 30 + xT) * Scale-(Links[i].x2 + 30 + xT) * Scale)/gip*(gip-20);
-                        //g.DrawLine(p4,(Links[i].x1 + 30 + xT) * Scale,(Links[i].y1 + 30 + yT) * Scale,xn,yn);
-                        //g.DrawLine(p3, (Links[i].x1 + 25)*4, (Links[i].y1 + 25)*4, Links[i].x2 + 25, Links[i].y2 + 25);
-                        if(Links[i].x2 > Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//1
-                                DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                
-                                g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
-                                
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//2
-                                DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
-                            }
-                        }
-                        if(Links[i].x2 < Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//4
-                                DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//3
-                                DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * Scale;
-                                yn = 50 * cosa * Scale;
-                                g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
-                            }
-                        }
-                    }
-                }
-            }
-            if (States != null)
-            {
-                
-                for (int i = 0; i < States.Length; i++)
-                {
-                    if (States[i].InputSignal == true)
-                    {
-                        g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        if (States[i].Selected) g.DrawRectangle(penOrange, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        else g.DrawRectangle(penDarkRed, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 10 + yT) * Scale);
-                    }
-                    else
-                    {
-                        g.FillEllipse(System.Drawing.Brushes.White, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        if (States[i].Selected) g.DrawEllipse(penOrange, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        else g.DrawEllipse(penDarkRed, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
-                        g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 15 + yT) * Scale);
-                    }
-                }
-            }
+//             if (Links != null)
+//             {
+//                 for (int i = 0; i < Links.Length - 1; i++)
+//                 {
+//                     if (Links[i].FromInput == true)         //Связи от входных сигналов
+//                     {
+//                         //рисуем связь(темно-синяя линия)
+//                         g.DrawLine(penDarkBlue, (Links[i].x1 + 30 + xT) * Scale, (Links[i].y1 + 30 + yT) * Scale, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale);
+//                         //вычисляем гипотенузу
+//                         gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + 30 + yT) * Scale - (Links[i].y2 + 30 + yT) * Scale, 2) + Math.Pow((Links[i].x1 + 30 + xT) * Scale - (Links[i].x2 + 30 + xT) * Scale, 2));
+// 
+//                         if (Links[i].x2 > Links[i].x1)
+//                         {
+//                             DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
+//                             sina = DeltaX / gip;
+//                             if (Links[i].y2 < Links[i].y1)
+//                             {//1
+//                                 DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
+//                             }
+//                             if (Links[i].y2 > Links[i].y1)
+//                             {//2
+//                                 DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
+//                             }
+//                         }
+//                         if (Links[i].x2 < Links[i].x1)
+//                         {
+//                             DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
+//                             sina = DeltaX / gip;
+//                             if (Links[i].y2 < Links[i].y1)
+//                             {//4
+//                                 DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
+//                             }
+//                             if (Links[i].y2 > Links[i].y1)
+//                             {//3
+//                                 DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penDarkGreen, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
+//                             }
+//                         }
+//                     }
+//                     else if (Links[i].Arc == true)
+//                     {
+//                         g.DrawArc(penBlack, (Links[i].x1 - 20 + xT) * Scale, (Links[i].y1 - 20 + yT) * Scale, 50 * Scale, 50 * Scale, 0, 360);
+//                         g.DrawArc(penRed, (Links[i].x1 - 20 + xT) * Scale, (Links[i].y1 - 20 + yT) * Scale, 50 * Scale, 50 * Scale, 300, 60);
+//                     }
+//                     else
+//                     {
+//                         //PointF[] curvePoints = {new PointF((Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale), new PointF(100.0f,100.0f), new PointF(((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn)};
+//                         //g.DrawCurve(penRed, curvePoints, 1.0f);
+//                         g.DrawLine(penBlack, (Links[i].x1 + 30 + xT) * Scale, (Links[i].y1 + 30 + yT) * Scale, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale);
+//                         gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale,2) + Math.Pow((Links[i].x1 + 30 + xT) * Scale-(Links[i].x2 + 30 + xT) * Scale,2));
+//                         //xn = Math.Abs((Links[i].y1 + 30 + yT) * Scale-(Links[i].y2 + 30 + yT) * Scale)/gip*(gip-20);
+//                         //yn = Math.Abs((Links[i].x1 + 30 + xT) * Scale-(Links[i].x2 + 30 + xT) * Scale)/gip*(gip-20);
+//                         //g.DrawLine(p4,(Links[i].x1 + 30 + xT) * Scale,(Links[i].y1 + 30 + yT) * Scale,xn,yn);
+//                         //g.DrawLine(p3, (Links[i].x1 + 25)*4, (Links[i].y1 + 25)*4, Links[i].x2 + 25, Links[i].y2 + 25);
+//                         if(Links[i].x2 > Links[i].x1)
+//                         {
+//                             DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
+//                             sina = DeltaX / gip;
+//                             if (Links[i].y2 < Links[i].y1)
+//                             {//1
+//                                 DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 
+//                                 g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
+//                                 
+//                             }
+//                             if (Links[i].y2 > Links[i].y1)
+//                             {//2
+//                                 DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
+//                             }
+//                         }
+//                         if(Links[i].x2 < Links[i].x1)
+//                         {
+//                             DeltaX = (Links[i].x2 - Links[i].x1) * Scale;
+//                             sina = DeltaX / gip;
+//                             if (Links[i].y2 < Links[i].y1)
+//                             {//4
+//                                 DeltaY = (Links[i].y1 - Links[i].y2) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) + yn);
+//                             }
+//                             if (Links[i].y2 > Links[i].y1)
+//                             {//3
+//                                 DeltaY = (Links[i].y2 - Links[i].y1) * Scale;
+//                                 cosa = DeltaY / gip;
+//                                 xn = 50 * sina * Scale;
+//                                 yn = 50 * cosa * Scale;
+//                                 g.DrawLine(penRed, (Links[i].x2 + 30 + xT) * Scale, (Links[i].y2 + 30 + yT) * Scale, ((Links[i].x2 + 30 + xT) * Scale) - xn, ((Links[i].y2 + 30 + yT) * Scale) - yn);
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//             if (States != null)
+//             {
+//                 
+//                 for (int i = 0; i < States.Length; i++)
+//                 {
+//                     if (States[i].InputSignal == true)
+//                     {
+//                         g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         if (States[i].Selected) g.DrawRectangle(penOrange, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         else g.DrawRectangle(penDarkRed, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 10 + yT) * Scale);
+//                     }
+//                     else
+//                     {
+//                         g.FillEllipse(System.Drawing.Brushes.White, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         if (States[i].Selected) g.DrawEllipse(penOrange, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         else g.DrawEllipse(penDarkRed, (States[i].x + xT) * Scale, (States[i].y + yT) * Scale, 60 * Scale, 60 * Scale);
+//                         g.DrawString(States[i].Value, TextFont, System.Drawing.Brushes.Black, (States[i].x + 10 + xT) * Scale, (States[i].y + 15 + yT) * Scale);
+//                     }
+//                 }
+//             }
+            pictureBox1.Refresh(ref Links, ref States); 
             Mu.ReleaseMutex();
-            g.Flush();
-            pictureBox1.Refresh(bm); 
+           // g.Flush();
+            
         }
         private void tabPage2_Click(object sender, EventArgs e)
         {

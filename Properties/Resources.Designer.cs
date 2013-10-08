@@ -60,6 +60,20 @@ namespace sku_to_smv.Properties {
             }
         }
         
+        internal static System.Drawing.Bitmap new_graf {
+            get {
+                object obj = ResourceManager.GetObject("new_graf", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        internal static System.Drawing.Bitmap new_sku {
+            get {
+                object obj = ResourceManager.GetObject("new_sku", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
         internal static System.Drawing.Bitmap open {
             get {
                 object obj = ResourceManager.GetObject("open", resourceCulture);
