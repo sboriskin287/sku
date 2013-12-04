@@ -1,7 +1,63 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="sku_to_smv.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="MainWndSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">800, 600</Value>
+    </Setting>
+    <Setting Name="MainWndMaximized" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Autosave" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AutosavePeriod" Type="System.String" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="SimulationPeriod" Type="System.String" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="LogSimulation" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="TextFieldTextFont" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Courier New, 12pt</Value>
+    </Setting>
+    <Setting Name="TextFieldTextColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="TextFieldCommentColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Green</Value>
+    </Setting>
+    <Setting Name="TextFieldSignalColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Blue</Value>
+    </Setting>
+    <Setting Name="TextFieldHighLightning" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TextFieldHighLightPeriod" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1500</Value>
+    </Setting>
+    <Setting Name="GrafFieldTextFont" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Courier New, 14.25pt</Value>
+    </Setting>
+    <Setting Name="GrafFieldTextColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="GrafFieldLocalSignalColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Maroon</Value>
+    </Setting>
+    <Setting Name="GrafFieldInputSignalColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Maroon</Value>
+    </Setting>
+    <Setting Name="GrafFieldSygnalSelectionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 128, 0</Value>
+    </Setting>
+    <Setting Name="ToolsPanelLocation" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="GrafFieldSignalActiveColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">128, 255, 128</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

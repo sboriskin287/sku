@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace sku_to_smv.src
 {
-    class cSheet
+    class Sheet
     {
         String sType;
         String sName;
-        cSheet() { }
-        ~cSheet() { }
+        Sheet() { }
+        ~Sheet() { }
     }
 }

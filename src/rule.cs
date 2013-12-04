@@ -13,7 +13,6 @@ namespace sku_to_smv
             Elems[0] = new Element();
             count = 0;
         }
-        ~Rule() { }
         public bool AddElement()
         {
             Array.Resize(ref Elems, Elems.Length + 1);

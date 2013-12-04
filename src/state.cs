@@ -7,6 +7,8 @@
         public int y;               //координата y
         public bool Selected;       //если выбрано = true
         public bool InputSignal;    //если входной сигнал = true
+        public bool Signaled;
+        public bool AlSignaled;
         public State()
         {
             Value = null;
@@ -14,7 +16,8 @@
             y = 0;
             Selected = false;
             InputSignal = false;
+            Signaled = false;
+            AlSignaled = false;
         }
-        ~State() { }
     }
 }

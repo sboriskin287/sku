@@ -1,0 +1,15 @@
+_UpgradeReport_Files/
+bin/Debug/
+bin/Release/
+obj/**/*.*
+tmp/
+*.txt
+*.xml
+*.vsd
+*.pdb
+*.suo
+*.user
+*.cache
+*.tlog
+*.resources
+*.exe

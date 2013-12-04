@@ -1,4 +1,5 @@
-﻿namespace sku_to_smv
+﻿using System.Drawing;
+namespace sku_to_smv
 {
     public class Element
     {
@@ -15,6 +16,12 @@
             Type = "";
             Value = "";
         }
-        ~Element() { }
+    }
+    public class SympleElement
+    {
+        public int StartIndex;
+        public int EndIndex;
+        public Color TextColor;
+        public FontStyle Style;
     }
 }

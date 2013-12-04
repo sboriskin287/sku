@@ -3,15 +3,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B095A124-02B8-4379-809E-B5621158193F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>sku_to_smv</RootNamespace>
     <AssemblyName>sku_to_smv</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile />
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -24,7 +26,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -32,7 +33,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -49,7 +50,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
@@ -59,15 +63,38 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\components\ToolPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="src\forms\options.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\forms\options.Designer.cs">
+      <DependentUpon>options.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\forms\SignalTable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\forms\SignalTable.Designer.cs">
+      <DependentUpon>SignalTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\Parser.cs" />
+    <Compile Include="src\forms\StepsNumberForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\forms\StepsNumberForm.Designer.cs">
+      <DependentUpon>StepsNumberForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\LogWriter.cs" />
     <Compile Include="src\Settings.cs" />
-    <Compile Include="src\drawArea.cs">
+    <Compile Include="src\components\drawArea.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\element.cs" />
-    <Compile Include="src\Form1.cs">
+    <Compile Include="src\forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="src\Form1.Designer.cs">
+    <Compile Include="src\forms\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="src\link.cs" />
@@ -76,7 +103,16 @@
     <Compile Include="src\rule.cs" />
     <Compile Include="src\Sheet.cs" />
     <Compile Include="src\state.cs" />
-    <EmbeddedResource Include="src\Form1.resx">
+    <EmbeddedResource Include="src\forms\options.resx">
+      <DependentUpon>options.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\forms\SignalTable.resx">
+      <DependentUpon>SignalTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\components\drawArea.resx">
+      <DependentUpon>drawArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -89,6 +125,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="src\forms\StepsNumberForm.resx">
+      <DependentUpon>StepsNumberForm.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -128,6 +167,50 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\state2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\new_graf.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\new_sku.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\table_grey.bmp" />
+    <None Include="resources\stop1.bmp" />
+    <None Include="resources\stop_simulation.png" />
+    <None Include="resources\delete_col.bmp" />
+    <None Include="resources\add_col.bmp" />
+    <None Include="resources\create_simulation.png" />
+    <None Include="resources\create_smv.png" />
+    <None Include="resources\create_vhdl.png" />
+    <None Include="resources\add_steps.bmp" />
+    <None Include="resources\frame.bmp" />
+    <None Include="resources\frame_click.bmp" />
+    <None Include="resources\new\32x32\CopyHH.bmp" />
+    <None Include="resources\new\32x32\OpenHH.bmp" />
+    <None Include="resources\new\32x32\PasteHH.bmp" />
+    <None Include="resources\new\32x32\SaveHH.bmp" />
+    <None Include="resources\new\24x24\Edit_UndoHL.bmp" />
+    <None Include="resources\new\24x24\CutHL.bmp" />
+    <None Include="resources\new\24x24\Edit_redoHL.bmp" />
+    <None Include="resources\new\saveHS.png" />
+    <None Include="resources\new\CopyHS.png" />
+    <None Include="resources\new\CutHS.png" />
+    <None Include="resources\new\openHS.png" />
+    <None Include="resources\new\PasteHS.png" />
+    <None Include="resources\new\RepeatHS.png" />
+    <None Include="resources\new\Edit_UndoHS.png" />
+    <None Include="resources\new\Edit_RedoHS.png" />
+    <None Include="resources\new\save_anim.gif" />
+    <Content Include="resources\play.bmp" />
+    <None Include="resources\repeateSteps.bmp" />
+    <None Include="resources\play1.bmp" />
+    <None Include="resources\show_log.bmp" />
+    <None Include="resources\reset_all.bmp" />
+    <Content Include="resources\step.bmp" />
+    <None Include="resources\step1.bmp" />
+    <Content Include="resources\stop.bmp" />
+    <None Include="resources\table.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
