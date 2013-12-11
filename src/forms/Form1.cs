@@ -625,31 +625,35 @@ namespace sku_to_smv
         private void richTextBox1_Click(object sender, EventArgs e)
         {
             int result = this.richTextBox1.SelectionStart;
-            if (this.richTextBox1.Text[this.richTextBox1.SelectionStart] == '(')
+            if (this.richTextBox1.Text.Length != 0 
+                && this.richTextBox1.SelectionStart != this.richTextBox1.Text.Length)
             {
-                result = SympleParser.FindBracket(this.richTextBox1.Text, this.richTextBox1.SelectionStart, true);
-            }
-            else if (this.richTextBox1.Text[this.richTextBox1.SelectionStart] == ')')
-            {
-                result = SympleParser.FindBracket(this.richTextBox1.Text, this.richTextBox1.SelectionStart, false);
-            }
-            if (result != this.richTextBox1.SelectionStart)
-            {
-                sParser.b_Brackets = true;
-                sParser.brackets.StartIndex = this.richTextBox1.SelectionStart;
-                sParser.brackets.EndIndex = result;
-                TextCH = true;
-                return;
-            }
-            
-            if (sParser.brackets.StartIndex != -1 && sParser.brackets.EndIndex != -1)
-            {
+                if (this.richTextBox1.Text[this.richTextBox1.SelectionStart] == '(')
+                {
+                    result = SympleParser.FindBracket(this.richTextBox1.Text, this.richTextBox1.SelectionStart, true);
+                }
+                else if (this.richTextBox1.Text[this.richTextBox1.SelectionStart] == ')')
+                {
+                    result = SympleParser.FindBracket(this.richTextBox1.Text, this.richTextBox1.SelectionStart, false);
+                }
+                if (result != this.richTextBox1.SelectionStart)
+                {
+                    sParser.b_Brackets = true;
+                    sParser.brackets.StartIndex = this.richTextBox1.SelectionStart;
+                    sParser.brackets.EndIndex = result;
+                    TextCH = true;
+                    return;
+                }
+
+                if (sParser.brackets.StartIndex != -1 && sParser.brackets.EndIndex != -1)
+                {
+                    sParser.brackets.StartIndex = -1;
+                    sParser.brackets.EndIndex = -1;
+                    TextCH = true;
+                }
                 sParser.brackets.StartIndex = -1;
                 sParser.brackets.EndIndex = -1;
-                TextCH = true;
             }
-            sParser.brackets.StartIndex = -1;
-            sParser.brackets.EndIndex = -1;
         }
     }
 }
