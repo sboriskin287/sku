@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>sku_to_smv</RootNamespace>
-    <AssemblyName>sku_to_smv</AssemblyName>
+    <AssemblyName>sku modeler</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -139,7 +139,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="template\tmpl.vhd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\open.png" />
