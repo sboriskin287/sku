@@ -48,6 +48,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -204,6 +207,8 @@
     <None Include="resources\new\Edit_UndoHS.png" />
     <None Include="resources\new\Edit_RedoHS.png" />
     <None Include="resources\new\save_anim.gif" />
+    <None Include="resources\Icon.ico" />
+    <Content Include="Icon.ico" />
     <Content Include="resources\play.bmp" />
     <None Include="resources\repeateSteps.bmp" />
     <None Include="resources\play1.bmp" />

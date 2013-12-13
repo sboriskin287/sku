@@ -30,15 +30,16 @@ namespace sku_to_smv
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.файлToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.открытьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.сохранитьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.выходToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.правкаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.построитьГрафToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.анализироватьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.генерироватьVHDLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.построитьГрафToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.сохранитьКакРисунокToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.настройкиToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.помощьToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,27 +110,27 @@ namespace sku_to_smv
             this.сохранитьToolStripMenuItem,
             this.выходToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
-            this.файлToolStripMenuItem.Size = new System.Drawing.Size(45, 20);
+            this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.файлToolStripMenuItem.Text = "Файл";
             // 
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.открытьToolStripMenuItem.Text = "Открыть...";
             this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // сохранитьToolStripMenuItem
             // 
             this.сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
-            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.сохранитьToolStripMenuItem.Text = "Сохранить...";
             this.сохранитьToolStripMenuItem.Click += new System.EventHandler(this.сохранитьToolStripMenuItem_Click);
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
@@ -141,48 +142,48 @@ namespace sku_to_smv
             this.генерироватьVHDLToolStripMenuItem,
             this.сохранитьКакРисунокToolStripMenuItem});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
-            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
+            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.правкаToolStripMenuItem.Text = "Правка";
+            // 
+            // построитьГрафToolStripMenuItem
+            // 
+            this.построитьГрафToolStripMenuItem.Name = "построитьГрафToolStripMenuItem";
+            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
+            this.построитьГрафToolStripMenuItem.Text = "Построить граф";
+            this.построитьГрафToolStripMenuItem.Click += new System.EventHandler(this.CreateGraf);
             // 
             // анализироватьToolStripMenuItem
             // 
             this.анализироватьToolStripMenuItem.Name = "анализироватьToolStripMenuItem";
-            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.анализироватьToolStripMenuItem.Text = "Генерировать SMV...";
             this.анализироватьToolStripMenuItem.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // генерироватьVHDLToolStripMenuItem
             // 
             this.генерироватьVHDLToolStripMenuItem.Name = "генерироватьVHDLToolStripMenuItem";
-            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.генерироватьVHDLToolStripMenuItem.Text = "Генерировать VHDL...";
             this.генерироватьVHDLToolStripMenuItem.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
-            // 
-            // построитьГрафToolStripMenuItem
-            // 
-            this.построитьГрафToolStripMenuItem.Name = "построитьГрафToolStripMenuItem";
-            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
-            this.построитьГрафToolStripMenuItem.Text = "Построить граф";
-            this.построитьГрафToolStripMenuItem.Click += new System.EventHandler(this.CreateGraf);
             // 
             // сохранитьКакРисунокToolStripMenuItem
             // 
             this.сохранитьКакРисунокToolStripMenuItem.Name = "сохранитьКакРисунокToolStripMenuItem";
-            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.сохранитьКакРисунокToolStripMenuItem.Text = "Сохранить как рисунок...";
             this.сохранитьКакРисунокToolStripMenuItem.Click += new System.EventHandler(this.сохранитьКакРисунокToolStripMenuItem_Click);
             // 
             // настройкиToolStripMenuItem
             // 
             this.настройкиToolStripMenuItem.Name = "настройкиToolStripMenuItem";
-            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(73, 20);
+            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.настройкиToolStripMenuItem.Text = "Настройки";
             this.настройкиToolStripMenuItem.Click += new System.EventHandler(this.настройкиToolStripMenuItem_Click);
             // 
             // помощьToolStripMenuItem
             // 
             this.помощьToolStripMenuItem.Name = "помощьToolStripMenuItem";
-            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(83, 20);
+            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(94, 20);
             this.помощьToolStripMenuItem.Text = "О программе";
             this.помощьToolStripMenuItem.Click += new System.EventHandler(this.помощьToolStripMenuItem_Click);
             // 
@@ -235,7 +236,7 @@ namespace sku_to_smv
             this.toolStripSplitButton1.Enabled = false;
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
-            this.toolStripSplitButton1.Size = new System.Drawing.Size(100, 20);
+            this.toolStripSplitButton1.Size = new System.Drawing.Size(106, 20);
             this.toolStripSplitButton1.Text = "Масштаб 100%";
             // 
             // toolStrip1
@@ -538,7 +539,7 @@ namespace sku_to_smv
             // toolStripComboBox1
             // 
             this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 21);
+            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 23);
             // 
             // AutosaveTimer
             // 
@@ -560,6 +561,7 @@ namespace sku_to_smv
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
             this.Text = "SKU Modeler";
