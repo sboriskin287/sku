@@ -962,8 +962,7 @@ namespace sku_to_smv
                     pipe = null;
                     GC.Collect();
                 }
-                StreamReader fr = new StreamReader("template\\tmpl.cs");
-                resultCode = fr.ReadToEnd();
+                resultCode = global::sku_to_smv.Properties.Resources.tmpl;
                 index = resultCode.IndexOf('$');
 
 

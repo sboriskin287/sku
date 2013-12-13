@@ -399,5 +399,66 @@ namespace sku_to_smv.Properties {
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на using System;
+        ///using System.Collections.Generic;
+        ///using System.Linq;
+        ///using System.Text;
+        ///using System.IO;
+        ///using System.IO.Pipes;
+        ///
+        ///namespace testdll
+        ///{
+        ///class Program
+        ///    {
+        ///        static void Main(string[] args)
+        ///        {
+        ///            Simulation sim = new Simulation();
+        ///            using (NamedPipeClientStream pipe = new NamedPipeClientStream(&quot;.&quot;, &quot;{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}&quot;, PipeDirection.InOut))
+        ///            {
+        ///                pipe.Connect();
+        ///                if (pipe.IsConnected)
+        ///    [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string tmpl {
+            get {
+                return ResourceManager.GetString("tmpl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на library IEEE;
+        ///use IEEE.STD_LOGIC_1164.ALL;
+        ///use ieee.numeric_std.all;
+        ///
+        ///$inputDescription
+        ///
+        ///entity $name is
+        ///	Port (  
+        ///			clk 				: 	in  	STD_LOGIC;
+        ///			$ports
+        ///			);
+        ///end $name;
+        ///
+        ///architecture Behavioral of $name is
+        ///	shared variable curState	:	std_logic_vector($width downto 0) := &quot;$zero&quot;;
+        ///	shared variable newState	:	std_logic_vector($width downto 0) := &quot;$zero&quot;;
+        ///begin
+        ///
+        ///$localDescription
+        ///
+        ///process (clk) begin     
+        ///	if clk = &apos;1&apos; and clk&apos;event then
+        ///$rules
+        ///		curState := newState;
+        ///	end if;
+        ///end proc [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string vhd_tmpl {
+            get {
+                return ResourceManager.GetString("vhd_tmpl", resourceCulture);
+            }
+        }
     }
 }

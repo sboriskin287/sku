@@ -481,13 +481,24 @@ namespace sku_to_smv
         }
         public void SaveToVHDL(string Path, bool CreateBus)
         {
-            String resultCode;
+            String resultCode, tmp;
             int index;
             StringBuilder sb = new StringBuilder();
             StreamWriter sw = new StreamWriter(Path, false);
-            StreamReader fr = new StreamReader("template\\tmpl.vhd");
             FileInfo fi = new FileInfo(Path);
-            resultCode = fr.ReadToEnd();
+            resultCode = global::sku_to_smv.Properties.Resources.vhd_tmpl;
+            //////////////////////////////////////////////////////////////////////////
+            index = resultCode.IndexOf("$inputDescription");
+            resultCode = resultCode.Remove(index, "$inputDescription".Length);
+            if (!CreateBus)
+            {
+                for (int i = 0; i < Inputs.Length; i++)
+                {
+                    tmp = "--" + Inputs[i] + "\t->\tinputs[" + i.ToString() + "]\n";
+                    resultCode = resultCode.Insert(index, tmp);
+                    index += tmp.Length;
+                }
+            }
             //////////////////////////////////////////////////////////////////////////
             while ((index = resultCode.IndexOf("$name")) != -1)
             {
@@ -497,7 +508,22 @@ namespace sku_to_smv
             //////////////////////////////////////////////////////////////////////////
             index = resultCode.IndexOf("$ports");
             resultCode = resultCode.Remove(index, "$ports".Length);
-            resultCode = resultCode.Insert(index, (Inputs.Length-1).ToString());
+            if (CreateBus)
+            {
+                tmp = "inputs				:	in		STD_LOGIC_VECTOR(" + (Inputs.Length - 1).ToString() + " downto 0)";
+                resultCode = resultCode.Insert(index, tmp);
+            }
+            else
+            {
+                for (int i = 0; i < Inputs.Length-1; i++ )
+                {
+                    tmp = Inputs[i] + "				:	in		STD_LOGIC;\n";
+                    resultCode = resultCode.Insert(index, tmp);
+                    index += tmp.Length;
+                }
+                tmp = Inputs[Inputs.Length - 1] + "				:	in		STD_LOGIC\n";
+                resultCode = resultCode.Insert(index, tmp);
+            }
             //////////////////////////////////////////////////////////////////////////
             while ((index = resultCode.IndexOf("$width")) != -1)
             {
@@ -515,6 +541,15 @@ namespace sku_to_smv
                 resultCode = resultCode.Insert(index, sb.ToString());
             }
             sb.Clear();
+            //////////////////////////////////////////////////////////////////////////
+            index = resultCode.IndexOf("$localDescription");
+            resultCode = resultCode.Remove(index, "$localDescription".Length);
+            for (int i = 0; i < Rules.Length; i++)
+            {
+                tmp = "--" + Rules[i].Elems[0].Value + "\t->\tcurState[" + i.ToString() + "]\n";
+                resultCode = resultCode.Insert(index, tmp);
+                index += tmp.Length;
+            }
             //////////////////////////////////////////////////////////////////////////
             index = resultCode.IndexOf("$rules");
             resultCode = resultCode.Remove(index, "$rules".Length);
@@ -546,7 +581,9 @@ namespace sku_to_smv
                                     {
                                         if (Inputs[n] == Rules[i].Elems[j].Value)
                                         {
-                                            sb.Append("inputs(" + n.ToString() + ")  = '0'");
+                                            if (CreateBus)
+                                                sb.Append("inputs(" + n.ToString() + ")  = '0'");
+                                            else sb.Append(Inputs[n] + "  = '0'");
                                             break;
                                         }
                                     }
@@ -571,7 +608,9 @@ namespace sku_to_smv
                                     {
                                         if (Inputs[n] == Rules[i].Elems[j].Value)
                                         {
-                                            sb.Append("inputs(" + n.ToString() + ")  = '1'");
+                                            if (CreateBus)
+                                                sb.Append("inputs(" + n.ToString() + ")  = '1'");
+                                            else sb.Append(Inputs[n] + "  = '1'");
                                             break;
                                         }
                                     }
@@ -605,7 +644,7 @@ namespace sku_to_smv
             sw.Write(resultCode);
             sw.Flush();
             sw.Close();
-            fr.Close();
+            //fr.Close();
         }
     }
 

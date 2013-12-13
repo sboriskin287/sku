@@ -482,7 +482,6 @@ namespace sku_to_smv
             this.richTextBox1.Size = new System.Drawing.Size(802, 431);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
-            this.richTextBox1.Click += new System.EventHandler(this.richTextBox1_Click);
             this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
             // 
             // grafPage

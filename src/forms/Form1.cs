@@ -622,8 +622,8 @@ namespace sku_to_smv
         {
             MessageBox.Show("Разработал Кутузов Владимир\nПГУ 2013", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
         }
-
-        private void richTextBox1_Click(object sender, EventArgs e)
+        //Поиск парных скобок
+        /*private void richTextBox1_Click(object sender, EventArgs e)
         {
             int result = this.richTextBox1.SelectionStart;
             if (this.richTextBox1.Text.Length != 0 
@@ -655,7 +655,7 @@ namespace sku_to_smv
                 sParser.brackets.StartIndex = -1;
                 sParser.brackets.EndIndex = -1;
             }
-        }
+        }*/
     }
 }
 

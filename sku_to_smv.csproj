@@ -63,6 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="template\tmpl.cs" />
+    <None Include="bin\Debug\template\tmpl.cs" />
     <Compile Include="src\components\ToolPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -137,6 +139,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="template\tmpl.vhd" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\open.png" />
@@ -174,6 +177,7 @@
     <None Include="resources\new_sku.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="template\vhd_tmpl.txt" />
     <None Include="resources\table_grey.bmp" />
     <None Include="resources\stop1.bmp" />
     <None Include="resources\stop_simulation.png" />
