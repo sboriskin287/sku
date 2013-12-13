@@ -479,7 +479,7 @@ namespace sku_to_smv
             sw.Flush();
             sw.Close();
         }
-        public void SaveToVHDL(string Path)
+        public void SaveToVHDL(string Path, bool CreateBus)
         {
             String resultCode;
             int index;

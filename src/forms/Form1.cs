@@ -15,7 +15,7 @@ namespace sku_to_smv
         bool Saved, TextCH, Inv, Analysed;
         bool b_FileLoad;
         bool b_Parsing;
-        string sOpenFileName, sOpenSaveFileName, sSaveFileName;
+        string sOpenFileName, sOpenSaveFileName, sSaveFileName, sAutoSaveFileName;
         
         public Parser parser;
         SympleParser sParser;
@@ -92,6 +92,7 @@ namespace sku_to_smv
             {
                 this.tabControl1.SelectedIndex = 0;
                 sOpenFileName = openFileDialog1.FileName;
+                sAutoSaveFileName = sOpenFileName;
                 sOpenSaveFileName = openFileDialog1.SafeFileName;
                 this.toolStripStatusLabel1.Text = "Открыт файл: " + sOpenFileName;
                 this.toolStripProgressBar1.Value = 0;
@@ -116,7 +117,8 @@ namespace sku_to_smv
             {
                 this.toolStripProgressBar1.Value = 0;
                 sSaveFileName = saveFileDialog1.FileName;
-                TextboxToFile();
+                sAutoSaveFileName = sSaveFileName;
+                TextboxToFile(sSaveFileName);
                 this.toolStripStatusLabel1.Text = "Файл " + sSaveFileName + " сохранен";
                 this.toolStripProgressBar1.Value = 100;
                 Saved = true;
@@ -140,7 +142,7 @@ namespace sku_to_smv
         /// <summary>
         /// Сохраняет отредактированный файл
         /// </summary>
-        private void TextboxToFile()
+        private void TextboxToFile(string Name)
         {
             this.toolStripStatusLabel3.Image = global::sku_to_smv.Properties.Resources.save_anim;
             this.toolStripStatusLabel3.Visible = true;
@@ -148,7 +150,7 @@ namespace sku_to_smv
             String str;
             str = this.richTextBox1.Text;
             str = str.Replace("\n", "\r\n");
-            StreamWriter sw = new StreamWriter(sSaveFileName, false, System.Text.Encoding.GetEncoding("windows-1251"));
+            StreamWriter sw = new StreamWriter(Name, false, System.Text.Encoding.GetEncoding("windows-1251"));
             sw.Write(str);
             sw.Flush();
             sw.Close();
@@ -251,14 +253,20 @@ namespace sku_to_smv
                 {
                     this.AnimationTimer.Start();
                 }
-                this.toolStrip2.Visible = true;
+                this.CopyToolButton.Visible = true;
+                this.PasteToolButton.Visible = true;
+                this.CutToolButton.Visible = true;
+                this.toolStripSeparator4.Visible = true;
                 this.toolStripSplitButton1.Enabled = false;
             }
             else
             {
                 ParceTimer.Stop();
                 this.AnimationTimer.Stop();
-                this.toolStrip2.Visible = false;
+                this.CopyToolButton.Visible = false;
+                this.PasteToolButton.Visible = false;
+                this.CutToolButton.Visible = false;
+                this.toolStripSeparator4.Visible = false;
                 this.toolStripSplitButton1.Enabled = true;
             }
             RefreshScreen();
@@ -403,6 +411,15 @@ namespace sku_to_smv
             /////////////Вывод в VHDL//////////////////////////////////
             saveFileDialog1.Filter = "VHDL files (*.vdh)|*.vhd";
             saveFileDialog1.RestoreDirectory = true;
+            bool b_CreateBus = false;
+            switch (MessageBox.Show("Объединять входные сигналы в шину?", "Генерация VHDL", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
+            {
+                case DialogResult.Yes: b_CreateBus = true;
+                    break;
+                case DialogResult.No: b_CreateBus = false;
+                    break;
+                case DialogResult.Cancel: return;
+            }
             if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK && saveFileDialog1.FileName.Length > 0)
             {
                 this.toolStripProgressBar1.Value = 0;
@@ -415,7 +432,7 @@ namespace sku_to_smv
                 }
                 this.toolStripProgressBar1.Value = 50;
                 PrintText("Разбор окончен");
-                parser.SaveToVHDL(sSaveFileName);
+                parser.SaveToVHDL(sSaveFileName, b_CreateBus);
                 this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
                 this.toolStripProgressBar1.Value = 100;
             }
@@ -586,27 +603,11 @@ namespace sku_to_smv
             }
         }
 
-        private void UndoToolButton_Click(object sender, EventArgs e)
-        {
-            if (richTextBox1.CanUndo == true)
-            {
-                richTextBox1.Undo();
-            }
-        }
-
-        private void RedoToolButton_Click(object sender, EventArgs e)
-        {
-            if (richTextBox1.CanRedo == true)
-            {
-                richTextBox1.Redo();
-            }
-        }
-
         private void AutosaveTimer_Tick(object sender, EventArgs e)
         {
-            if (sSaveFileName != null && sSaveFileName.Length != 0)
+            if (sAutoSaveFileName != null && sAutoSaveFileName.Length != 0)
             {
-                TextboxToFile();
+                TextboxToFile(sAutoSaveFileName);
             }
         }
 

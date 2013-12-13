@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode22 = new System.Windows.Forms.TreeNode("Общие");
-            System.Windows.Forms.TreeNode treeNode23 = new System.Windows.Forms.TreeNode("Симуляция");
-            System.Windows.Forms.TreeNode treeNode24 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Общие");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Симуляция");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
             this.label4 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -44,7 +44,10 @@
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label10 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
@@ -57,9 +60,6 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -135,16 +135,16 @@
             // 
             this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            treeNode22.Name = "node0";
-            treeNode22.Text = "Общие";
-            treeNode23.Name = "node1";
-            treeNode23.Text = "Симуляция";
-            treeNode24.Name = "node2";
-            treeNode24.Text = "Шрифты и цвета";
+            treeNode1.Name = "node0";
+            treeNode1.Text = "Общие";
+            treeNode2.Name = "node1";
+            treeNode2.Text = "Симуляция";
+            treeNode3.Name = "node2";
+            treeNode3.Text = "Шрифты и цвета";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode22,
-            treeNode23,
-            treeNode24});
+            treeNode1,
+            treeNode2,
+            treeNode3});
             this.treeView1.Size = new System.Drawing.Size(177, 280);
             this.treeView1.TabIndex = 3;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -206,6 +206,16 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Автосохранение";
             // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(190, 70);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(41, 13);
+            this.label10.TabIndex = 4;
+            this.label10.Text = "label10";
+            this.label10.Visible = false;
+            // 
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -219,6 +229,26 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(341, 280);
             this.panel2.TabIndex = 6;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(154, 47);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(41, 13);
+            this.label11.TabIndex = 5;
+            this.label11.Text = "label11";
+            this.label11.Visible = false;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label6.Location = new System.Drawing.Point(4, 90);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(223, 12);
+            this.label6.TabIndex = 4;
+            this.label6.Text = "Запись не производится при пошаговой симуляции";
             // 
             // label3
             // 
@@ -259,9 +289,9 @@
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.White;
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(240, 107);
+            this.pictureBox1.Location = new System.Drawing.Point(248, 107);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(83, 74);
+            this.pictureBox1.Size = new System.Drawing.Size(75, 75);
             this.pictureBox1.TabIndex = 10;
             this.pictureBox1.TabStop = false;
             // 
@@ -316,8 +346,7 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(new object[] {
             "Текстовый редактор",
-            "Область графа",
-            "Таблица сигналов"});
+            "Область графа"});
             this.comboBox1.Location = new System.Drawing.Point(14, 25);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(140, 21);
@@ -345,36 +374,6 @@
             this.button2.Visible = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label6.Location = new System.Drawing.Point(4, 90);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(223, 12);
-            this.label6.TabIndex = 4;
-            this.label6.Text = "Запись не производится при пошаговой симуляции";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(190, 70);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(41, 13);
-            this.label10.TabIndex = 4;
-            this.label10.Text = "label10";
-            this.label10.Visible = false;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(154, 47);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(41, 13);
-            this.label11.TabIndex = 5;
-            this.label11.Text = "label11";
-            this.label11.Visible = false;
-            // 
             // options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -383,9 +382,9 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.treeView1);
+            this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.panel3);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "options";
             this.Text = "Настройки";

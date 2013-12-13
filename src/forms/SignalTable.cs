@@ -137,6 +137,8 @@ namespace sku_to_smv
         /// </summary>
         private void UpdateTable()
         {
+            this.SuspendLayout();
+            this.dataGridView1.SuspendLayout();
             this.dataGridView1.ColumnCount = CurrentColCount;
             this.dataGridView1.Columns[0].HeaderText = "Сигналы";
             for (int i = 0; i < CurrentRowCount; i++ )
@@ -147,24 +149,29 @@ namespace sku_to_smv
                 this.dataGridView1[0, i].ReadOnly = true;
                 for (int j = 1; j < CurrentColCount; j++)
                 {
-                    if (CurrentStep != 0 && j == CurrentStep)
+                    if (dataGridView1.GetColumnDisplayRectangle(j, true).Height != 0 || dataGridView1.GetColumnDisplayRectangle(j, true).Width != 0)
                     {
-                        this.dataGridView1[j, i].Style = selectStyle;
+                        if (CurrentStep != 0 && j == CurrentStep)
+                        {
+                            this.dataGridView1[j, i].Style = selectStyle;
+                        }
+                        else this.dataGridView1[j, i].Style = this.dataGridView1[0, 0].Style;
+                        switch (Table[i].values[j - 1])
+                        {
+                            case returnResults.rFALSE: this.dataGridView1[j, i].Value = "0";
+                                break;
+                            case returnResults.rTRUE: this.dataGridView1[j, i].Value = "1";
+                                break;
+                            case returnResults.rUNDEF: this.dataGridView1[j, i].Value = "";
+                                break;
+                        }
+                        //this.dataGridView1.Columns[j].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                        this.dataGridView1.Columns[j].HeaderText = j.ToString();
                     }
-                    else this.dataGridView1[j, i].Style = this.dataGridView1[0, 0].Style;
-                    switch (Table[i].values[j - 1])
-                    {
-                        case returnResults.rFALSE: this.dataGridView1[j, i].Value = "0";
-                            break;
-                        case returnResults.rTRUE: this.dataGridView1[j, i].Value = "1";
-                            break;
-                        case returnResults.rUNDEF: this.dataGridView1[j, i].Value = "";
-                            break;
-                    }
-                    this.dataGridView1.Columns[j].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-                    this.dataGridView1.Columns[j].HeaderText = j.ToString();
                 }
             }
+            this.ResumeLayout();
+            this.dataGridView1.ResumeLayout();
         }
         /// <summary>
         /// Обработчик события завершения правки ячейки таблицы

@@ -52,10 +52,13 @@ namespace sku_to_smv
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.CutToolButton = new System.Windows.Forms.ToolStripButton();
+            this.CopyToolButton = new System.Windows.Forms.ToolStripButton();
+            this.PasteToolButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton8 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton9 = new System.Windows.Forms.ToolStripButton();
             this.NewGraf = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.NewSKU = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -64,6 +67,7 @@ namespace sku_to_smv
             this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton7 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
@@ -75,13 +79,6 @@ namespace sku_to_smv
             this.ParceTimer = new System.Windows.Forms.Timer(this.components);
             this.toolStripComboBox1 = new System.Windows.Forms.ToolStripComboBox();
             this.AutosaveTimer = new System.Windows.Forms.Timer(this.components);
-            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.CutToolButton = new System.Windows.Forms.ToolStripButton();
-            this.CopyToolButton = new System.Windows.Forms.ToolStripButton();
-            this.PasteToolButton = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-            this.UndoToolButton = new System.Windows.Forms.ToolStripButton();
-            this.RedoToolButton = new System.Windows.Forms.ToolStripButton();
             this.AnimationTimer = new System.Windows.Forms.Timer(this.components);
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -90,7 +87,6 @@ namespace sku_to_smv
             this.tabPage1.SuspendLayout();
             this.grafPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
-            this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -140,9 +136,9 @@ namespace sku_to_smv
             // правкаToolStripMenuItem
             // 
             this.правкаToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.построитьГрафToolStripMenuItem,
             this.анализироватьToolStripMenuItem,
             this.генерироватьVHDLToolStripMenuItem,
-            this.построитьГрафToolStripMenuItem,
             this.сохранитьКакРисунокToolStripMenuItem});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
             this.правкаToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
@@ -151,29 +147,29 @@ namespace sku_to_smv
             // анализироватьToolStripMenuItem
             // 
             this.анализироватьToolStripMenuItem.Name = "анализироватьToolStripMenuItem";
-            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.анализироватьToolStripMenuItem.Text = "Генерировать SMV...";
             this.анализироватьToolStripMenuItem.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // генерироватьVHDLToolStripMenuItem
             // 
             this.генерироватьVHDLToolStripMenuItem.Name = "генерироватьVHDLToolStripMenuItem";
-            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.генерироватьVHDLToolStripMenuItem.Text = "Генерировать VHDL...";
             this.генерироватьVHDLToolStripMenuItem.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // построитьГрафToolStripMenuItem
             // 
             this.построитьГрафToolStripMenuItem.Name = "построитьГрафToolStripMenuItem";
-            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
+            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
             this.построитьГрафToolStripMenuItem.Text = "Построить граф";
             this.построитьГрафToolStripMenuItem.Click += new System.EventHandler(this.CreateGraf);
             // 
             // сохранитьКакРисунокToolStripMenuItem
             // 
             this.сохранитьКакРисунокToolStripMenuItem.Name = "сохранитьКакРисунокToolStripMenuItem";
-            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(205, 22);
-            this.сохранитьКакРисунокToolStripMenuItem.Text = "Сохранить как рисунок";
+            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(217, 22);
+            this.сохранитьКакРисунокToolStripMenuItem.Text = "Сохранить как рисунок...";
             this.сохранитьКакРисунокToolStripMenuItem.Click += new System.EventHandler(this.сохранитьКакРисунокToolStripMenuItem_Click);
             // 
             // настройкиToolStripMenuItem
@@ -248,10 +244,13 @@ namespace sku_to_smv
             this.toolStripButton1,
             this.toolStripButton2,
             this.toolStripSeparator2,
+            this.CutToolButton,
+            this.CopyToolButton,
+            this.PasteToolButton,
+            this.toolStripSeparator4,
             this.toolStripButton8,
             this.toolStripButton9,
             this.NewGraf,
-            this.toolStripSeparator3,
             this.NewSKU,
             this.toolStripButton3,
             this.toolStripSeparator1,
@@ -283,13 +282,48 @@ namespace sku_to_smv
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton2.Text = "Сохранить документ";
+            this.toolStripButton2.Text = "Сохранить документ...";
             this.toolStripButton2.Click += new System.EventHandler(this.сохранитьToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // CutToolButton
+            // 
+            this.CutToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CutToolButton.Image = global::sku_to_smv.Properties.Resources.CutHS;
+            this.CutToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CutToolButton.Name = "CutToolButton";
+            this.CutToolButton.Size = new System.Drawing.Size(23, 22);
+            this.CutToolButton.Text = "Вырезать";
+            this.CutToolButton.Click += new System.EventHandler(this.CutToolButton_Click);
+            // 
+            // CopyToolButton
+            // 
+            this.CopyToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.CopyToolButton.Image = global::sku_to_smv.Properties.Resources.CopyHS;
+            this.CopyToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.CopyToolButton.Name = "CopyToolButton";
+            this.CopyToolButton.Size = new System.Drawing.Size(23, 22);
+            this.CopyToolButton.Text = "Копировать";
+            this.CopyToolButton.Click += new System.EventHandler(this.CopyToolButton_Click);
+            // 
+            // PasteToolButton
+            // 
+            this.PasteToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.PasteToolButton.Image = global::sku_to_smv.Properties.Resources.PasteHS;
+            this.PasteToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.PasteToolButton.Name = "PasteToolButton";
+            this.PasteToolButton.Size = new System.Drawing.Size(23, 22);
+            this.PasteToolButton.Text = "Вставить";
+            this.PasteToolButton.Click += new System.EventHandler(this.PasteToolButton_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
             // 
             // toolStripButton8
             // 
@@ -320,11 +354,6 @@ namespace sku_to_smv
             this.NewGraf.Size = new System.Drawing.Size(23, 22);
             this.NewGraf.Text = "Построить граф";
             this.NewGraf.Click += new System.EventHandler(this.CreateGraf);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
             // 
             // NewSKU
             // 
@@ -415,15 +444,20 @@ namespace sku_to_smv
             this.toolStripButton7.Visible = false;
             this.toolStripButton7.Click += new System.EventHandler(this.toolStripButton7_Click);
             // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.grafPage);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 74);
+            this.tabControl1.Location = new System.Drawing.Point(0, 49);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(816, 438);
+            this.tabControl1.Size = new System.Drawing.Size(816, 463);
             this.tabControl1.TabIndex = 3;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
@@ -434,7 +468,7 @@ namespace sku_to_smv
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(808, 412);
+            this.tabPage1.Size = new System.Drawing.Size(808, 437);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "СКУ";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -445,7 +479,7 @@ namespace sku_to_smv
             this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.richTextBox1.Location = new System.Drawing.Point(3, 3);
             this.richTextBox1.Name = "richTextBox1";
-            this.richTextBox1.Size = new System.Drawing.Size(802, 406);
+            this.richTextBox1.Size = new System.Drawing.Size(802, 431);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             this.richTextBox1.Click += new System.EventHandler(this.richTextBox1_Click);
@@ -457,7 +491,7 @@ namespace sku_to_smv
             this.grafPage.Location = new System.Drawing.Point(4, 22);
             this.grafPage.Name = "grafPage";
             this.grafPage.Padding = new System.Windows.Forms.Padding(3);
-            this.grafPage.Size = new System.Drawing.Size(808, 412);
+            this.grafPage.Size = new System.Drawing.Size(808, 437);
             this.grafPage.TabIndex = 1;
             this.grafPage.Text = "Граф";
             this.grafPage.UseVisualStyleBackColor = true;
@@ -471,7 +505,7 @@ namespace sku_to_smv
             this.pictureBox1.LogFileName = "";
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.ScaleT = 1F;
-            this.pictureBox1.Size = new System.Drawing.Size(802, 406);
+            this.pictureBox1.Size = new System.Drawing.Size(802, 431);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
@@ -511,76 +545,6 @@ namespace sku_to_smv
             // 
             this.AutosaveTimer.Tick += new System.EventHandler(this.AutosaveTimer_Tick);
             // 
-            // toolStrip2
-            // 
-            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.CutToolButton,
-            this.CopyToolButton,
-            this.PasteToolButton,
-            this.toolStripSeparator4,
-            this.UndoToolButton,
-            this.RedoToolButton});
-            this.toolStrip2.Location = new System.Drawing.Point(0, 49);
-            this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(816, 25);
-            this.toolStrip2.TabIndex = 4;
-            this.toolStrip2.Text = "toolStrip2";
-            // 
-            // CutToolButton
-            // 
-            this.CutToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CutToolButton.Image = global::sku_to_smv.Properties.Resources.CutHS;
-            this.CutToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CutToolButton.Name = "CutToolButton";
-            this.CutToolButton.Size = new System.Drawing.Size(23, 22);
-            this.CutToolButton.Text = "Вырезать";
-            this.CutToolButton.Click += new System.EventHandler(this.CutToolButton_Click);
-            // 
-            // CopyToolButton
-            // 
-            this.CopyToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopyToolButton.Image = global::sku_to_smv.Properties.Resources.CopyHS;
-            this.CopyToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.CopyToolButton.Name = "CopyToolButton";
-            this.CopyToolButton.Size = new System.Drawing.Size(23, 22);
-            this.CopyToolButton.Text = "Копировать";
-            this.CopyToolButton.Click += new System.EventHandler(this.CopyToolButton_Click);
-            // 
-            // PasteToolButton
-            // 
-            this.PasteToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.PasteToolButton.Image = global::sku_to_smv.Properties.Resources.PasteHS;
-            this.PasteToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.PasteToolButton.Name = "PasteToolButton";
-            this.PasteToolButton.Size = new System.Drawing.Size(23, 22);
-            this.PasteToolButton.Text = "Вставить";
-            this.PasteToolButton.Click += new System.EventHandler(this.PasteToolButton_Click);
-            // 
-            // toolStripSeparator4
-            // 
-            this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-            // 
-            // UndoToolButton
-            // 
-            this.UndoToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.UndoToolButton.Image = global::sku_to_smv.Properties.Resources.Edit_UndoHS;
-            this.UndoToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.UndoToolButton.Name = "UndoToolButton";
-            this.UndoToolButton.Size = new System.Drawing.Size(23, 22);
-            this.UndoToolButton.Text = "Отменить";
-            this.UndoToolButton.Click += new System.EventHandler(this.UndoToolButton_Click);
-            // 
-            // RedoToolButton
-            // 
-            this.RedoToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.RedoToolButton.Image = global::sku_to_smv.Properties.Resources.Edit_RedoHS;
-            this.RedoToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.RedoToolButton.Name = "RedoToolButton";
-            this.RedoToolButton.Size = new System.Drawing.Size(23, 22);
-            this.RedoToolButton.Text = "Вернуть";
-            this.RedoToolButton.Click += new System.EventHandler(this.RedoToolButton_Click);
-            // 
             // AnimationTimer
             // 
             this.AnimationTimer.Interval = 2000;
@@ -595,7 +559,6 @@ namespace sku_to_smv
             this.Controls.Add(this.button5);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
-            this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -614,8 +577,6 @@ namespace sku_to_smv
             this.tabPage1.ResumeLayout(false);
             this.grafPage.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
-            this.toolStrip2.ResumeLayout(false);
-            this.toolStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -667,12 +628,9 @@ namespace sku_to_smv
         private System.Windows.Forms.ToolStripComboBox toolStripComboBox1;
         private System.Windows.Forms.ToolStripMenuItem настройкиToolStripMenuItem;
         private System.Windows.Forms.Timer AutosaveTimer;
-        private System.Windows.Forms.ToolStrip toolStrip2;
         private System.Windows.Forms.ToolStripButton CutToolButton;
         private System.Windows.Forms.ToolStripButton CopyToolButton;
         private System.Windows.Forms.ToolStripButton PasteToolButton;
-        private System.Windows.Forms.ToolStripButton UndoToolButton;
-        private System.Windows.Forms.ToolStripButton RedoToolButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.Timer AnimationTimer;

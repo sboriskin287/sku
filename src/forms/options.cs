@@ -226,7 +226,7 @@ namespace sku_to_smv
         private void options_Shown(object sender, EventArgs e)
         {
             PrintImage();
-            AutosavePeriod = int.Parse(this.textBox1.Text);
+            //AutosavePeriod = int.Parse(this.textBox1.Text);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -329,6 +329,16 @@ namespace sku_to_smv
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            switch (listBox1.SelectedItem as String)
+            {
+                case "Основной текст":
+                case "Комментарий":
+                case "Сигналы":
+                case "Текст": button3.Enabled = true;
+                    break;
+                default: button3.Enabled = false;
+                    break;
+            }
             PrintImage();
         }
 
