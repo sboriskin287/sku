@@ -794,34 +794,39 @@ namespace sku_to_smv
             xs = 50;
             ys = 10;
             Array.Resize(ref States, 0);
-            States = new State[LocalStates.Length];
+            States = new State[Inputs.Length];
             for (int j = 0; j < States.Length; j++)
             {
                 States[j] = new State();
             }
             Random rnd = new Random();
 
-            for (int i = 0; i < LocalStates.Length; i++)
-            {
-                States[i].Value = LocalStates[i];
-                States[i].x = xs;
-                xs += 80;
-                States[i].y = rnd.Next(70, 300);
-            }
-            Array.Resize(ref States, States.Length + Inputs.Length);
-            for (int i = LocalStates.Length; i < States.Length; i++)
-            {
-                States[i] = new State();
-            }
             xs = 50;
-            for (int i = LocalStates.Length; i < States.Length; i++)
+            for (int i = 0; i < Inputs.Length; i++)
             {
-                States[i].Value = Inputs[i - LocalStates.Length];
+                States[i].Value = Inputs[i];
                 States[i].x = xs;
                 xs += 70;
                 States[i].y = ys;
                 States[i].InputSignal = true;
             }
+            Array.Resize(ref States, States.Length + LocalStates.Length);
+            for (int i = Inputs.Length; i < States.Length; i++)
+            {
+                States[i] = new State();
+            }
+            xs = 50;
+            ys = 10;
+            for (int i = Inputs.Length; i < States.Length; i++)
+            {
+                States[i].Value = LocalStates[i - Inputs.Length];
+                States[i].x = xs;
+                xs += 80;
+                States[i].y = rnd.Next(70, 300);
+            }
+           
+            
+            
         }
         /// <summary>
         /// Создает связи для графа
@@ -1142,7 +1147,7 @@ namespace sku_to_smv
                 {
                     log.FileName = LogFileName + ".log";
                 }
-                else log.FileName = "log" + States.GetHashCode().ToString() + ".log";
+                else log.FileName = "log_" + States.GetHashCode().ToString() + ".log";
                 log.StartLog();
             }
 
@@ -1195,10 +1200,6 @@ namespace sku_to_smv
             } 
             if (TableCreated)
             {
-                table.NextStep();
-            }
-            if (TableCreated)
-            {
                 for (int i = 0; i < States.Length; i++)
                 {
                     switch (table.GetElementByNumber(i))
@@ -1209,8 +1210,11 @@ namespace sku_to_smv
                             break;
                         case returnResults.rUNDEF: break;
                     }
-
                 }
+            }
+            if (TableCreated)
+            {
+                table.NextStep();
             }
             Refresh();
         }
@@ -1261,7 +1265,7 @@ namespace sku_to_smv
                 {
                     table.AddElement(i, States[i].Value, States[i].Signaled, States[i].InputSignal);
                 }
-                table.Show();
+                table.ShowT();
                 TableCreated = true;
             }
         }

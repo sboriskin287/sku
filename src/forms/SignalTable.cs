@@ -17,7 +17,7 @@ namespace sku_to_smv
         {
             InitializeComponent();
 
-            CurrentColCount = 2;
+            CurrentColCount = 1;
             CurrentRowCount = rows;
             CurrentStep = 0;
             LoopSteps = false;
@@ -32,8 +32,20 @@ namespace sku_to_smv
                 Table[i] = new TableElement();
             }
             this.dataGridView1.ColumnCount = CurrentColCount;
-            this.dataGridView1.RowCount = CurrentRowCount;
+            this.dataGridView1.RowCount = CurrentRowCount+1;
+            this.dataGridView1.VirtualMode = true;
+            this.dataGridView1.RowHeadersVisible = true;
+            this.dataGridView1.EnableHeadersVisualStyles = false;
+            this.dataGridView1.Columns[0].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            this.dataGridView1.Columns[0].HeaderText = "1";
+            this.dataGridView1.AllowUserToAddRows = false;
+            this.dataGridView1.AllowUserToOrderColumns = false;
             //UpdateTable();
+        }
+        public void ShowT()
+        {
+            this.Show();
+            this.dataGridView1.AutoResizeRowHeadersWidth(DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders);
         }
         /// <summary>
         /// Добавляет сигналы в таблицу и заполняет первый шаг симуляции
@@ -46,7 +58,9 @@ namespace sku_to_smv
             Table[Row].name = Name;
             Table[Row].values[0] = Signaled ? returnResults.rTRUE : returnResults.rFALSE;
             Table[Row].b_Input = Input;
-            UpdateTable();
+            this.dataGridView1.Rows[Row].HeaderCell.Value = Name;
+            this.dataGridView1.Rows[Row].HeaderCell.Style = Input ? inputStyle : this.dataGridView1.DefaultCellStyle;
+            //UpdateTable();
         }
         /// <summary>
         /// Добавляет шаг симуляции 
@@ -61,8 +75,10 @@ namespace sku_to_smv
                 Table[i].AddElement();
             }
             this.dataGridView1.ColumnCount = CurrentColCount;
-            this.dataGridView1.Columns[0].HeaderText = "Сигналы";
-            UpdateTable();
+            //this.dataGridView1.Columns[0].HeaderText = "Сигналы";
+            this.dataGridView1.Columns[CurrentColCount-1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+            this.dataGridView1.Columns[CurrentColCount-1].HeaderText = (CurrentColCount).ToString();
+            //UpdateTable();
         }
         /// <summary>
         /// Удаляет шаг симуляции
@@ -74,11 +90,13 @@ namespace sku_to_smv
             if (this.dataGridView1.CurrentCell.ColumnIndex > 0)
             {
                 CurrentColCount--;
+                this.dataGridView1.ColumnCount = CurrentColCount;
                 for (int i = 0; i < CurrentRowCount; i++)
                 {
                     Table[i].DeleteElement(this.dataGridView1.CurrentCell.ColumnIndex);
                 }
-                UpdateTable();
+                //UpdateTable();
+                this.dataGridView1.Refresh();
             }
         }
         /// <summary>
@@ -87,14 +105,20 @@ namespace sku_to_smv
         /// <param name="Steps"></param>
         public void SetSimulationRange(int Steps)
         {
-            CurrentColCount = Steps+1;
+            int oldCount = CurrentColCount;
+            CurrentColCount = Steps;
             for (int i = 0; i < Table.Length; i++)
             {
                 Table[i].Resize(Steps);
             }
             this.dataGridView1.ColumnCount = CurrentColCount;
-            this.dataGridView1.Columns[0].HeaderText = "Сигналы";
-            UpdateTable();
+            //this.dataGridView1.Columns[0].HeaderText = "Сигналы";
+            for (int i = oldCount; i < CurrentColCount; i++)
+            {
+                this.dataGridView1.Columns[i].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                this.dataGridView1.Columns[i].HeaderText = (i+1).ToString();
+            }
+            //UpdateTable();
         }
         /// <summary>
         /// Возвращет значение сигнала на текущем шаге симуляции по номеру
@@ -103,9 +127,9 @@ namespace sku_to_smv
         /// <returns>Состояние сигнала типа returnResults</returns>
         public returnResults GetElementByNumber(int num)
         {
-            if (num <= CurrentRowCount && (CurrentStep <= CurrentColCount - 1) && CurrentStep != 0)
+            if (num <= CurrentRowCount && (CurrentStep <= CurrentColCount - 1)/* && CurrentStep != 0*/)
             {
-                return Table[num].values[CurrentStep-1];
+                return Table[num].values[CurrentStep];
             }
             return returnResults.rUNDEF;
         }
@@ -114,7 +138,7 @@ namespace sku_to_smv
         /// </summary>
         public void NextStep()
         {
-            if (CurrentStep <= CurrentColCount - 2)
+            if (CurrentStep <= CurrentColCount - 1)
             {
                 CurrentStep++;
             }
@@ -122,13 +146,14 @@ namespace sku_to_smv
             {
                 if (LoopSteps)
                 {
-                    CurrentStep = 1;
+                    CurrentStep = 0;
                 }
                 else CurrentStep = CurrentColCount + 1;
             }
             if (CurrentStep < this.dataGridView1.ColumnCount)
-                this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep-1;
-            UpdateTable();
+                this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep;
+            this.dataGridView1.Refresh();
+            //UpdateTable();
         }
         /// <summary>
         /// Сброс симуляции
@@ -136,7 +161,8 @@ namespace sku_to_smv
         public void ResetSteps()
         {
             CurrentStep = 0;
-            UpdateTable();
+            this.dataGridView1.Refresh();
+            //UpdateTable();
         }
         /// <summary>
         /// Обновляет содержимое таблицы
@@ -163,7 +189,7 @@ namespace sku_to_smv
                                 {
                                     this.dataGridView1[j, i].Style = selectStyle;
                                 }
-                                else this.dataGridView1[j, i].Style = this.dataGridView1[0, 0].Style;
+                                else this.dataGridView1[j, i].Style = this.dataGridView1.DefaultCellStyle;
                                 switch (Table[i].values[j - 1])
                                 {
                                     case returnResults.rFALSE: this.dataGridView1[j, i].Value = "0";
@@ -190,7 +216,7 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void dataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            String str;
+            /*String str;
             try
             {
                 str = this.dataGridView1[e.ColumnIndex, e.RowIndex].Value.ToString();
@@ -215,8 +241,8 @@ namespace sku_to_smv
                     case "": Table[e.RowIndex].values[e.ColumnIndex - 1] = returnResults.rUNDEF;
                         break;
                 }
-            }
-            UpdateTable();
+            }*/
+            //UpdateTable();
         }
         /// <summary>
         /// Обработчик сигнала от кнопки
@@ -229,7 +255,7 @@ namespace sku_to_smv
             StepsNumberForm snf = new StepsNumberForm();
             snf.ShowDialog();
             SetSimulationRange(snf.steps);
-            UpdateTable();
+            //UpdateTable();
         }
         /// <summary>
         /// Обработчик сигнала от кнопки
@@ -253,12 +279,85 @@ namespace sku_to_smv
 
         private void SignalTable_Shown(object sender, EventArgs e)
         {
-            UpdateTable();
+            this.dataGridView1.Refresh();
+            //UpdateTable();
         }
 
         private void dataGridView1_Scroll(object sender, ScrollEventArgs e)
         {
-            UpdateTable();
+            if (e.Type == ScrollEventType.EndScroll) this.dataGridView1.VirtualMode = true;
+            else this.dataGridView1.VirtualMode = false;
+            //UpdateTable();
+        }
+
+        private void dataGridView1_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e)
+        {
+            if (e.RowIndex < CurrentRowCount)
+            {
+//                 if (e.ColumnIndex == 0)
+//                 {
+//                     e.Value = Table[e.RowIndex].name;
+//                     if (Table[e.RowIndex].b_Input)
+//                         this.dataGridView1[0, e.RowIndex].Style = inputStyle;
+//                     this.dataGridView1[0, e.RowIndex].ReadOnly = true;
+//                 }
+//                 else
+//                 {
+                    if (/*CurrentStep != 0 && */e.ColumnIndex == CurrentStep)
+                    {
+                        this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = selectStyle;
+                    }
+                    else this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = this.dataGridView1.DefaultCellStyle;
+                    switch (Table[e.RowIndex].values[e.ColumnIndex])
+                    {
+                        case returnResults.rFALSE: e.Value = "0";
+                            break;
+                        case returnResults.rTRUE: e.Value = "1";
+                            break;
+                        case returnResults.rUNDEF: e.Value = "";
+                            break;
+                    }
+                    //this.dataGridView1.Columns[e.ColumnIndex].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                /*}*/
+            }
+            else this.dataGridView1[e.ColumnIndex, e.RowIndex].ReadOnly = true;
+        }
+
+        private void dataGridView1_CellValuePushed(object sender, DataGridViewCellValueEventArgs e)
+        {
+            String str;
+            if (e.RowIndex < CurrentRowCount)
+            {
+                try
+                {
+                    str = e.Value.ToString();
+                }
+                catch (System.NullReferenceException)
+                {
+                    str = "";
+                }
+                if (str != "0" && str != "1" && str != "")
+                {
+                    //e.Value = "";
+                    Table[e.RowIndex].values[e.ColumnIndex] = returnResults.rUNDEF;
+                }
+                else
+                {
+                    switch (str)
+                    {
+                        case "0": //e.Value = "0";
+                            Table[e.RowIndex].values[e.ColumnIndex] = returnResults.rFALSE;
+                            break;
+                        case "1": //e.Value = "1";
+                            Table[e.RowIndex].values[e.ColumnIndex] = returnResults.rTRUE;
+                            break;
+                        case "": //e.Value = "";
+                            Table[e.RowIndex].values[e.ColumnIndex] = returnResults.rUNDEF;
+                            break;
+                    }
+                }
+                this.dataGridView1.Update();
+            }
         }
     }
     /// <summary>
