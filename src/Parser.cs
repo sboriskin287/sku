@@ -18,6 +18,7 @@ namespace sku_to_smv
         public string[] LocalStates;   //Список локальных состояний
         public string[] Inputs;        //Список входных сигналов
         public string[] RecovStates;   //Список повторновходимых состояний
+        public string[] Outputs;
         public Parser()
         {
             //Инициализируем массивы
@@ -65,7 +66,6 @@ namespace sku_to_smv
                     sb1.Append(inputSTR[i]);
                 }
             }
-
             inputSTR = sb1.ToString();
             //Поиск всех знаков ';'
             for (int i = 0; i < inputSTR.Length; i++)

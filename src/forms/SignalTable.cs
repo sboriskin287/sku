@@ -40,6 +40,7 @@ namespace sku_to_smv
             this.dataGridView1.Columns[0].HeaderText = "1";
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToOrderColumns = false;
+            this.toolStripLabel1.Text = "Шаг " + (CurrentStep+1);
             //UpdateTable();
         }
         public void ShowT()
@@ -56,7 +57,7 @@ namespace sku_to_smv
         public void AddElement(int Row, String Name, bool Signaled, bool Input)
         {
             Table[Row].name = Name;
-            Table[Row].values[0] = Signaled ? returnResults.rTRUE : returnResults.rFALSE;
+            //Table[Row].values[0] = Signaled ? returnResults.rTRUE : returnResults.rFALSE;
             Table[Row].b_Input = Input;
             this.dataGridView1.Rows[Row].HeaderCell.Value = Name;
             this.dataGridView1.Rows[Row].HeaderCell.Style = Input ? inputStyle : this.dataGridView1.DefaultCellStyle;
@@ -138,7 +139,14 @@ namespace sku_to_smv
         /// </summary>
         public void NextStep()
         {
-            if (CurrentStep <= CurrentColCount - 1)
+            if (CurrentStep < CurrentColCount)
+            {
+                for (int i = 0; i < CurrentRowCount; i++)
+                {
+                    this.dataGridView1.Rows[i].Cells[CurrentStep].Style = this.dataGridView1.DefaultCellStyle;
+                }
+            }
+            if (CurrentStep < CurrentColCount - 1)
             {
                 CurrentStep++;
             }
@@ -148,11 +156,20 @@ namespace sku_to_smv
                 {
                     CurrentStep = 0;
                 }
-                else CurrentStep = CurrentColCount + 1;
+                else CurrentStep = CurrentColCount;
             }
             if (CurrentStep < this.dataGridView1.ColumnCount)
                 this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep;
-            this.dataGridView1.Refresh();
+            this.toolStripLabel1.Text = "Шаг " + (CurrentStep + 1);
+            if (CurrentStep < CurrentColCount)
+            {
+                for (int i = 0; i < CurrentRowCount; i++)
+                {
+                    this.dataGridView1.Rows[i].Cells[CurrentStep].Style = selectStyle;
+                }
+            }
+            UpdateTable();
+            //this.dataGridView1.Refresh();
             //UpdateTable();
         }
         /// <summary>
@@ -160,16 +177,52 @@ namespace sku_to_smv
         /// </summary>
         public void ResetSteps()
         {
+            if (CurrentStep < CurrentColCount)
+            {
+                for (int i = 0; i < CurrentRowCount; i++)
+                {
+                    this.dataGridView1.Rows[i].Cells[CurrentStep].Style = this.dataGridView1.DefaultCellStyle;
+                }
+            }
             CurrentStep = 0;
+            for (int i = 0; i < CurrentRowCount; i++)
+            {
+                this.dataGridView1.Rows[i].Cells[CurrentStep].Style = selectStyle;
+            }
+            this.toolStripLabel1.Text = "Шаг " + (CurrentStep + 1);
+            this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep;
+            UpdateTable();
             this.dataGridView1.Refresh();
-            //UpdateTable();
         }
         /// <summary>
         /// Обновляет содержимое таблицы
         /// </summary>
         private void UpdateTable()
         {
-            if (this.dataGridView1.FirstDisplayedScrollingRowIndex >= 0)
+            for (int i = this.dataGridView1.FirstDisplayedCell.RowIndex; i < CurrentRowCount; i++ )
+            {
+                if (this.dataGridView1.Rows[i].Displayed)
+                {
+                    for (int j = this.dataGridView1.FirstDisplayedCell.ColumnIndex; j < CurrentColCount; j++ )
+                    {
+                        if (this.dataGridView1.Columns[j].Displayed)
+                        {
+                            switch (Table[i].values[j])
+                            {
+                                case returnResults.rFALSE: this.dataGridView1[j, i].Value = "0";
+                                    break;
+                                case returnResults.rTRUE: this.dataGridView1[j, i].Value = "1";
+                                    break;
+                                case returnResults.rUNDEF: this.dataGridView1[j, i].Value = "";
+                                    break;
+                            }
+                        }
+                        else break;
+                    }
+                }
+                else break;
+            }
+            /*if (this.dataGridView1.FirstDisplayedScrollingRowIndex >= 0)
             {
                 for (int i = this.dataGridView1.FirstDisplayedScrollingRowIndex; i < CurrentRowCount; i++)
                 {
@@ -206,7 +259,7 @@ namespace sku_to_smv
                         }
                     }
                 }
-            }
+            }*/
         }
         /// <summary>
         /// Обработчик события завершения правки ячейки таблицы
@@ -286,7 +339,8 @@ namespace sku_to_smv
         private void dataGridView1_Scroll(object sender, ScrollEventArgs e)
         {
             if (e.Type == ScrollEventType.EndScroll) this.dataGridView1.VirtualMode = true;
-            else this.dataGridView1.VirtualMode = false;
+            else if (e.Type == ScrollEventType.LargeDecrement || e.Type == ScrollEventType.LargeIncrement)
+             this.dataGridView1.VirtualMode = false;
             //UpdateTable();
         }
 
@@ -303,11 +357,11 @@ namespace sku_to_smv
 //                 }
 //                 else
 //                 {
-                    if (/*CurrentStep != 0 && */e.ColumnIndex == CurrentStep)
-                    {
-                        this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = selectStyle;
-                    }
-                    else this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = this.dataGridView1.DefaultCellStyle;
+//                     if (/*CurrentStep != 0 && */e.ColumnIndex == CurrentStep)
+//                     {
+//                         this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = selectStyle;
+//                     }
+//                     else this.dataGridView1[e.ColumnIndex, e.RowIndex].Style = this.dataGridView1.DefaultCellStyle;
                     switch (Table[e.RowIndex].values[e.ColumnIndex])
                     {
                         case returnResults.rFALSE: e.Value = "0";

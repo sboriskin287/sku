@@ -473,7 +473,7 @@ namespace sku_to_smv
                             }
                             if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
                             else g.DrawRectangle(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            g.DrawString(States[i].Value, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
+                            g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
                         }
                     }
                     else
@@ -488,7 +488,7 @@ namespace sku_to_smv
                         }
                         if (States[i].Selected) g.DrawEllipse(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
                         else g.DrawEllipse(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        g.DrawString(States[i].Value, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 15 + yT) * ScaleT);
+                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 15 + yT) * ScaleT);
                     }
                 }
             }
@@ -764,7 +764,7 @@ namespace sku_to_smv
         {
             for (int i = 0; i < Links.Length; i++ )
             {
-                if (Links[i].StartState == States[SelectedState].Value)
+                if (Links[i].StartState == States[SelectedState].Name)
                 {
                     Links[i].x1 = States[SelectedState].x + 30;
                     Links[i].y1 = States[SelectedState].y + 30;
@@ -774,7 +774,7 @@ namespace sku_to_smv
                         Links[i].y1 += 10;
                     }
                 }
-                if (Links[i].EndState == States[SelectedState].Value)
+                if (Links[i].EndState == States[SelectedState].Name)
                 {
                     Links[i].x2 = States[SelectedState].x + 30;
                     Links[i].y2 = States[SelectedState].y + 30;
@@ -804,7 +804,7 @@ namespace sku_to_smv
             xs = 50;
             for (int i = 0; i < Inputs.Length; i++)
             {
-                States[i].Value = Inputs[i];
+                States[i].Name = Inputs[i];
                 States[i].x = xs;
                 xs += 70;
                 States[i].y = ys;
@@ -819,7 +819,7 @@ namespace sku_to_smv
             ys = 10;
             for (int i = Inputs.Length; i < States.Length; i++)
             {
-                States[i].Value = LocalStates[i - Inputs.Length];
+                States[i].Name = LocalStates[i - Inputs.Length];
                 States[i].x = xs;
                 xs += 80;
                 States[i].y = rnd.Next(70, 300);
@@ -870,12 +870,12 @@ namespace sku_to_smv
                             //Задаем координаты начала и конца линий
                             for (int k = 0; k < States.Length; k++)
                             {
-                                if (States[k].Value == Rules[i].Elems[0].Value)
+                                if (States[k].Name == Rules[i].Elems[0].Value)
                                 {
                                     Links[Links.Length - 2].x2 = States[k].x + 30;
                                     Links[Links.Length - 2].y2 = States[k].y + 30;
                                 }
-                                if (States[k].Value == Rules[i].Elems[j].Value)
+                                if (States[k].Name == Rules[i].Elems[j].Value)
                                 {
                                     Links[Links.Length - 2].x1 = States[k].x + 30;
                                     Links[Links.Length - 2].y1 = States[k].y + 30;
@@ -977,7 +977,7 @@ namespace sku_to_smv
                 resultCode = resultCode.Remove(index, 1);
                 for (int i = 0; i < States.Length; i++)
                 {
-                    sb.AppendLine(States[i].Value.ToUpper() + " = " + i.ToString() + ",");
+                    sb.AppendLine(States[i].Name.ToUpper() + " = " + i.ToString() + ",");
                 }
                 resultCode = resultCode.Insert(index, sb.ToString());
                 sb.Clear();
@@ -1156,7 +1156,24 @@ namespace sku_to_smv
             tools.Buttons[3].Enabled = true;
 
             if (table != null)
+            {
                 table.ResetSteps();
+                if (TableCreated)
+                {
+                    for (int i = 0; i < States.Length; i++)
+                    {
+                        switch (table.GetElementByNumber(i))
+                        {
+                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                                break;
+                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
+                                break;
+                            case returnResults.rUNDEF: break;
+                        }
+                    }
+                }
+                Refresh();
+            }
             this.timer1.Start();
         }
         /// <summary>
@@ -1178,11 +1195,12 @@ namespace sku_to_smv
         public void SimulStep()
         {
             bool StepStart = true;
+
             for (int i = 0; i < States.Length; i++)
             {
                 if (b_EnableLogging && States[i].InputSignal == true)
                 {
-                    log.AddToLog(States[i].Value, States[i].Signaled || States[i].AlSignaled, true, StepStart);
+                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, true, StepStart);
                     StepStart = false;
                 }
                 WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
@@ -1194,10 +1212,14 @@ namespace sku_to_smv
                 States[i].Signaled = ReadPipe(i);
                 if (b_EnableLogging && States[i].InputSignal != true)
                 {
-                    log.AddToLog(States[i].Value, States[i].Signaled || States[i].AlSignaled, false, StepStart);
+                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
                     StepStart = false;
                 }
-            } 
+            }
+            if (TableCreated)
+            {
+                table.NextStep();
+            }
             if (TableCreated)
             {
                 for (int i = 0; i < States.Length; i++)
@@ -1211,10 +1233,6 @@ namespace sku_to_smv
                         case returnResults.rUNDEF: break;
                     }
                 }
-            }
-            if (TableCreated)
-            {
-                table.NextStep();
             }
             Refresh();
         }
@@ -1263,7 +1281,7 @@ namespace sku_to_smv
                 this.table.FormClosed += handler;
                 for (int i = 0; i < States.Length; i++)
                 {
-                    table.AddElement(i, States[i].Value, States[i].Signaled, States[i].InputSignal);
+                    table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
                 }
                 table.ShowT();
                 TableCreated = true;
@@ -1339,6 +1357,10 @@ namespace sku_to_smv
             }
             prInf.FileName = "notepad.exe";
             Process pr = Process.Start(prInf);
+        }
+        private void ThreadWork()
+        {
+
         }
     } 
 }

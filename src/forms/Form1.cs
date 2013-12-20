@@ -4,6 +4,7 @@ using System.IO;
 using sku_to_smv.Properties;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading;
 
 namespace sku_to_smv
 {
