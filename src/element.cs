@@ -8,11 +8,13 @@ namespace sku_to_smv
         public string Type;
         public string Value;
         public bool Local;
+        public bool Output;
         public Element()
         {
             Empty = true;
             Inverted = false;
             Local = true;
+            Output = false;
             Type = "";
             Value = "";
         }

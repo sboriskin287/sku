@@ -2,6 +2,7 @@
 using System.Text;
 using System.IO;
 using sku_to_smv.Properties;
+using System.Text.RegularExpressions;
 
 namespace sku_to_smv
 {
@@ -9,10 +10,12 @@ namespace sku_to_smv
 
     public class Parser
     {
-        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT };
+        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END };
 
         int RCount;             //Количество правил полученных после анализа
         bool Inv;
+        bool isSKU;
+        bool isOUT;
 
         public Rule[] Rules;           //Массив правил, строящийся при анализе
         public string[] LocalStates;   //Список локальных состояний
@@ -25,6 +28,7 @@ namespace sku_to_smv
             Rules = new Rule[0];
             LocalStates = new string[0];
             Inputs = new string[0];
+            Outputs = new string[0];
             RecovStates = new string[0];
             RCount = 0;
         }
@@ -49,10 +53,13 @@ namespace sku_to_smv
             string inputSTR = InputString;
             int[] EndOfRules = new int[0];
             bool b_Comment = false;
+            isSKU = true;
+            isOUT = false;
             StringBuilder sb1 = new StringBuilder();
             Rules = new Rule[0];
             LocalStates = new string[0];
             Inputs = new string[0];
+            Outputs = new string[0];
             RecovStates = new string[0];
             GC.Collect();
 
@@ -94,10 +101,19 @@ namespace sku_to_smv
                 }
             }
             //Составление списка локальных состояний//
-            LocalStates = new string[Rules.Length];
+            //LocalStates = new string[Rules.Length];
             for (int i = 0; i < Rules.Length; i++)
             {
-                LocalStates[i] = Rules[i].Elems[0].Value;
+                if (Rules[i].Elems[0].Output)
+                {
+                    Array.Resize(ref Outputs, Outputs.Length + 1);
+                    Outputs[Outputs.Length-1] = Rules[i].Elems[0].Value;
+                }
+                else
+                {
+                    Array.Resize(ref LocalStates, LocalStates.Length + 1);
+                    LocalStates[LocalStates.Length - 1] = Rules[i].Elems[0].Value;
+                }
             }
             SearchForInputs();//Составление списка входных сигналов//
             SearchForRecov();//Составление списка повторновходимых состояний//
@@ -120,18 +136,34 @@ namespace sku_to_smv
                 switch (st1)
                 {
                     //Буква
-                    case state.H: if (InputString[i] == 'a' || InputString[i] == 'b' || InputString[i] == 'c' || InputString[i] == 'd' || InputString[i] == 'e' || InputString[i] == 'f' || InputString[i] == 'g' || InputString[i] == 'h' || InputString[i] == 'i' || InputString[i] == 'j' || InputString[i] == 'k' || InputString[i] == 'l' || InputString[i] == 'm' || InputString[i] == 'n' || InputString[i] == 'o' || InputString[i] == 'p' || InputString[i] == 'q' || InputString[i] == 'r' || InputString[i] == 's' || InputString[i] == 't' || InputString[i] == 'u' || InputString[i] == 'v' || InputString[i] == 'w' || InputString[i] == 'x' || InputString[i] == 'y' || InputString[i] == 'z')
+                    case state.H: if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
                             st1 = state.S1;
                         }
-                        else
+                        else if (InputString[i] == '[')
+                            st1 = state.OPT;
+                        else st1 = state.ERR;
+                        break;
+                    case state.OPT: if (InputString[i] == 's')
                         {
-                            st1 = state.ERR;
+                            isSKU = true;
+                            isOUT = false;
+                            st1 = state.OPT_END;
                         }
+                        else if (InputString[i] == 'o')
+                        {
+                            isSKU = false;
+                            isOUT = true;
+                            st1 = state.OPT_END;
+                        }
+                        else st1 = state.ERR;
+                        break;
+                    case state.OPT_END: if (InputString[i] == ']')
+                            st1 = state.H;
                         break;
                     //Буква или цифра или '(' или '='
-                    case state.S1: if (InputString[i] == 'a' || InputString[i] == 'b' || InputString[i] == 'c' || InputString[i] == 'd' || InputString[i] == 'e' || InputString[i] == 'f' || InputString[i] == 'g' || InputString[i] == 'h' || InputString[i] == 'i' || InputString[i] == 'j' || InputString[i] == 'k' || InputString[i] == 'l' || InputString[i] == 'm' || InputString[i] == 'n' || InputString[i] == 'o' || InputString[i] == 'p' || InputString[i] == 'q' || InputString[i] == 'r' || InputString[i] == 's' || InputString[i] == 't' || InputString[i] == 'u' || InputString[i] == 'v' || InputString[i] == 'w' || InputString[i] == 'x' || InputString[i] == 'y' || InputString[i] == 'z' || InputString[i] == '0' || InputString[i] == '1' || InputString[i] == '2' || InputString[i] == '3' || InputString[i] == '4' || InputString[i] == '5' || InputString[i] == '6' || InputString[i] == '7' || InputString[i] == '8' || InputString[i] == '9')
+                    case state.S1: if (Regex.IsMatch(InputString[i].ToString(),"[a-z0-9]"))
                         {
                             st1 = state.S1;
                         }
@@ -139,14 +171,14 @@ namespace sku_to_smv
                         {
                             st1 = state.S2;
                             tmp = InputString.Substring(k, i - k);
-                            Rules[Rules.Length - 1].AddData("State", tmp, false);
+                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
                         else if (InputString[i] == '=')
                         {
                             st1 = state.S7;
                             tmp = InputString.Substring(k, i - k);
-                            Rules[Rules.Length - 1].AddData("State", tmp, false);
+                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             Rules[Rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
                         }
@@ -187,7 +219,7 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     //Буква или '(' или '~'
-                    case state.S7: if (InputString[i] == 'a' || InputString[i] == 'b' || InputString[i] == 'c' || InputString[i] == 'd' || InputString[i] == 'e' || InputString[i] == 'f' || InputString[i] == 'g' || InputString[i] == 'h' || InputString[i] == 'i' || InputString[i] == 'j' || InputString[i] == 'k' || InputString[i] == 'l' || InputString[i] == 'm' || InputString[i] == 'n' || InputString[i] == 'o' || InputString[i] == 'p' || InputString[i] == 'q' || InputString[i] == 'r' || InputString[i] == 's' || InputString[i] == 't' || InputString[i] == 'u' || InputString[i] == 'v' || InputString[i] == 'w' || InputString[i] == 'x' || InputString[i] == 'y' || InputString[i] == 'z')
+                    case state.S7: if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
                         {
                             k = i;
                             Inv = false;
@@ -253,7 +285,7 @@ namespace sku_to_smv
                         }
                         break;
                     // Буква или '(' или
-                    case state.S10: if (InputString[i] == 'a' || InputString[i] == 'b' || InputString[i] == 'c' || InputString[i] == 'd' || InputString[i] == 'e' || InputString[i] == 'f' || InputString[i] == 'g' || InputString[i] == 'h' || InputString[i] == 'i' || InputString[i] == 'j' || InputString[i] == 'k' || InputString[i] == 'l' || InputString[i] == 'm' || InputString[i] == 'n' || InputString[i] == 'o' || InputString[i] == 'p' || InputString[i] == 'q' || InputString[i] == 'r' || InputString[i] == 's' || InputString[i] == 't' || InputString[i] == 'u' || InputString[i] == 'v' || InputString[i] == 'w' || InputString[i] == 'x' || InputString[i] == 'y' || InputString[i] == 'z')
+                    case state.S10: if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
                         {
                             k = i;
                             st1 = state.S11;
@@ -287,7 +319,7 @@ namespace sku_to_smv
                             st1 = state.S8;
                         }
                         break;
-                    case state.S11: if (InputString[i] == 'a' || InputString[i] == 'b' || InputString[i] == 'c' || InputString[i] == 'd' || InputString[i] == 'e' || InputString[i] == 'f' || InputString[i] == 'g' || InputString[i] == 'h' || InputString[i] == 'i' || InputString[i] == 'j' || InputString[i] == 'k' || InputString[i] == 'l' || InputString[i] == 'm' || InputString[i] == 'n' || InputString[i] == 'o' || InputString[i] == 'p' || InputString[i] == 'q' || InputString[i] == 'r' || InputString[i] == 's' || InputString[i] == 't' || InputString[i] == 'u' || InputString[i] == 'v' || InputString[i] == 'w' || InputString[i] == 'x' || InputString[i] == 'y' || InputString[i] == 'z' || InputString[i] == '0' || InputString[i] == '1' || InputString[i] == '2' || InputString[i] == '3' || InputString[i] == '4' || InputString[i] == '5' || InputString[i] == '6' || InputString[i] == '7' || InputString[i] == '8' || InputString[i] == '9')
+                    case state.S11: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
                         {
                             st1 = state.S11;
                         }
@@ -365,7 +397,7 @@ namespace sku_to_smv
                                 break;
                             }
                         }
-                        if (!NotInput && !Exists)
+                        if (!NotInput && !Exists && !Rules[i].Elems[j].Output)
                         {
                             Array.Resize(ref Inputs, Inputs.Length + 1);
                             Inputs[Inputs.Length - 1] = Rules[i].Elems[j].Value;
@@ -650,7 +682,7 @@ namespace sku_to_smv
 
     public class SympleParser
     {
-        enum state { START, COMMENT, SIGNAL };
+        enum state { START, COMMENT, SIGNAL, OPT };
 
         public SympleElement[] elements;
         public SympleElement brackets;
@@ -728,7 +760,7 @@ namespace sku_to_smv
                             elements[currentElement].StartIndex = i;
                             CurrentState = state.COMMENT;
                         }
-                        else if (str[i] == 'a' || str[i] == 'b' || str[i] == 'c' || str[i] == 'd' || str[i] == 'e' || str[i] == 'f' || str[i] == 'g' || str[i] == 'h' || str[i] == 'i' || str[i] == 'j' || str[i] == 'k' || str[i] == 'l' || str[i] == 'm' || str[i] == 'n' || str[i] == 'o' || str[i] == 'p' || str[i] == 'q' || str[i] == 'r' || str[i] == 's' || str[i] == 't' || str[i] == 'u' || str[i] == 'v' || str[i] == 'w' || str[i] == 'x' || str[i] == 'y' || str[i] == 'z')
+                        else if (Regex.IsMatch(str[i].ToString(), "[a-z]"))
                         {
                             Array.Resize(ref elements, elements.Length + 1);
                             currentElement++;
@@ -736,7 +768,6 @@ namespace sku_to_smv
                             elements[currentElement].StartIndex = i;
                             CurrentState = state.SIGNAL;
                         }
-                        /*
                         else if (str[i] == '(')
                         {
                             Array.Resize(ref elements, elements.Length + 1);
@@ -757,7 +788,14 @@ namespace sku_to_smv
                             elements[currentElement].Style = System.Drawing.FontStyle.Bold;
                             CurrentState = state.START;
                         }
-                        */
+                        else if (str[i] == '[')
+                        {
+                            Array.Resize(ref elements, elements.Length + 1);
+                            currentElement++;
+                            elements[currentElement] = new SympleElement();
+                            elements[currentElement].StartIndex = i;
+                            CurrentState = state.OPT;
+                        }
                         break;
                     case state.COMMENT: if (str[i] == '#')
                         {
@@ -767,7 +805,15 @@ namespace sku_to_smv
                             CurrentState = state.START;
                         }
                         break;
-                    case state.SIGNAL: if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#')
+                    case state.OPT: if (str[i] == ']')
+                        {
+                            elements[currentElement].EndIndex = i;
+                            elements[currentElement].TextColor = Settings.Default.TextFieldOptionColor;
+                            elements[currentElement].Style = 0;
+                            CurrentState = state.START;
+                        }
+                        break;
+                    case state.SIGNAL: if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
                         {
                             break;
                         }
@@ -792,7 +838,7 @@ namespace sku_to_smv
                                 elements[currentElement].StartIndex = i;
                                 CurrentState = state.COMMENT;
                             }
-                        /*
+                        
                             if (str[i] == '(')
                             {
                                 Array.Resize(ref elements, elements.Length + 1);
@@ -813,7 +859,7 @@ namespace sku_to_smv
                                 elements[currentElement].Style = System.Drawing.FontStyle.Bold;
                                 CurrentState = state.START;
                             }
-                        */
+                        
                             CurrentState = state.START;
                         }
                         break;

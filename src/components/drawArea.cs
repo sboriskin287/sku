@@ -24,6 +24,8 @@ namespace sku_to_smv
         Graphics g;
         Pen penHighlight;//цвет выделения
         Pen penSignal;//цвет сигналов
+        Pen penInputSignal;//цвет сигналов
+        Pen penOutputSignal;//цвет сигналов
         Pen penLocalLine;//цвет линии между локальными сигналами
         Pen penLocalLineEnd;//цвет стрелки
         Pen penInputLine;//цвет линии от входных сигналов
@@ -44,6 +46,8 @@ namespace sku_to_smv
         int xT, yT/*, dx, dy*/;
         int xs, ys, xM, yM;
         int curX, curY;
+        int InputsLeight;
+        int OutputsLeight;
         bool StateSelected;
         bool LinkSelected;
         //bool AddStateButtonSelected;
@@ -99,6 +103,8 @@ namespace sku_to_smv
             ScaleT = 1F;
             xT = 0;
             yT = 0;
+            InputsLeight = 0;
+            OutputsLeight = 0;
 
             //AddStateButtonSelected = false;
             DrawInputs = true;
@@ -266,6 +272,8 @@ namespace sku_to_smv
         {
             //Определяются цвета
             penSignal = new System.Drawing.Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
+            penInputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldInputSignalColor, 2);
+            penOutputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
             penLocalLine = new System.Drawing.Pen(System.Drawing.Brushes.Black, 1);
             penLocalLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.Red, 3);
             penHighlight = new System.Drawing.Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
@@ -472,9 +480,23 @@ namespace sku_to_smv
                                 g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
                             }
                             if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            else g.DrawRectangle(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                            else g.DrawRectangle(penInputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
                             g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
                         }
+                    }
+                    else if (States[i].Type == STATE_TYPE.OUTPUT)
+                    {
+                        if (States[i].Signaled || States[i].AlSignaled)
+                        {
+                            g.FillRectangle(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                        }
+                        else
+                        {
+                            g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                        }
+                        if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                        else g.DrawRectangle(penOutputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
                     }
                     else
                     {
@@ -789,7 +811,7 @@ namespace sku_to_smv
         /// <summary>
         /// Создает состояния для графа
         /// </summary>
-        public void CreateStates(ref string[] LocalStates, ref string[] Inputs)
+        public void CreateStates(ref string[] LocalStates, ref string[] Inputs, ref string[] Outputs)
         {
             xs = 50;
             ys = 10;
@@ -809,7 +831,9 @@ namespace sku_to_smv
                 xs += 70;
                 States[i].y = ys;
                 States[i].InputSignal = true;
+                States[i].Type = STATE_TYPE.INPUT;
             }
+            InputsLeight = Inputs.Length;
             Array.Resize(ref States, States.Length + LocalStates.Length);
             for (int i = Inputs.Length; i < States.Length; i++)
             {
@@ -823,10 +847,27 @@ namespace sku_to_smv
                 States[i].x = xs;
                 xs += 80;
                 States[i].y = rnd.Next(70, 300);
+                States[i].Type = STATE_TYPE.NONE;
             }
-           
-            
-            
+            if (Outputs != null && Outputs.Length > 0)
+            {
+                OutputsLeight = Outputs.Length;
+                Array.Resize(ref States, States.Length + Outputs.Length);
+                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
+                {
+                    States[i] = new State();
+                }
+                xs = 50;
+                ys = 200;
+                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
+                {
+                    States[i].Name = Outputs[i - (Inputs.Length + LocalStates.Length)];
+                    States[i].x = xs;
+                    xs += 70;
+                    States[i].y = ys;
+                    States[i].Type = STATE_TYPE.OUTPUT;
+                }
+            }
         }
         /// <summary>
         /// Создает связи для графа
@@ -1160,7 +1201,7 @@ namespace sku_to_smv
                 table.ResetSteps();
                 if (TableCreated)
                 {
-                    for (int i = 0; i < States.Length; i++)
+                    for (int i = 0; i < InputsLeight; i++)
                     {
                         switch (table.GetElementByNumber(i))
                         {
@@ -1222,7 +1263,7 @@ namespace sku_to_smv
             }
             if (TableCreated)
             {
-                for (int i = 0; i < States.Length; i++)
+                for (int i = 0; i < InputsLeight; i++)
                 {
                     switch (table.GetElementByNumber(i))
                     {
@@ -1269,7 +1310,7 @@ namespace sku_to_smv
         /// </summary>
         public void CreateTable()
         {
-            if (States.Length != 0 && !TableCreated)
+            if (InputsLeight != 0 && !TableCreated)
             {
                 if (table != null)
                 {
@@ -1277,9 +1318,9 @@ namespace sku_to_smv
                 }
                 table = null;
                 GC.Collect();
-                table = new SignalTable(States.Length);
+                table = new SignalTable(InputsLeight);
                 this.table.FormClosed += handler;
-                for (int i = 0; i < States.Length; i++)
+                for (int i = 0; i < InputsLeight; i++)
                 {
                     table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
                 }

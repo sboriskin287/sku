@@ -48,7 +48,7 @@
       <Value Profile="(Default)">Maroon</Value>
     </Setting>
     <Setting Name="GrafFieldInputSignalColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Maroon</Value>
+      <Value Profile="(Default)">Green</Value>
     </Setting>
     <Setting Name="GrafFieldSygnalSelectionColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 128, 0</Value>
@@ -58,6 +58,12 @@
     </Setting>
     <Setting Name="GrafFieldSignalActiveColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">128, 255, 128</Value>
+    </Setting>
+    <Setting Name="GrafFieldOutputSignalColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Purple</Value>
+    </Setting>
+    <Setting Name="TextFieldOptionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 0, 192</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -23,8 +23,8 @@ namespace sku_to_smv
         {
             InitializeComponent();
 
-            Page1 = new object[] { "Основной текст", "Комментарий", "Сигналы"};
-            Page2 = new object[] { "Текст", "Входные сигналы", "Локальные сигналы", "Выделение"};
+            Page1 = new object[] { "Основной текст", "Комментарий", "Начало секции", "Сигналы"};
+            Page2 = new object[] { "Текст", "Входные сигналы", "Локальные состояния", "Выходные сигналы", "Выделение"};
             Page3 = new object[] { };
 
             this.panel2.Enabled = false;
@@ -113,6 +113,9 @@ namespace sku_to_smv
                         case "Комментарий":
                             colorDlg.Color = Settings.Default.TextFieldCommentColor;
                             break;
+                        case "Начало секции":
+                            colorDlg.Color = Settings.Default.TextFieldOptionColor;
+                            break;
                         case "Сигналы":
                             colorDlg.Color = Settings.Default.TextFieldSignalColor;
                             break;
@@ -127,8 +130,11 @@ namespace sku_to_smv
                         case "Входные сигналы":
                             colorDlg.Color = Settings.Default.GrafFieldInputSignalColor;
                             break;
-                        case "Локальные сигналы":
+                        case "Локальные состояния":
                             colorDlg.Color = Settings.Default.GrafFieldLocalSignalColor;
+                            break;
+                        case "Выходные сигналы":
+                            colorDlg.Color = Settings.Default.GrafFieldOutputSignalColor;
                             break;
                         case "Выделение":
                             colorDlg.Color = Settings.Default.GrafFieldSygnalSelectionColor;
@@ -151,6 +157,9 @@ namespace sku_to_smv
                             case "Комментарий":
                                 Settings.Default.TextFieldCommentColor = colorDlg.Color;
                                 break;
+                            case "Начало секции":
+                                Settings.Default.TextFieldOptionColor = colorDlg.Color;
+                                break;
                             case "Сигналы":
                                 Settings.Default.TextFieldSignalColor = colorDlg.Color;
                                 break;
@@ -165,8 +174,11 @@ namespace sku_to_smv
                             case "Входные сигналы":
                                 Settings.Default.GrafFieldInputSignalColor = colorDlg.Color;
                                 break;
-                            case "Локальные сигналы":
+                            case "Локальные состояния":
                                 Settings.Default.GrafFieldLocalSignalColor = colorDlg.Color;
+                                break;
+                            case "Выходные сигналы":
+                                Settings.Default.GrafFieldOutputSignalColor = colorDlg.Color;
                                 break;
                             case "Выделение":
                                 Settings.Default.GrafFieldSygnalSelectionColor = colorDlg.Color;
@@ -194,6 +206,9 @@ namespace sku_to_smv
                         case "Комментарий":
                             g.DrawString("Sample", Settings.Default.TextFieldTextFont, new SolidBrush(Settings.Default.TextFieldCommentColor), new PointF(5F, 5F));
                             break;
+                        case "Начало секции":
+                            g.DrawString("Sample", Settings.Default.TextFieldTextFont, new SolidBrush(Settings.Default.TextFieldOptionColor), new PointF(5F, 5F));
+                            break;
                         case "Сигналы":
                             g.DrawString("Sample", Settings.Default.TextFieldTextFont, new SolidBrush(Settings.Default.TextFieldSignalColor), new PointF(5F, 5F));
                             break;
@@ -208,8 +223,11 @@ namespace sku_to_smv
                         case "Входные сигналы":
                             g.DrawRectangle(new Pen(Settings.Default.GrafFieldInputSignalColor, 2), 5, 5, 60, 60);
                             break;
-                        case "Локальные сигналы":
+                        case "Локальные состояния":
                             g.DrawEllipse(new Pen(Settings.Default.GrafFieldLocalSignalColor, 2), 5, 5, 60, 60);
+                            break;
+                        case "Выходные сигналы":
+                            g.DrawRectangle(new Pen(Settings.Default.GrafFieldOutputSignalColor, 2), 5, 5, 60, 60);
                             break;
                         case "Выделение":
                             g.DrawEllipse(new Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3), 5, 5, 60, 60);
@@ -260,6 +278,9 @@ namespace sku_to_smv
                         case "Комментарий":
 
                             break;
+                        case "Начало секции":
+                            
+                            break;
                         case "Сигналы":
 
                             break;
@@ -274,8 +295,11 @@ namespace sku_to_smv
                         case "Входные сигналы":
 
                             break;
-                        case "Локальные сигналы":
+                        case "Локальные состояния":
 
+                            break;
+                        case "Выходные сигналы":
+                            
                             break;
                         case "Выделение":
 
@@ -298,6 +322,9 @@ namespace sku_to_smv
                             case "Комментарий":
 
                                 break;
+                            case "Начало секции":
+                                
+                                break;
                             case "Сигналы":
 
                                 break;
@@ -312,8 +339,11 @@ namespace sku_to_smv
                             case "Входные сигналы":
 
                                 break;
-                            case "Локальные сигналы":
+                            case "Локальные состояния":
 
+                                break;
+                            case "Выходные сигналы":
+                                
                                 break;
                             case "Выделение":
 
@@ -332,8 +362,6 @@ namespace sku_to_smv
             switch (listBox1.SelectedItem as String)
             {
                 case "Основной текст":
-                case "Комментарий":
-                case "Сигналы":
                 case "Текст": button3.Enabled = true;
                     break;
                 default: button3.Enabled = false;
@@ -406,6 +434,11 @@ namespace sku_to_smv
                 this.label10.Visible = true;
                 this.button1.Enabled = false;
             }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Settings.Default.Reset();
         }
     }
 }

@@ -20,12 +20,13 @@ namespace sku_to_smv
             count++;
             return true;
         }
-        public bool AddData(string Type, string Value, bool Inv)
+        public bool AddData(string Type, string Value, bool Inv, bool Output = false)
         {
             Elems[count].Empty = false;
             Elems[count].Type = Type;
             Elems[count].Value = Value;
             Elems[count].Inverted = Inv;
+            Elems[count].Output = Output;
             AddElement();
             return true;
         }

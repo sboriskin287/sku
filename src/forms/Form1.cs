@@ -200,7 +200,7 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
-            pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs);
+            pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
             this.toolStripProgressBar1.Value = 50;
             pictureBox1.CreateLinks(ref parser.Rules);
             this.toolStripProgressBar1.Value = 75;
@@ -464,7 +464,7 @@ namespace sku_to_smv
                 int Index = this.richTextBox1.SelectionStart;
                 if (!sParser.b_Brackets)
                     sParser.Start(this.richTextBox1.Text);
-                //this.richTextBox1.SelectAll();
+                this.richTextBox1.SelectAll();
                 this.richTextBox1.ForeColor = Settings.Default.TextFieldTextColor;
                 this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
 
@@ -514,6 +514,12 @@ namespace sku_to_smv
         {
             if (optWindow.ShowDialog() == DialogResult.OK)
             {
+                Settings.Default.Save();
+                ApplySettings();
+            }
+            else
+            {
+                Settings.Default.Reload();
                 ApplySettings();
             }
         }

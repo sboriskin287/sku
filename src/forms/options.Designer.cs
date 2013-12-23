@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Общие");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Симуляция");
-            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
+            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Общие");
+            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Симуляция");
+            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
             this.label4 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -60,6 +60,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -135,16 +136,16 @@
             // 
             this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            treeNode1.Name = "node0";
-            treeNode1.Text = "Общие";
-            treeNode2.Name = "node1";
-            treeNode2.Text = "Симуляция";
-            treeNode3.Name = "node2";
-            treeNode3.Text = "Шрифты и цвета";
+            treeNode13.Name = "node0";
+            treeNode13.Text = "Общие";
+            treeNode14.Name = "node1";
+            treeNode14.Text = "Симуляция";
+            treeNode15.Name = "node2";
+            treeNode15.Text = "Шрифты и цвета";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2,
-            treeNode3});
+            treeNode13,
+            treeNode14,
+            treeNode15});
             this.treeView1.Size = new System.Drawing.Size(177, 280);
             this.treeView1.TabIndex = 3;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -355,7 +356,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(461, 298);
+            this.button1.Location = new System.Drawing.Point(380, 298);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 8;
@@ -371,14 +372,24 @@
             this.button2.TabIndex = 9;
             this.button2.Text = "Отмена";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Visible = false;
             this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(12, 297);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(98, 23);
+            this.button4.TabIndex = 10;
+            this.button4.Text = "Сброс настроек";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(545, 325);
+            this.Controls.Add(this.button4);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.treeView1);
@@ -434,6 +445,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Button button4;
 
     }
 }
