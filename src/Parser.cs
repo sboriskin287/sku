@@ -139,6 +139,7 @@ namespace sku_to_smv
                     case state.H: if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
+                            Rules[Rules.Length - 1].output = isOUT;
                             st1 = state.S1;
                         }
                         else if (InputString[i] == '[')
@@ -149,12 +150,14 @@ namespace sku_to_smv
                         {
                             isSKU = true;
                             isOUT = false;
+                            Rules[Rules.Length - 1].output = false;
                             st1 = state.OPT_END;
                         }
                         else if (InputString[i] == 'o')
                         {
                             isSKU = false;
                             isOUT = true;
+                            Rules[Rules.Length - 1].output = true;
                             st1 = state.OPT_END;
                         }
                         else st1 = state.ERR;

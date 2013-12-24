@@ -49,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <ApplicationIcon>resources\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -76,6 +76,12 @@
     </Compile>
     <Compile Include="src\forms\options.Designer.cs">
       <DependentUpon>options.cs</DependentUpon>
+    </Compile>
+    <Compile Include="src\forms\OutputSignalsTable.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="src\forms\OutputSignalsTable.Designer.cs">
+      <DependentUpon>OutputSignalsTable.cs</DependentUpon>
     </Compile>
     <Compile Include="src\forms\SignalTable.cs">
       <SubType>Form</SubType>
@@ -109,6 +115,9 @@
     <Compile Include="src\state.cs" />
     <EmbeddedResource Include="src\forms\options.resx">
       <DependentUpon>options.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="src\forms\OutputSignalsTable.resx">
+      <DependentUpon>OutputSignalsTable.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\SignalTable.resx">
       <DependentUpon>SignalTable.cs</DependentUpon>
@@ -208,7 +217,6 @@
     <None Include="resources\new\Edit_RedoHS.png" />
     <None Include="resources\new\save_anim.gif" />
     <None Include="resources\Icon.ico" />
-    <Content Include="Icon.ico" />
     <Content Include="resources\play.bmp" />
     <None Include="resources\repeateSteps.bmp" />
     <None Include="resources\play1.bmp" />

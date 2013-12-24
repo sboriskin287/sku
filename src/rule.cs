@@ -7,11 +7,13 @@ namespace sku_to_smv
     {
         public Element[] Elems;
         int count;
+        public bool output;
         public Rule()
         {
             Elems = new Element[1];
             Elems[0] = new Element();
             count = 0;
+            output = false;
         }
         public bool AddElement()
         {
