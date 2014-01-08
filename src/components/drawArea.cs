@@ -337,7 +337,7 @@ namespace sku_to_smv
 
             if (Links != null)
             {
-                for (int i = 0; i < Links.Length - 1; i++)
+                for (int i = 0; i < Links.Length; i++)
                 {
                     if (Links[i].FromInput == true)         //Связи от входных сигналов
                     {
@@ -563,6 +563,12 @@ namespace sku_to_smv
                         else g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
                             "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
                              + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
+                        ySS += 20;
+                    }
+                    else
+                    {
+                        g.DrawString("Arc" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
+                            "\t\tx=" + Links[i].x1.ToString() + " y=" + Links[i].y1.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
                         ySS += 20;
                     }
                 }
@@ -876,7 +882,7 @@ namespace sku_to_smv
         public void CreateLinks(ref Rule[] Rules)
         {
             bool DoubleLink = true;
-            Array.Resize(ref Links, 1);
+            Array.Resize(ref Links, 0);
             //Обходи по всем правилам
             for (int i = 0; i < Rules.Length; i++)
             {
@@ -901,32 +907,32 @@ namespace sku_to_smv
                             Array.Resize(ref Links, Links.Length + 1);
                             Links[Links.Length - 1] = new Link();
 
-                            Links[Links.Length - 2].EndState = Rules[i].Elems[0].Value;
-                            Links[Links.Length - 2].StartState = Rules[i].Elems[j].Value;
+                            Links[Links.Length - 1].EndState = Rules[i].Elems[0].Value;
+                            Links[Links.Length - 1].StartState = Rules[i].Elems[j].Value;
                             //Если переход сам в себя, то арка
-                            if (Links[Links.Length - 2].EndState == Links[Links.Length - 2].StartState)
+                            if (Links[Links.Length - 1].EndState == Links[Links.Length - 1].StartState)
                             {
-                                Links[Links.Length - 2].Arc = true;
+                                Links[Links.Length - 1].Arc = true;
                             }
                             //Задаем координаты начала и конца линий
                             for (int k = 0; k < States.Length; k++)
                             {
                                 if (States[k].Name == Rules[i].Elems[0].Value)
                                 {
-                                    Links[Links.Length - 2].x2 = States[k].x + 30;
-                                    Links[Links.Length - 2].y2 = States[k].y + 30;
+                                    Links[Links.Length - 1].x2 = States[k].x + 30;
+                                    Links[Links.Length - 1].y2 = States[k].y + 30;
                                 }
                                 if (States[k].Name == Rules[i].Elems[j].Value)
                                 {
-                                    Links[Links.Length - 2].x1 = States[k].x + 30;
-                                    Links[Links.Length - 2].y1 = States[k].y + 30;
+                                    Links[Links.Length - 1].x1 = States[k].x + 30;
+                                    Links[Links.Length - 1].y1 = States[k].y + 30;
                                 }
                             }
                             //Если связь с локальным состоянием то черные линии
                             //иначе синие
                             if (Rules[i].Elems[j].Local == true)
-                                Links[Links.Length - 2].FromInput = false;
-                            else Links[Links.Length - 2].FromInput = true;
+                                Links[Links.Length - 1].FromInput = false;
+                            else Links[Links.Length - 1].FromInput = true;
 //                             for (int m = 0; m < Links.Length-2; m++)
 //                             {
 //                                 if ((Links[m].EndState == Links[Links.Length - 2].StartState) && (Links[m].StartState == Links[Links.Length - 2].EndState))

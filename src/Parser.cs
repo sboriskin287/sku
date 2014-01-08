@@ -10,7 +10,7 @@ namespace sku_to_smv
 
     public class Parser
     {
-        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END };
+        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END, O1, O2, O3, O4, O5 };
 
         int RCount;             //Количество правил полученных после анализа
         bool Inv;
@@ -136,16 +136,26 @@ namespace sku_to_smv
                 switch (st1)
                 {
                     //Буква
-                    case state.H: if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
-                        {
-                            k = i;
-                            Rules[Rules.Length - 1].output = isOUT;
-                            st1 = state.S1;
-                        }
-                        else if (InputString[i] == '[')
+                    case state.H: if (InputString[i] == '[')
                             st1 = state.OPT;
+                        else if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
+                        {
+                            if (isSKU)
+                            {
+                                k = i;
+                                Rules[Rules.Length - 1].output = isOUT;
+                                st1 = state.S1;
+                            }
+                            else
+                            {
+                                k = i;
+                                Rules[Rules.Length - 1].output = isOUT;
+                                st1 = state.O1;
+                            }
+                        }
                         else st1 = state.ERR;
                         break;
+                    //Если новая секция
                     case state.OPT: if (InputString[i] == 's')
                         {
                             isSKU = true;
@@ -162,8 +172,55 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
+                    //Ожидаем конца определения секции
                     case state.OPT_END: if (InputString[i] == ']')
                             st1 = state.H;
+                        break;
+                    case state.O1: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                        {
+                            st1 = state.O2;
+                        }
+                        else st1 = state.ERR;
+                        break;
+                    case state.O2: if (InputString[i] == '<')
+                        {
+                            st1 = state.O3;
+                            tmp = InputString.Substring(k, i - k);
+                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            k = i + 1;
+                        }
+                        else if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                        {
+                            st1 = state.O2;
+                        }
+                        else st1 = state.ERR;
+                        break;
+                    case state.O3: if (InputString[i] == '=')
+                        {
+                            st1 = state.O4;
+                            Rules[Rules.Length - 1].AddData("<=", "<=", false, isOUT);
+                            k = i + 1;
+                        }
+                        else st1 = state.ERR;
+                        break;
+                    case state.O4: if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
+                        {
+                            k = i;
+                            st1 = state.O5;
+                        }
+                        else st1 = state.ERR;
+                        break;
+                    case state.O5: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                        {
+                            st1 = state.O5;
+                        }
+                        else if (InputString[i] == ';')
+                        {
+                            tmp = InputString.Substring(k, i - k);
+                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            st1 = state.END;
+                        }
+                        else st1 = state.ERR;
                         break;
                     //Буква или цифра или '(' или '='
                     case state.S1: if (Regex.IsMatch(InputString[i].ToString(),"[a-z0-9]"))

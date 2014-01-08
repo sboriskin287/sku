@@ -14,6 +14,7 @@ namespace sku_to_smv
             pxStep = 1;
             time = 0;
             InitializeComponent();
+            this.button2.Select();
         }
 
         private void button2_Click(object sender, EventArgs e)
