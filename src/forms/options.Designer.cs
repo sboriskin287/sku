@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode13 = new System.Windows.Forms.TreeNode("Общие");
-            System.Windows.Forms.TreeNode treeNode14 = new System.Windows.Forms.TreeNode("Симуляция");
-            System.Windows.Forms.TreeNode treeNode15 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
+            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Общие");
+            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Симуляция");
+            System.Windows.Forms.TreeNode treeNode3 = new System.Windows.Forms.TreeNode("Шрифты и цвета");
             this.label4 = new System.Windows.Forms.Label();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -61,12 +61,16 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.LogFormatBox = new System.Windows.Forms.ComboBox();
+            this.label12 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label4
@@ -108,7 +112,7 @@
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(6, 66);
+            this.checkBox2.Location = new System.Drawing.Point(13, 24);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(172, 17);
             this.checkBox2.TabIndex = 3;
@@ -136,16 +140,16 @@
             // 
             this.treeView1.Location = new System.Drawing.Point(12, 12);
             this.treeView1.Name = "treeView1";
-            treeNode13.Name = "node0";
-            treeNode13.Text = "Общие";
-            treeNode14.Name = "node1";
-            treeNode14.Text = "Симуляция";
-            treeNode15.Name = "node2";
-            treeNode15.Text = "Шрифты и цвета";
+            treeNode1.Name = "node0";
+            treeNode1.Text = "Общие";
+            treeNode2.Name = "node1";
+            treeNode2.Text = "Симуляция";
+            treeNode3.Name = "node2";
+            treeNode3.Text = "Шрифты и цвета";
             this.treeView1.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode13,
-            treeNode14,
-            treeNode15});
+            treeNode1,
+            treeNode2,
+            treeNode3});
             this.treeView1.Size = new System.Drawing.Size(177, 280);
             this.treeView1.TabIndex = 3;
             this.treeView1.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeView1_AfterSelect);
@@ -220,11 +224,10 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.groupBox2);
             this.panel2.Controls.Add(this.label11);
-            this.panel2.Controls.Add(this.label6);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.textBox2);
-            this.panel2.Controls.Add(this.checkBox2);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Location = new System.Drawing.Point(195, 12);
             this.panel2.Name = "panel2";
@@ -245,7 +248,7 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label6.Location = new System.Drawing.Point(4, 90);
+            this.label6.Location = new System.Drawing.Point(11, 48);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(223, 12);
             this.label6.TabIndex = 4;
@@ -384,6 +387,40 @@
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.label12);
+            this.groupBox2.Controls.Add(this.LogFormatBox);
+            this.groupBox2.Controls.Add(this.checkBox2);
+            this.groupBox2.Controls.Add(this.label6);
+            this.groupBox2.Location = new System.Drawing.Point(10, 68);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(320, 123);
+            this.groupBox2.TabIndex = 6;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Запись симуляции";
+            // 
+            // LogFormatBox
+            // 
+            this.LogFormatBox.FormattingEnabled = true;
+            this.LogFormatBox.Items.AddRange(new object[] {
+            "Текстовый документ",
+            "HTML-файл",
+            "CSV-файл (разделители табуляция)"});
+            this.LogFormatBox.Location = new System.Drawing.Point(104, 82);
+            this.LogFormatBox.Name = "LogFormatBox";
+            this.LogFormatBox.Size = new System.Drawing.Size(130, 21);
+            this.LogFormatBox.TabIndex = 5;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(10, 85);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(88, 13);
+            this.label12.TabIndex = 6;
+            this.label12.Text = "Формат записи";
+            // 
             // options
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -393,9 +430,9 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.treeView1);
-            this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel3);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "options";
             this.Text = "Настройки";
@@ -410,6 +447,8 @@
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -446,6 +485,9 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Button button4;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.ComboBox LogFormatBox;
 
     }
 }

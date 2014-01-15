@@ -45,6 +45,7 @@ namespace sku_to_smv
 
             this.textBox2.DataBindings.Add(new Binding("Text", Settings.Default, "SimulationPeriod", false, DataSourceUpdateMode.OnPropertyChanged));
             this.checkBox2.DataBindings.Add(new Binding("Checked", Settings.Default, "LogSimulation", false, DataSourceUpdateMode.OnPropertyChanged));
+            this.LogFormatBox.DataBindings.Add(new Binding("SelectedIndex", Settings.Default, "LogFormat", false, DataSourceUpdateMode.OnPropertyChanged));
 
             this.comboBox1.SelectedIndex = 0;
         }

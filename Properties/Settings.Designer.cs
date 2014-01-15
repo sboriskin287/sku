@@ -274,5 +274,17 @@ namespace sku_to_smv.Properties {
                 this["TextFieldOptionColor"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LogFormat {
+            get {
+                return ((int)(this["LogFormat"]));
+            }
+            set {
+                this["LogFormat"] = value;
+            }
+        }
     }
 }
