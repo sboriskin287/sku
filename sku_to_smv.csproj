@@ -188,6 +188,7 @@
     <None Include="resources\new_sku.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="template\html.htm" />
     <None Include="template\vhd_tmpl.txt" />
     <None Include="resources\table_grey.bmp" />
     <None Include="resources\stop1.bmp" />

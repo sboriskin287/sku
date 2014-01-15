@@ -954,7 +954,7 @@ namespace sku_to_smv
             switch (a.Name)
             {
                 case "start":
-                    CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules);
+                    CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
                     break;
                 case "run":
                     SimulStart();
@@ -997,8 +997,9 @@ namespace sku_to_smv
         /// ожидает подключения к именованному каналу
         /// </summary>
         /// <param name="Rules">Массив разобранных правил</param>
-        public void CreateSimul(Rule[] Rules) 
+        public void CreateSimul(Rule[] Rules, string[] Outputs) 
         {
+            int tmp = -1;
             if (!b_SimulStarted)
             {
                 String resultCode;
@@ -1042,41 +1043,71 @@ namespace sku_to_smv
 
                 for (int i = 0; i < Rules.Length; i++)
                 {
-                    sb.Append("if(");
-                    for (int j = 1; j < Rules[i].Elems.Length; j++)
+                    if (!Rules[i].output)
                     {
-                        if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
+                        sb.Append("if(");
+                        for (int j = 1; j < Rules[i].Elems.Length; j++)
                         {
-                            if (Rules[i].Elems[j].Type == "State")
+
+                            if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
                             {
-                                if (Rules[i].Elems[j].Inverted)
-                                {
-                                    sb.Append(" !");
-                                }
-                                sb.Append("curState[(int)simulDefines." + Rules[i].Elems[j].Value.ToUpper() + "] ");
-                            }
-                            else
-                            {
-                                if (Rules[i].Elems[j].Type == "|") sb.Append(" || ");
-                                if (Rules[i].Elems[j].Type == "&") sb.Append(" && ");
-                                if (Rules[i].Elems[j].Type == "(")
+                                if (Rules[i].Elems[j].Type == "State")
                                 {
                                     if (Rules[i].Elems[j].Inverted)
                                     {
                                         sb.Append(" !");
                                     }
-                                    sb.Append("(");
+                                    sb.Append("curState[(int)simulDefines." + Rules[i].Elems[j].Value.ToUpper() + "] ");
                                 }
-                                if (Rules[i].Elems[j].Type == ")")
+                                else
                                 {
-                                    sb.Append(")");
+                                    if (Rules[i].Elems[j].Type == "|") sb.Append(" || ");
+                                    if (Rules[i].Elems[j].Type == "&") sb.Append(" && ");
+                                    if (Rules[i].Elems[j].Type == "(")
+                                    {
+                                        if (Rules[i].Elems[j].Inverted)
+                                        {
+                                            sb.Append(" !");
+                                        }
+                                        sb.Append("(");
+                                    }
+                                    if (Rules[i].Elems[j].Type == ")")
+                                    {
+                                        sb.Append(")");
+                                    }
                                 }
                             }
                         }
+                        tmp = -1;
+                        bool br = false;
+                        for (int j = 0; j < Outputs.Length; j++ )
+                        {
+                            for (int k = 0; k < Rules.Length; k++ )
+                            {
+                                if (Rules[k].Elems[0].Value == Outputs[j] && Rules[i].Elems[0].Value == Rules[k].Elems[2].Value)
+                                {
+                                    tmp = k;
+                                    br = true;
+                                    break;
+                                }
+                                else tmp = -1;
+                            }
+                            if (br) break;
+                        }
+                        sb.Append(") {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = true;");
+                        if (tmp != -1)
+                        {
+                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = true;}");
+                        }
+                        else sb.Append("}");
+                        sb.Append("\nelse {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = false;");
+                        if (tmp != -1)
+                        {
+                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = false;}");
+                        }
+                        else sb.Append("}");
+                        sb.AppendLine();
                     }
-                    sb.Append(") " + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = true;");
-                    sb.Append("\nelse " + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = false;");
-                    sb.AppendLine();
                 }
                 resultCode = resultCode.Insert(index, sb.ToString());
 
@@ -1190,12 +1221,13 @@ namespace sku_to_smv
             OnSimulStarted();
             if (b_EnableLogging)
             {
+                log.LogFormat = Settings.Default.LogFormat;
                 if (LogFileName.Length > 0)
                 {
-                    log.FileName = LogFileName + ".log";
+                    log.FileName = LogFileName + (log.LogFormat != 1 ? ".log" : ".htm");
                 }
-                else log.FileName = "log_" + States.GetHashCode().ToString() + ".log";
-                log.StartLog();
+                else log.FileName = "log_" + States.GetHashCode().ToString() + (log.LogFormat != 1 ? ".log" : ".htm");
+                log.StartLog(true, false, null);
             }
 
             tools.Buttons[1].Enabled = false;
@@ -1221,6 +1253,11 @@ namespace sku_to_smv
                 }
                 Refresh();
             }
+            for (int i = 0; i < States.Length; i++ )
+            {
+                log.StartLog(false, false, States[i].Name);
+            }
+            log.StartLog(false, true, null);
             this.timer1.Start();
         }
         /// <summary>
@@ -1245,23 +1282,23 @@ namespace sku_to_smv
 
             for (int i = 0; i < States.Length; i++)
             {
-                if (b_EnableLogging && States[i].InputSignal == true)
+                if (b_EnableLogging /*&& States[i].InputSignal == true*/)
                 {
-                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, true, StepStart);
+                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, States[i].Type == STATE_TYPE.INPUT, States[i].Type == STATE_TYPE.OUTPUT, StepStart);
                     StepStart = false;
                 }
                 WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
             }
             WritePipe(0, 0, 't');
-            StepStart = true;
+            //StepStart = true;
             for (int i = 0; i < States.Length; i++)
             {
-                States[i].Signaled = ReadPipe(i);
-                if (b_EnableLogging && States[i].InputSignal != true)
-                {
-                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
-                    StepStart = false;
-                }
+                    States[i].Signaled = ReadPipe(i);
+//                 if (b_EnableLogging && States[i].InputSignal != true)
+//                 {
+//                     log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
+//                     StepStart = false;
+//                 }
             }
             if (TableCreated)
             {
@@ -1392,9 +1429,13 @@ namespace sku_to_smv
 
         private void ShowLog()
         {
+            Process pr;
             ProcessStartInfo prInf = new ProcessStartInfo();
-            prInf.Arguments = log.FileName;
-            if ((prInf.Arguments = log.FileName) == null)
+            prInf.FileName = log.FileName;
+            if(log.FileName != null && log.FileName.Length > 0)
+                pr = Process.Start(prInf);
+            //prInf.Arguments = log.FileName;
+            /*if ((prInf.Arguments = log.FileName) == null)
             {
                 if (LogFileName.Length > 0)
                 {
@@ -1403,7 +1444,7 @@ namespace sku_to_smv
                 else prInf.Arguments = "log" + States.GetHashCode().ToString() + ".log";
             }
             prInf.FileName = "notepad.exe";
-            Process pr = Process.Start(prInf);
+            Process pr = Process.Start(prInf);*/
         }
         private void ThreadWork()
         {
