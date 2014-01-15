@@ -20,18 +20,20 @@ class Program
                     using (StreamReader sr = new StreamReader(pipe))
                     {
                         String tmp;
+                        byte bt;
                         while (true)
                         {
 
                             if ((tmp = sr.ReadLine()) != null)
                             {
-                                Console.WriteLine(tmp);
                                 if (tmp.Contains("step"))
                                 {
+                                    Console.WriteLine(tmp);
                                     sim.Step();
                                 }
                                 if (tmp.Contains("set"))
                                 {
+                                    Console.WriteLine(tmp);
                                     for (int i = 4; i < tmp.Length; i++ )
                                     {
                                         if (tmp[i] == ' ')
@@ -47,11 +49,14 @@ class Program
                                     {
                                         if (tmp[i] == ' ')
                                         {
-                                            pipe.WriteByte((sim.Get(int.Parse(tmp.Substring(4, i-4))) == false ? (byte)0 : (byte)1));
+                                            bt = (sim.Get(int.Parse(tmp.Substring(4, i-4))) == false ? (byte)0 : (byte)1);
+                                            pipe.WriteByte(bt);
+                                            Console.WriteLine(tmp + "-> " + bt.ToString());
                                             break;
                                         }
                                         if (i == tmp.Length-1)
                                         {
+                                            Console.WriteLine(tmp + "-> 0");
                                             pipe.WriteByte((byte)0);
                                         }
                                     }
