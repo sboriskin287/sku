@@ -44,6 +44,8 @@
             this.sigTable.Name = "sigTable";
             this.sigTable.Size = new System.Drawing.Size(482, 274);
             this.sigTable.TabIndex = 0;
+            this.sigTable.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.sigTable_CellValueNeeded);
+            this.sigTable.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.sigTable_CellValuePushed);
             // 
             // okButton
             // 
@@ -54,6 +56,7 @@
             this.okButton.TabIndex = 1;
             this.okButton.Text = "OK";
             this.okButton.UseVisualStyleBackColor = true;
+            this.okButton.Click += new System.EventHandler(this.okButton_Click);
             // 
             // cancelButton
             // 
@@ -64,6 +67,7 @@
             this.cancelButton.TabIndex = 2;
             this.cancelButton.Text = "Отмена";
             this.cancelButton.UseVisualStyleBackColor = true;
+            this.cancelButton.Click += new System.EventHandler(this.cancelButton_Click);
             // 
             // OutputSignalsTable
             // 

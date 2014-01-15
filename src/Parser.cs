@@ -571,7 +571,7 @@ namespace sku_to_smv
             sw.Flush();
             sw.Close();
         }
-        public void SaveToVHDL(string Path, bool CreateBus)
+        public void SaveToVHDL(string Path, bool CreateBus, int OuputSigCount, OutputTableElement[] OutTable)
         {
             String resultCode, tmp;
             int index;
@@ -586,7 +586,7 @@ namespace sku_to_smv
             {
                 for (int i = 0; i < Inputs.Length; i++)
                 {
-                    tmp = "--" + Inputs[i] + "\t->\tinputs[" + i.ToString() + "]\n";
+                    tmp = "-- " + Inputs[i] + "\t->\tinputs[" + i.ToString() + "]\n";
                     resultCode = resultCode.Insert(index, tmp);
                     index += tmp.Length;
                 }
@@ -602,19 +602,46 @@ namespace sku_to_smv
             resultCode = resultCode.Remove(index, "$ports".Length);
             if (CreateBus)
             {
-                tmp = "inputs				:	in		STD_LOGIC_VECTOR(" + (Inputs.Length - 1).ToString() + " downto 0)";
+                if (OuputSigCount > 0) tmp = "inputs				:	in		STD_LOGIC_VECTOR(" + (Inputs.Length - 1).ToString() + " downto 0);\n";
+                else tmp = "inputs				:	in		STD_LOGIC_VECTOR(" + (Inputs.Length - 1).ToString() + " downto 0)";
                 resultCode = resultCode.Insert(index, tmp);
+                index += tmp.Length;
             }
             else
             {
                 for (int i = 0; i < Inputs.Length-1; i++ )
                 {
-                    tmp = Inputs[i] + "				:	in		STD_LOGIC;\n";
+                    tmp = "\t\t\t" + Inputs[i] + "				:	in		STD_LOGIC;\n";
                     resultCode = resultCode.Insert(index, tmp);
                     index += tmp.Length;
                 }
-                tmp = Inputs[Inputs.Length - 1] + "				:	in		STD_LOGIC\n";
+                if (OuputSigCount > 0) tmp = "\t\t\t" + Inputs[Inputs.Length - 1] + "				:	in		STD_LOGIC;\n";
+                else tmp = "\t\t\t" + Inputs[Inputs.Length - 1] + "				:	in		STD_LOGIC\n";
                 resultCode = resultCode.Insert(index, tmp);
+                index += tmp.Length;
+            }
+
+            if (OuputSigCount > 0)
+            {
+                if (CreateBus)
+                {
+                    tmp = "\t\t\toutputs				:	out		STD_LOGIC_VECTOR(" + (OuputSigCount - 1).ToString() + " downto 0)";
+                    resultCode = resultCode.Insert(index, tmp);
+                }
+                else
+                {
+                    for (int i = 0; i < OutTable.Length-1; i++)
+                    {
+                        if (OutTable[i].HasOutput)
+                        {
+                            tmp = "\t\t\t" + OutTable[i].OutputName + "				:	out		STD_LOGIC;\n";
+                            resultCode = resultCode.Insert(index, tmp);
+                            index += tmp.Length;
+                        }
+                    }
+                    tmp = "\t\t\t" + OutTable[OutTable.Length - 1].OutputName + "				:	out		STD_LOGIC\n";
+                    resultCode = resultCode.Insert(index, tmp);
+                }
             }
             //////////////////////////////////////////////////////////////////////////
             while ((index = resultCode.IndexOf("$width")) != -1)
@@ -638,7 +665,11 @@ namespace sku_to_smv
             resultCode = resultCode.Remove(index, "$localDescription".Length);
             for (int i = 0; i < Rules.Length; i++)
             {
-                tmp = "--" + Rules[i].Elems[0].Value + "\t->\tcurState[" + i.ToString() + "]\n";
+                if (Rules[i].output)
+                {
+                    tmp = "-- not used\t->\tcurState[" + i.ToString() + "]\n";
+                }
+                else tmp = "-- " + Rules[i].Elems[0].Value + "\t->\tcurState[" + i.ToString() + "]\n";
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
             }
@@ -647,96 +678,134 @@ namespace sku_to_smv
             resultCode = resultCode.Remove(index, "$rules".Length);
             for (int i = 0; i < Rules.Length; i++)
             {
-                sb.Append("\t\tif (");
-                for (int j = 1; j < Rules[i].Elems.Length; j++)
+                if (!Rules[i].output)
                 {
-                    if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
+                    sb.Append("\t\tif (");
+                    for (int j = 1; j < Rules[i].Elems.Length; j++)
                     {
-                        if (Rules[i].Elems[j].Type == "State")
+                        if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
                         {
-                            if (Rules[i].Elems[j].Inverted)
+                            if (Rules[i].Elems[j].Type == "State")
                             {
-                                if (Rules[i].Elems[j].Local)
+                                if (Rules[i].Elems[j].Inverted)
                                 {
-                                    for (int n = 0; n < Rules.Length; n++)
+                                    if (Rules[i].Elems[j].Local)
                                     {
-                                        if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
+                                        for (int n = 0; n < Rules.Length; n++)
                                         {
-                                            sb.Append("curState(" + n.ToString() + ")  = '0'");
-                                            break;
+                                            if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
+                                            {
+                                                sb.Append("curState(" + n.ToString() + ")  = '0'");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for (int n = 0; n < Inputs.Length; n++)
+                                        {
+                                            if (Inputs[n] == Rules[i].Elems[j].Value)
+                                            {
+                                                if (CreateBus)
+                                                    sb.Append("inputs(" + n.ToString() + ")  = '0'");
+                                                else sb.Append(Inputs[n] + "  = '0'");
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    for (int n = 0; n < Inputs.Length; n++)
+                                    if (Rules[i].Elems[j].Local)
                                     {
-                                        if (Inputs[n] == Rules[i].Elems[j].Value)
+                                        for (int n = 0; n < Rules.Length; n++)
                                         {
-                                            if (CreateBus)
-                                                sb.Append("inputs(" + n.ToString() + ")  = '0'");
-                                            else sb.Append(Inputs[n] + "  = '0'");
-                                            break;
+                                            if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
+                                            {
+                                                sb.Append("curState(" + n.ToString() + ")  = '1'");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for (int n = 0; n < Inputs.Length; n++)
+                                        {
+                                            if (Inputs[n] == Rules[i].Elems[j].Value)
+                                            {
+                                                if (CreateBus)
+                                                    sb.Append("inputs(" + n.ToString() + ")  = '1'");
+                                                else sb.Append(Inputs[n] + "  = '1'");
+                                                break;
+                                            }
                                         }
                                     }
                                 }
                             }
                             else
                             {
-                                if (Rules[i].Elems[j].Local)
+                                if (Rules[i].Elems[j].Type == "|") sb.Append(" or ");
+                                if (Rules[i].Elems[j].Type == "&") sb.Append(" and ");
+                                if (Rules[i].Elems[j].Type == "(")
                                 {
-                                    for (int n = 0; n < Rules.Length; n++)
+                                    if (Rules[i].Elems[j].Inverted)
                                     {
-                                        if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
-                                        {
-                                            sb.Append("curState(" + n.ToString() + ")  = '1'");
-                                            break;
-                                        }
+                                        sb.Append(" not ");
                                     }
+                                    sb.Append("(");
                                 }
-                                else
+                                if (Rules[i].Elems[j].Type == ")")
                                 {
-                                    for (int n = 0; n < Inputs.Length; n++)
-                                    {
-                                        if (Inputs[n] == Rules[i].Elems[j].Value)
-                                        {
-                                            if (CreateBus)
-                                                sb.Append("inputs(" + n.ToString() + ")  = '1'");
-                                            else sb.Append(Inputs[n] + "  = '1'");
-                                            break;
-                                        }
-                                    }
+                                    sb.Append(")");
                                 }
-                            }
-                        }
-                        else
-                        {
-                            if (Rules[i].Elems[j].Type == "|") sb.Append(" or ");
-                            if (Rules[i].Elems[j].Type == "&") sb.Append(" and ");
-                            if (Rules[i].Elems[j].Type == "(")
-                            {
-                                if (Rules[i].Elems[j].Inverted)
-                                {
-                                    sb.Append(" not ");
-                                }
-                                sb.Append("(");
-                            }
-                            if (Rules[i].Elems[j].Type == ")")
-                            {
-                                sb.Append(")");
                             }
                         }
                     }
+                    int co = 0;
+                    int k = 0;
+                    for (k = 0; k < OutTable.Length; k++)
+                    {
+                        if (Rules[i].Elems[0].Value == OutTable[k].StateName && OutTable[k].HasOutput)
+                        {
+                            tmp = OutTable[k].OutputName;
+                            break;
+                        }
+                        else if (OutTable[k].HasOutput)
+                            co++;
+                    }
+                    if (CreateBus)
+                    {
+                        if (k < OutTable.Length && OutTable[k].HasOutput)
+                        {
+                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\toutputs(" + co.ToString() + ") <= '1';");
+                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\toutputs(" + co.ToString() + ") <= '0';");
+                        }
+                        else
+                        {
+                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
+                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
+                        }
+                    }
+                    else
+                    {
+                        if (k < OutTable.Length && OutTable[k].HasOutput)
+                        {
+                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\t" + tmp.ToString() + " <= '1';");
+                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\t" + tmp.ToString() + " <= '0';");
+                        }
+                        else
+                        {
+                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
+                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
+                        }
+                    }
+                    sb.AppendLine("\n\t\tend if;");
                 }
-                sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
-                sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
-                sb.AppendLine("\n\t\tend if;");
             }
             resultCode = resultCode.Insert(index, sb.ToString());
             sw.Write(resultCode);
             sw.Flush();
             sw.Close();
-            //fr.Close();
         }
     }
 

@@ -6,6 +6,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 
+// TODO Дописать таблицу выходных сигналов
+// TODO Внести изменеия в генератор SMV
+// TODO Изменить логирование в файл txt
+
 namespace sku_to_smv
 {
     enum defines{NO_STATE_SELECTED = -1};
@@ -75,7 +79,7 @@ namespace sku_to_smv
                 }
             }
             ParceTimer.Start();
-            this.DataBindings.Add(new Binding("Size", Settings.Default, "MainWndSize"));
+            this.DataBindings.Add(new Binding("Size", Settings.Default, "MainWndSize", false, DataSourceUpdateMode.OnPropertyChanged));
             this.OnResizeEnd(null);
 
             ApplySettings();
@@ -404,12 +408,14 @@ namespace sku_to_smv
                 this.toolStripButton6.Enabled = false;
                 this.toolStripButton7.Enabled = false;
             }
-            pictureBox1.CreateSimul(parser.Rules);
+            pictureBox1.CreateSimul(parser.Rules, parser.Outputs);
         }
 
         private void генерироватьVHDLToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool isBreak = false;
             /////////////Вывод в VHDL//////////////////////////////////
+
             saveFileDialog1.Filter = "VHDL files (*.vdh)|*.vhd";
             saveFileDialog1.RestoreDirectory = true;
             bool b_CreateBus = false;
@@ -431,11 +437,29 @@ namespace sku_to_smv
                     this.toolStripProgressBar1.Value = 50;
                     return;
                 }
-                this.toolStripProgressBar1.Value = 50;
-                PrintText("Разбор окончен");
-                parser.SaveToVHDL(sSaveFileName, b_CreateBus);
-                this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
-                this.toolStripProgressBar1.Value = 100;
+                OutputSignalsTable form3 = new OutputSignalsTable(parser.LocalStates.Length);
+                for (int i = 0; i < parser.LocalStates.Length; i++)
+                {
+                    isBreak = false;
+                    for (int j = 0; j < parser.Rules.Length; j++)
+                    {
+                        if (parser.Rules[j].output && parser.Rules[j].Elems[2].Value == parser.LocalStates[i])
+                        {
+                            form3.AddState(i, parser.LocalStates[i], parser.Rules[j].Elems[0].Value);
+                            isBreak = true;
+                            break;
+                        }
+                    }
+                    if (!isBreak) form3.AddState(i, parser.LocalStates[i], null);
+                }
+                if (form3.ShowDialog() == DialogResult.OK)
+                {
+                    this.toolStripProgressBar1.Value = 50;
+                    PrintText("Разбор окончен");
+                    parser.SaveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
+                    this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
+                    this.toolStripProgressBar1.Value = 100;
+                }
             }
             ///////////////////////////////////////////////////
         }
@@ -575,6 +599,7 @@ namespace sku_to_smv
                 - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel1.Size.Height);
             this.toolStripStatusLabel2.Size = new System.Drawing.Size((this.Size.Width - this.toolStripProgressBar1.Size.Width
                 - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel2.Size.Height);
+            Settings.Default.Save();
         }
 
         private void SimulStarted(object sender, EventArgs e)
