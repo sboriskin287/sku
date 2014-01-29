@@ -13,9 +13,12 @@ namespace sku_to_smv
         bool LoopSteps;
         DataGridViewCellStyle selectStyle, inputStyle;
         TableElement[] Table;
-        public SignalTable(int rows)
+        Control MyParent;
+
+        public SignalTable(int rows, Control _Parent = null)
         {
             InitializeComponent();
+            this.MyParent = _Parent;
 
             CurrentColCount = 1;
             CurrentRowCount = rows;
@@ -41,6 +44,10 @@ namespace sku_to_smv
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToOrderColumns = false;
             this.toolStripLabel1.Text = "Шаг " + (CurrentStep+1);
+            for (int i = 0; i < CurrentRowCount; i++)
+            {
+                this.dataGridView1.Rows[i].Cells[CurrentStep].Style = selectStyle;
+            }
             //UpdateTable();
         }
         public void ShowT()
@@ -411,6 +418,35 @@ namespace sku_to_smv
                     }
                 }
                 this.dataGridView1.Update();
+            }
+        }
+
+        private void startStripButton_Click(object sender, EventArgs e)
+        {
+            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("run"));
+        }
+
+        private void stepStripButton_Click(object sender, EventArgs e)
+        {
+            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("step"));
+        }
+
+        private void stopStripButton_Click(object sender, EventArgs e)
+        {
+            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("stop"));
+        }
+
+        private void resetStripButton_Click(object sender, EventArgs e)
+        {
+            ResetSteps();
+        }
+        public void UpdateSimControls(bool[] Controls)
+        {
+            if (Controls.Length >= 3)
+            {
+                this.startStripButton.Enabled = Controls[0];
+                this.stepStripButton.Enabled = Controls[1];
+                this.stopStripButton.Enabled = Controls[2];
             }
         }
     }

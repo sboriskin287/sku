@@ -286,14 +286,15 @@ namespace sku_to_smv
         }
         public MouseState CheckMouseState(MouseEventArgs e)
         {
-            if ((e.X > Location.X && e.X < Location.X + size.Width && e.Y > Location.Y && e.Y < Location.Y + size.Height) && Visible)
-            {
-                if (e.Button == MouseButtons.Left && Enabled)
+            if (e != null)
+                if ((e.X > Location.X && e.X < Location.X + size.Width && e.Y > Location.Y && e.Y < Location.Y + size.Height) && Visible)
                 {
-                    return ms = MouseState.CLICK;
+                    if (e.Button == MouseButtons.Left && Enabled)
+                    {
+                        return ms = MouseState.CLICK;
+                    }
+                    return ms = MouseState.HOVER;
                 }
-                return ms = MouseState.HOVER;
-            }
             return ms = MouseState.NONE;
         }
     }

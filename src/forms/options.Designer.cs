@@ -404,9 +404,9 @@
             // 
             this.LogFormatBox.FormattingEnabled = true;
             this.LogFormatBox.Items.AddRange(new object[] {
-            "Текстовый документ",
+            "Текстовый документ (разделитель табуляция)",
             "HTML-файл",
-            "CSV-файл (разделители табуляция)"});
+            "CSV-файл"});
             this.LogFormatBox.Location = new System.Drawing.Point(104, 82);
             this.LogFormatBox.Name = "LogFormatBox";
             this.LogFormatBox.Size = new System.Drawing.Size(130, 21);

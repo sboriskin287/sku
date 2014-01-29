@@ -36,8 +36,14 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.startStripButton = new System.Windows.Forms.ToolStripButton();
+            this.stepStripButton = new System.Windows.Forms.ToolStripButton();
+            this.stopStripButton = new System.Windows.Forms.ToolStripButton();
+            this.resetStripButton = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.toolStrip1.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView1
@@ -46,9 +52,9 @@
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Location = new System.Drawing.Point(0, 28);
+            this.dataGridView1.Location = new System.Drawing.Point(0, 53);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(677, 448);
+            this.dataGridView1.Size = new System.Drawing.Size(677, 423);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellEndEdit);
             this.dataGridView1.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dataGridView1_CellValueNeeded);
@@ -120,11 +126,66 @@
             this.toolStripLabel1.Size = new System.Drawing.Size(86, 22);
             this.toolStripLabel1.Text = "toolStripLabel1";
             // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.startStripButton,
+            this.stepStripButton,
+            this.stopStripButton,
+            this.resetStripButton});
+            this.toolStrip2.Location = new System.Drawing.Point(0, 25);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(677, 25);
+            this.toolStrip2.TabIndex = 2;
+            this.toolStrip2.Text = "toolStrip2";
+            // 
+            // startStripButton
+            // 
+            this.startStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.startStripButton.Image = global::sku_to_smv.Properties.Resources.play;
+            this.startStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.startStripButton.Name = "startStripButton";
+            this.startStripButton.Size = new System.Drawing.Size(23, 22);
+            this.startStripButton.Text = "Запуск симуляции";
+            this.startStripButton.Click += new System.EventHandler(this.startStripButton_Click);
+            // 
+            // stepStripButton
+            // 
+            this.stepStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stepStripButton.Image = global::sku_to_smv.Properties.Resources.step;
+            this.stepStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.stepStripButton.Name = "stepStripButton";
+            this.stepStripButton.Size = new System.Drawing.Size(23, 22);
+            this.stepStripButton.Text = "Шаг с остановом";
+            this.stepStripButton.Click += new System.EventHandler(this.stepStripButton_Click);
+            // 
+            // stopStripButton
+            // 
+            this.stopStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.stopStripButton.Enabled = false;
+            this.stopStripButton.Image = global::sku_to_smv.Properties.Resources.stop;
+            this.stopStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.stopStripButton.Name = "stopStripButton";
+            this.stopStripButton.Size = new System.Drawing.Size(23, 22);
+            this.stopStripButton.Text = "Остановить симуляцию";
+            this.stopStripButton.Click += new System.EventHandler(this.stopStripButton_Click);
+            // 
+            // resetStripButton
+            // 
+            this.resetStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.resetStripButton.Image = global::sku_to_smv.Properties.Resources.RepeatHS;
+            this.resetStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.resetStripButton.Name = "resetStripButton";
+            this.resetStripButton.Size = new System.Drawing.Size(23, 22);
+            this.resetStripButton.Text = "Начать с первого шага";
+            this.resetStripButton.Click += new System.EventHandler(this.resetStripButton_Click);
+            // 
             // SignalTable
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(677, 476);
+            this.Controls.Add(this.toolStrip2);
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.dataGridView1);
             this.Name = "SignalTable";
@@ -133,6 +194,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -148,5 +211,10 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton toolStripButton4;
         private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStrip toolStrip2;
+        private System.Windows.Forms.ToolStripButton startStripButton;
+        private System.Windows.Forms.ToolStripButton stepStripButton;
+        private System.Windows.Forms.ToolStripButton stopStripButton;
+        private System.Windows.Forms.ToolStripButton resetStripButton;
     }
 }

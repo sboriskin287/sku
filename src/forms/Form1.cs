@@ -6,9 +6,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 
-// TODO Дописать таблицу выходных сигналов
+// TODO Дописать таблицу входных сигналов
 // TODO Внести изменеия в генератор SMV
-// TODO Изменить логирование в файл txt
 
 namespace sku_to_smv
 {
@@ -107,6 +106,7 @@ namespace sku_to_smv
                 b_FileLoad = true;
                 //TextCH = false;
                 sOpenSaveFileName = sOpenSaveFileName.Remove(sOpenSaveFileName.Length - 4);
+                pictureBox1.ClearArea();
                 pictureBox1.LogFileName = sOpenSaveFileName;
                 Analysed = false;
             }

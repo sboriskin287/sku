@@ -19,6 +19,8 @@ namespace sku_to_smv
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
         ToolTip toolTip;
+        Point MouseLastPosition;
+        System.Windows.Forms.Timer ClickToolPanelTimer;
         
         ToolPanel tools;
         Graphics g;
@@ -264,6 +266,10 @@ namespace sku_to_smv
             // Таймер, отсчитывает шаги симуляции
             // 
             //this.timer1.Interval = 2000;
+            this.ClickToolPanelTimer = new System.Windows.Forms.Timer();
+            this.ClickToolPanelTimer.Interval = 200;
+            this.ClickToolPanelTimer.Tick += new System.EventHandler(this.ClickToolPanelTimer_Tick);
+
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
             this.ResumeLayout(false);
@@ -755,7 +761,7 @@ namespace sku_to_smv
             r = 30 * ScaleT;
             curX = e.X;
             curY = e.Y;
-            if ((str = tools.CheckMouseState(e, false)) != null)
+            if (MouseLastPosition != e.Location && (str = tools.CheckMouseState(e, false)) != null)
             {
                 this.toolTip.Show(str, this, curX + 10, curY - 15, 500);
             }
@@ -780,6 +786,7 @@ namespace sku_to_smv
                 yM = e.Y;
                 
             }
+            MouseLastPosition = e.Location;
 //             if ((e.Button == MouseButtons.Left && StateSelected) || LinkSelected)
 //             {
                 Refresh();
@@ -819,8 +826,10 @@ namespace sku_to_smv
         /// </summary>
         public void CreateStates(ref string[] LocalStates, ref string[] Inputs, ref string[] Outputs)
         {
+            int n = 0;
+            int counter = 0;
             xs = 50;
-            ys = 10;
+            ys = 40;
             Array.Resize(ref States, 0);
             States = new State[Inputs.Length];
             for (int j = 0; j < States.Length; j++)
@@ -834,10 +843,11 @@ namespace sku_to_smv
             {
                 States[i].Name = Inputs[i];
                 States[i].x = xs;
-                xs += 70;
+                //xs += 70;
                 States[i].y = ys;
                 States[i].InputSignal = true;
                 States[i].Type = STATE_TYPE.INPUT;
+                ys += 62;
             }
             InputsLeight = Inputs.Length;
             Array.Resize(ref States, States.Length + LocalStates.Length);
@@ -845,15 +855,24 @@ namespace sku_to_smv
             {
                 States[i] = new State();
             }
-            xs = 50;
-            ys = 10;
+            n = (int)Math.Truncate(Math.Sqrt(States.Length));
+            xs = 120;
+            ys = 62;
             for (int i = Inputs.Length; i < States.Length; i++)
             {
                 States[i].Name = LocalStates[i - Inputs.Length];
-                States[i].x = xs;
-                xs += 80;
-                States[i].y = rnd.Next(70, 300);
+                States[i].x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
+                States[i].y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
                 States[i].Type = STATE_TYPE.NONE;
+
+                ys += 70;
+                counter++;
+                if (counter == n)
+                {
+                    counter = 0;
+                    xs += 70;
+                    ys = 62;
+                }
             }
             if (Outputs != null && Outputs.Length > 0)
             {
@@ -863,13 +882,13 @@ namespace sku_to_smv
                 {
                     States[i] = new State();
                 }
-                xs = 50;
-                ys = 200;
+                xs = 112;
+                ys = 10;
                 for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
                 {
                     States[i].Name = Outputs[i - (Inputs.Length + LocalStates.Length)];
                     States[i].x = xs;
-                    xs += 70;
+                    xs += 62;
                     States[i].y = ys;
                     States[i].Type = STATE_TYPE.OUTPUT;
                 }
@@ -949,9 +968,10 @@ namespace sku_to_smv
                 }
             }
         }
-        public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs a)
+        public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {
-            switch (a.Name)
+            this.ClickToolPanelTimer.Start();
+            switch (e.Name)
             {
                 case "start":
                     CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
@@ -960,7 +980,7 @@ namespace sku_to_smv
                     SimulStart();
                     break;
                 case "step":
-                    SimulStep();
+                    SimulStep(true);
                     break;
                 case "stop":
                     SimulStop();
@@ -976,6 +996,12 @@ namespace sku_to_smv
                     break;
             }
 
+        }
+        private void ClickToolPanelTimer_Tick(object sender, EventArgs e)
+        {
+            this.OnMouseClick(null);
+            this.ClickToolPanelTimer.Stop();
+            this.Refresh();
         }
 
         private void OnSimulStarted()
@@ -1224,9 +1250,9 @@ namespace sku_to_smv
                 log.LogFormat = Settings.Default.LogFormat;
                 if (LogFileName.Length > 0)
                 {
-                    log.FileName = LogFileName + (log.LogFormat != 1 ? ".log" : ".htm");
+                    log.FileName = LogFileName;
                 }
-                else log.FileName = "log_" + States.GetHashCode().ToString() + (log.LogFormat != 1 ? ".log" : ".htm");
+                else log.FileName = "log_" + States.GetHashCode().ToString();
                 log.StartLog(true, false, null);
             }
 
@@ -1236,6 +1262,7 @@ namespace sku_to_smv
 
             if (table != null)
             {
+                table.UpdateSimControls(new bool[] {true, false, true});
                 table.ResetSteps();
                 if (TableCreated)
                 {
@@ -1265,8 +1292,10 @@ namespace sku_to_smv
         /// </summary>
         public void SimulStop()
         {
-            if (b_EnableLogging)
+            if (b_EnableLogging && this.timer1.Enabled)
                 log.EndLog();
+            if (table != null)
+                table.UpdateSimControls(new bool[] { true, true, false });
             this.timer1.Stop();
             OnSimiulStoped();
             tools.Buttons[1].Enabled = true;
@@ -1276,8 +1305,27 @@ namespace sku_to_smv
         /// <summary>
         /// Шаг симуляции
         /// </summary>
-        public void SimulStep()
+        public void SimulStep(bool b_Manual = false)
         {
+            if (b_Manual)
+            {
+                if (TableCreated)
+                {
+                    for (int i = 0; i < InputsLeight; i++)
+                    {
+                        switch (table.GetElementByNumber(i))
+                        {
+                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                                break;
+                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
+                                break;
+                            case returnResults.rUNDEF: break;
+                        }
+                    }
+                }
+                Refresh();
+                System.Threading.Thread.Sleep(500);
+            }
             bool StepStart = true;
 
             for (int i = 0; i < States.Length; i++)
@@ -1361,7 +1409,7 @@ namespace sku_to_smv
                 }
                 table = null;
                 GC.Collect();
-                table = new SignalTable(InputsLeight);
+                table = new SignalTable(InputsLeight, this);
                 this.table.FormClosed += handler;
                 for (int i = 0; i < InputsLeight; i++)
                 {
@@ -1431,7 +1479,7 @@ namespace sku_to_smv
         {
             Process pr;
             ProcessStartInfo prInf = new ProcessStartInfo();
-            prInf.FileName = log.FileName;
+            prInf.FileName = log.SavedFileName;
             if(log.FileName != null && log.FileName.Length > 0)
                 pr = Process.Start(prInf);
             //prInf.Arguments = log.FileName;
@@ -1446,9 +1494,15 @@ namespace sku_to_smv
             prInf.FileName = "notepad.exe";
             Process pr = Process.Start(prInf);*/
         }
-        private void ThreadWork()
+        public void ClearArea()
         {
-
+            if (b_SimulStarted)
+            {
+                CreateSimul(null, null);
+            }
+            Array.Resize(ref Links, 0);
+            Array.Resize(ref States, 0);
+            GC.Collect();
         }
     } 
 }

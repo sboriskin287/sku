@@ -77,9 +77,20 @@ namespace sku_to_smv
                     {
                         TableData[e.RowIndex].OutputName = TableData[e.RowIndex].StateName + "_out";
                     }
+                    this.Refresh();
                     break;
-                case 1: if (!isNameExists((string)e.Value, e.RowIndex)) TableData[e.RowIndex].OutputName = (String)e.Value;
-                    else MessageBox.Show("Имена выходных сигналов не могут совпадать", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                case 1: if (e.Value == null || ((String)e.Value).Length == 0)
+                    {
+                        if (TableData[e.RowIndex].HasOutput)
+                        {
+                            MessageBox.Show("Имя выходного сигнала не может быть пустым", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            TableData[e.RowIndex].OutputName = TableData[e.RowIndex].StateName + "_out";
+                        }
+                    }
+                    else
+                        if (!isNameExists((string)e.Value, e.RowIndex)) TableData[e.RowIndex].OutputName = (String)e.Value;
+                        else MessageBox.Show("Имена выходных сигналов и состояний не могут совпадать", Application.ProductName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.Refresh();
                     break;
                 case 2: break;
             }
@@ -88,7 +99,7 @@ namespace sku_to_smv
         {
             for (int i = 0; i < TableData.Length; i++ )
             {
-                if (TableData[i].OutputName == _Name && i != _index)
+                if ((TableData[i].OutputName == _Name && i != _index) || TableData[i].StateName == _Name)
                     return true;
             }
             return false;

@@ -44,6 +44,10 @@ namespace sku_to_smv
                 {
                     sw.Write(":=");
                 }
+                else if (Elems[j].Type == "<=")
+                {
+                    sw.Write(":=");
+                }
                 else if (Elems[j].Type == "t+1")
                 {
                 }

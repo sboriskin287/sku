@@ -18,6 +18,7 @@ namespace sku_to_smv
         bool isOUT;
 
         public Rule[] Rules;           //Массив правил, строящийся при анализе
+        public Rule[] OutputRules;           //Массив правил, строящийся при анализе
         public string[] LocalStates;   //Список локальных состояний
         public string[] Inputs;        //Список входных сигналов
         public string[] RecovStates;   //Список повторновходимых состояний
@@ -40,6 +41,12 @@ namespace sku_to_smv
             Array.Resize(ref Rules, Rules.Length + 1);
             Rules[Rules.Length - 1] = new Rule();
             RCount++;
+        }
+        private void AddOutRule()
+        {
+            Array.Resize(ref OutputRules, OutputRules.Length + 1);
+            OutputRules[Rules.Length - 1] = new Rule();
+            //RCount++;
         }
         /// <summary>
         /// Запуск парсера
@@ -499,7 +506,16 @@ namespace sku_to_smv
             for (int i = 0; i < Inputs.Length; i++)
             {
                 sw.Write(Inputs[i]);
-                if (i != Inputs.Length - 1)
+                if ((i != Inputs.Length - 1) || Outputs.Length > 0)
+                {
+                    sw.Write(",");
+                }
+                sw.Flush();
+            }
+            for (int i = 0; i < Outputs.Length; i++)
+            {
+                sw.Write(Outputs[i]);
+                if (i != Outputs.Length - 1)
                 {
                     sw.Write(",");
                 }
@@ -517,6 +533,20 @@ namespace sku_to_smv
                 sw.Flush();
             }
             sw.Write(": boolean;\r\n");
+            if (Outputs.Length > 0)
+            {
+                sw.Write("\toutput ");
+                for (int i = 0; i < Outputs.Length; i++)
+                {
+                    sw.Write(Outputs[i]);
+                    if (i != Outputs.Length - 1)
+                    {
+                        sw.Write(",");
+                    }
+                    sw.Flush();
+                }
+                sw.Write(": boolean;\r\n");
+            }
             //sw.Write("\toutput ");
             sw.Write("\tVAR ");
             for (int i = 0; i < LocalStates.Length; i++)
@@ -546,6 +576,11 @@ namespace sku_to_smv
                 sw.Write("\tnext(" + LocalStates[i] + ") :=0;\r\n");
                 sw.Flush();
             }
+            for (int i = 0; i < Outputs.Length; i++)
+            {
+                sw.Write("\tnext(" + Outputs[i] + ") :=0;\r\n");
+                sw.Flush();
+            }
             sw.Write("}\r\n");
             sw.Write("in\r\n{\r\n");
             for (int i = 0; i < Rules.Length; i++)
@@ -559,6 +594,11 @@ namespace sku_to_smv
             for (int i = 0; i < LocalStates.Length; i++)
             {
                 sw.Write("SPEC EF " + LocalStates[i] + ";\r\n");
+                sw.Flush();
+            }
+            for (int i = 0; i < Outputs.Length; i++)
+            {
+                sw.Write("SPEC EF " + Outputs[i] + ";\r\n");
                 sw.Flush();
             }
             sw.Write("--Recoverability of states\r\n");
@@ -582,7 +622,7 @@ namespace sku_to_smv
             //////////////////////////////////////////////////////////////////////////
             index = resultCode.IndexOf("$inputDescription");
             resultCode = resultCode.Remove(index, "$inputDescription".Length);
-            if (!CreateBus)
+            if (CreateBus)
             {
                 for (int i = 0; i < Inputs.Length; i++)
                 {
