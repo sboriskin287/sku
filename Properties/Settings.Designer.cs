@@ -286,5 +286,17 @@ namespace sku_to_smv.Properties {
                 this["LogFormat"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool MainWndFullScreen {
+            get {
+                return ((bool)(this["MainWndFullScreen"]));
+            }
+            set {
+                this["MainWndFullScreen"] = value;
+            }
+        }
     }
 }

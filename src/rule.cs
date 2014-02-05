@@ -3,11 +3,17 @@ using System.IO;
 
 namespace sku_to_smv
 {
+    // Summary:
+    //     Описывает элемент списка правил автомата 
+    //     создающегося при разборе его описания.
     public class Rule
     {
-        public Element[] Elems;
-        int count;
-        public bool output;
+        public Element[] Elems;     //набор элементов правила.
+
+        int count;                  //счетчик элементов в правиле.
+
+        public bool output;         //определяет евляется ли правило 
+                                    // описанием выходного сигнала.
         public Rule()
         {
             Elems = new Element[1];
@@ -15,6 +21,8 @@ namespace sku_to_smv
             count = 0;
             output = false;
         }
+        // Summary:
+        //     Добавляет пустой элемен в правило.
         public bool AddElement()
         {
             Array.Resize(ref Elems, Elems.Length + 1);
@@ -22,6 +30,8 @@ namespace sku_to_smv
             count++;
             return true;
         }
+        // Summary:
+        //     Добавляет элемент в правило и заполняет его данными.
         public bool AddData(string Type, string Value, bool Inv, bool Output = false)
         {
             Elems[count].Empty = false;
@@ -32,6 +42,8 @@ namespace sku_to_smv
             AddElement();
             return true;
         }
+        // Summary:
+        //     компонует правило в строку и выводит на печать.
         public void PrintRule(StreamWriter sw)
         {
             for (int j = 0; j < Elems.Length - 1; j++)
@@ -58,6 +70,8 @@ namespace sku_to_smv
             }
             sw.Write(";");
         }
+        // Summary:
+        //     Очищает правило.
         public void Clear()
         {
             Array.Resize(ref Elems, 1);

@@ -12,17 +12,17 @@ namespace sku_to_smv
     {
         enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END, O1, O2, O3, O4, O5 };
 
-        int RCount;             //Количество правил полученных после анализа
+        int RCount;                    //Количество правил полученных после анализа
         bool Inv;
         bool isSKU;
         bool isOUT;
 
         public Rule[] Rules;           //Массив правил, строящийся при анализе
-        public Rule[] OutputRules;           //Массив правил, строящийся при анализе
+        public Rule[] OutputRules;     //Массив правил, строящийся при анализе
         public string[] LocalStates;   //Список локальных состояний
         public string[] Inputs;        //Список входных сигналов
         public string[] RecovStates;   //Список повторновходимых состояний
-        public string[] Outputs;
+        public string[] Outputs;       //Список выходных сигналов
         public Parser()
         {
             //Инициализируем массивы

@@ -78,8 +78,13 @@ namespace sku_to_smv
                 }
             }
             ParceTimer.Start();
-            this.DataBindings.Add(new Binding("Size", Settings.Default, "MainWndSize", false, DataSourceUpdateMode.OnPropertyChanged));
-            this.OnResizeEnd(null);
+            //this.DataBindings.Add(new Binding("Size", Settings.Default, "MainWndSize", false, DataSourceUpdateMode.OnPropertyChanged));
+            //this.OnResizeEnd(null);
+            this.Size = Settings.Default.MainWndSize;
+            if (Settings.Default.MainWndMaximized)
+                this.WindowState = FormWindowState.Maximized;
+            else
+                this.WindowState = FormWindowState.Normal;
 
             ApplySettings();
         }
@@ -379,7 +384,10 @@ namespace sku_to_smv
                     (this.tabControl1.TabPages[i].Controls[0] as drawArea).ClosePipe();
                 }
             }
-            Settings.Default.MainWndSize = this.Size;
+            if (this.WindowState != FormWindowState.Maximized)
+                Settings.Default.MainWndSize = this.Size;
+            else Settings.Default.MainWndMaximized = true;
+
             Settings.Default.Save();
         }
 
@@ -591,14 +599,22 @@ namespace sku_to_smv
 
         private void Form1_ResizeEnd(object sender, EventArgs e)
         {
-            if (this.Size.Width < 800)
-                this.Size = new System.Drawing.Size(800, this.Size.Height);
-            if (this.Size.Height < 600)
-                this.Size = new System.Drawing.Size(this.Size.Width, 600);
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size((this.Size.Width - this.toolStripProgressBar1.Size.Width
-                - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel1.Size.Height);
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size((this.Size.Width - this.toolStripProgressBar1.Size.Width
-                - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel2.Size.Height);
+            if (this.WindowState == FormWindowState.Maximized)
+            {
+                Settings.Default.MainWndMaximized = true;
+            }
+            else
+            {
+                if (this.Size.Width < 800)
+                    this.Size = new System.Drawing.Size(800, this.Size.Height);
+                if (this.Size.Height < 600)
+                    this.Size = new System.Drawing.Size(this.Size.Width, 600);
+                this.toolStripStatusLabel1.Size = new System.Drawing.Size((this.Size.Width - this.toolStripProgressBar1.Size.Width
+                    - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel1.Size.Height);
+                this.toolStripStatusLabel2.Size = new System.Drawing.Size((this.Size.Width - this.toolStripProgressBar1.Size.Width
+                    - this.toolStripSplitButton1.Size.Width - 50) / 2, this.toolStripStatusLabel2.Size.Height);
+                Settings.Default.MainWndSize = this.Size;
+            }
             Settings.Default.Save();
         }
 
