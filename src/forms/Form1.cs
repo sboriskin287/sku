@@ -5,9 +5,10 @@ using sku_to_smv.Properties;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
+using System.Diagnostics;
+using System.Reflection;
 
 // TODO Дописать таблицу входных сигналов
-// TODO Внести изменеия в генератор SMV
 
 namespace sku_to_smv
 {
@@ -19,6 +20,7 @@ namespace sku_to_smv
         bool Saved, TextCH, Inv, Analysed;
         bool b_FileLoad;
         bool b_Parsing;
+        bool b_TxtHLEnable;
         string sOpenFileName, sOpenSaveFileName, sSaveFileName, sAutoSaveFileName;
         
         public Parser parser;
@@ -489,8 +491,9 @@ namespace sku_to_smv
 
         private void ParceTimer_Tick(object sender, EventArgs e)
         {
-            if (TextCH)
+            if (TextCH && b_TxtHLEnable)
             {
+                this.richTextBox1.ShowSelectionMargin = false;
                 TextCH = false;
                 b_Parsing = true;
                 int Index = this.richTextBox1.SelectionStart;
@@ -525,6 +528,7 @@ namespace sku_to_smv
                     }
                 }
                 this.richTextBox1.Select(Index, 0);
+                this.richTextBox1.ShowSelectionMargin = true;
                 b_Parsing = false;
                 //this.richTextBox1.SelectionStart = Index;
             }
@@ -563,6 +567,16 @@ namespace sku_to_smv
                 this.AutosaveTimer.Start();
             }
             else this.AutosaveTimer.Stop();
+            b_TxtHLEnable = Settings.Default.TextFieldEnableHighLight;
+            if (!b_TxtHLEnable)
+            {
+                int Index = this.richTextBox1.SelectionStart;
+                this.richTextBox1.SelectAll();
+                this.richTextBox1.ForeColor = Settings.Default.TextFieldTextColor;
+                this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
+                this.richTextBox1.SelectionColor = Settings.Default.TextFieldTextColor;
+                this.richTextBox1.Select(Index, 0);
+            }
             pictureBox1.ApplySettings();
             //int Index = this.richTextBox1.SelectionStart;
             this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
@@ -668,7 +682,8 @@ namespace sku_to_smv
 
         private void помощьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Разработал Кутузов Владимир\nПГУ 2013", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
+            MessageBox.Show("Разработал Кутузов Владимир\nПГУ 2013", Assembly.GetExecutingAssembly().GetName().Name + " " + Assembly.GetExecutingAssembly().GetName().Version.ToString()
+                , MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
         }
         //Поиск парных скобок
         /*private void richTextBox1_Click(object sender, EventArgs e)

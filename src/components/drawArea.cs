@@ -57,6 +57,7 @@ namespace sku_to_smv
         bool b_ShowDebugInfo;
         bool b_SavingImage;
         int SelectedState;
+        int stepNumber;
         bool DrawInputs;
         bool b_EnableLogging;
 
@@ -101,10 +102,10 @@ namespace sku_to_smv
         {
             //Отображение отладочной информации на графе
             b_ShowDebugInfo = false;
-
             ScaleT = 1F;
             xT = 0;
             yT = 0;
+            stepNumber = 1;
             InputsLeight = 0;
             OutputsLeight = 0;
 
@@ -648,7 +649,7 @@ namespace sku_to_smv
                 result = CheckSelectedState(xkur, ykur, r, false);
                 //CheckSelectedLink(xkur, ykur);
             }
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right && b_SimulStarted)
             {
                 if (CheckSelectedState(xkur, ykur, r, true) > -1)
                 {
@@ -1154,7 +1155,9 @@ namespace sku_to_smv
                 FileInfo fi = new FileInfo(outputAssembly);
                 if (results.Errors.Count == 0 && fi.Exists)
                 {
-                    Process pr = Process.Start(new ProcessStartInfo(outputAssembly));
+                    ProcessStartInfo psi= new ProcessStartInfo(outputAssembly);
+                    psi.WindowStyle = ProcessWindowStyle.Minimized;
+                    Process pr = Process.Start(psi);
                     pipe = new NamedPipeServerStream("{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}", PipeDirection.InOut);
                     pipe.WaitForConnection();
                     sw = new StreamWriter(pipe);
@@ -1198,7 +1201,7 @@ namespace sku_to_smv
         /// <param name="num">Номер сигнала</param>
         /// <param name="b">Значение сигнала</param>
         /// <param name="ch">Тип сообщения</param>
-        private void WritePipe(int num, int b, char ch)
+        private void WritePipe(int num, int b, char ch, int step = 0)
         {
             try
             {
@@ -1210,7 +1213,7 @@ namespace sku_to_smv
                     }
                     if (ch == 't')
                     {
-                        sw.WriteLine("step");
+                        sw.WriteLine("step " + step);
                     }
                     if (ch == 'e')
                     {
@@ -1278,7 +1281,7 @@ namespace sku_to_smv
                         }
                     }
                 }
-                Refresh();
+                //Refresh();
             }
             for (int i = 0; i < States.Length; i++ )
             {
@@ -1337,7 +1340,8 @@ namespace sku_to_smv
                 }
                 WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
             }
-            WritePipe(0, 0, 't');
+            WritePipe(0, 0, 't', stepNumber);
+            stepNumber++;
             //StepStart = true;
             for (int i = 0; i < States.Length; i++)
             {

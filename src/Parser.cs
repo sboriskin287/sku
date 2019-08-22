@@ -624,11 +624,28 @@ namespace sku_to_smv
             resultCode = resultCode.Remove(index, "$inputDescription".Length);
             if (CreateBus)
             {
+                tmp = "-- Входные сигналы\n";
+                resultCode = resultCode.Insert(index, tmp);
+                index += tmp.Length;
                 for (int i = 0; i < Inputs.Length; i++)
                 {
                     tmp = "-- " + Inputs[i] + "\t->\tinputs[" + i.ToString() + "]\n";
                     resultCode = resultCode.Insert(index, tmp);
                     index += tmp.Length;
+                }
+                int j = 0;
+                tmp = "-- Выходные сигналы\n";
+                resultCode = resultCode.Insert(index, tmp);
+                index += tmp.Length;
+                for (int i = 0; i < OutTable.Length; i++)
+                {
+                    if (OutTable[i].HasOutput)
+                    {
+                        tmp = "-- " + OutTable[i].OutputName + "\t->\toutputs[" + j.ToString() + "]\n";
+                        resultCode = resultCode.Insert(index, tmp);
+                        index += tmp.Length;
+                        ++j;
+                    }
                 }
             }
             //////////////////////////////////////////////////////////////////////////
@@ -679,8 +696,12 @@ namespace sku_to_smv
                             index += tmp.Length;
                         }
                     }
-                    tmp = "\t\t\t" + OutTable[OutTable.Length - 1].OutputName + "				:	out		STD_LOGIC\n";
-                    resultCode = resultCode.Insert(index, tmp);
+                    if (OutTable[OutTable.Length - 1].HasOutput)
+                    {
+                        tmp = "\t\t\t" + OutTable[OutTable.Length - 1].OutputName + "				:	out		STD_LOGIC\n";
+                        resultCode = resultCode.Insert(index, tmp);
+                    }
+                    else resultCode = resultCode.Remove(index-2, 1);
                 }
             }
             //////////////////////////////////////////////////////////////////////////
@@ -703,6 +724,10 @@ namespace sku_to_smv
             //////////////////////////////////////////////////////////////////////////
             index = resultCode.IndexOf("$localDescription");
             resultCode = resultCode.Remove(index, "$localDescription".Length);
+
+            tmp = "-- Состояния автомата\n";
+            resultCode = resultCode.Insert(index, tmp);
+            index += tmp.Length;
             for (int i = 0; i < Rules.Length; i++)
             {
                 if (Rules[i].output)
@@ -720,7 +745,8 @@ namespace sku_to_smv
             {
                 if (!Rules[i].output)
                 {
-                    sb.Append("\t\tif (");
+                    //sb.Append("\t\tif (");
+                    sb.Append("\n\t\tnewState(" + i.ToString() + ") := ");
                     for (int j = 1; j < Rules[i].Elems.Length; j++)
                     {
                         if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
@@ -735,7 +761,8 @@ namespace sku_to_smv
                                         {
                                             if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
                                             {
-                                                sb.Append("curState(" + n.ToString() + ")  = '0'");
+                                                //sb.Append("curState(" + n.ToString() + ")  = '0'");
+                                                sb.Append("(not curState(" + n.ToString() + "))");
                                                 break;
                                             }
                                         }
@@ -746,9 +773,12 @@ namespace sku_to_smv
                                         {
                                             if (Inputs[n] == Rules[i].Elems[j].Value)
                                             {
+//                                                 if (CreateBus)
+//                                                     sb.Append("inputs(" + n.ToString() + ")  = '0'");
+//                                                 else sb.Append(Inputs[n] + "  = '0'");
                                                 if (CreateBus)
-                                                    sb.Append("inputs(" + n.ToString() + ")  = '0'");
-                                                else sb.Append(Inputs[n] + "  = '0'");
+                                                    sb.Append("(not inputs(" + n.ToString() + "))");
+                                                else sb.Append("(not " + Inputs[n] + ")");
                                                 break;
                                             }
                                         }
@@ -762,7 +792,8 @@ namespace sku_to_smv
                                         {
                                             if (Rules[i].Elems[j].Value == Rules[n].Elems[0].Value)
                                             {
-                                                sb.Append("curState(" + n.ToString() + ")  = '1'");
+                                                //sb.Append("curState(" + n.ToString() + ")  = '1'");
+                                                sb.Append("curState(" + n.ToString() + ")");
                                                 break;
                                             }
                                         }
@@ -773,9 +804,12 @@ namespace sku_to_smv
                                         {
                                             if (Inputs[n] == Rules[i].Elems[j].Value)
                                             {
+//                                                 if (CreateBus)
+//                                                     sb.Append("inputs(" + n.ToString() + ")  = '1'");
+//                                                 else sb.Append(Inputs[n] + "  = '1'");
                                                 if (CreateBus)
-                                                    sb.Append("inputs(" + n.ToString() + ")  = '1'");
-                                                else sb.Append(Inputs[n] + "  = '1'");
+                                                    sb.Append("inputs(" + n.ToString() + ")");
+                                                else sb.Append(Inputs[n]);
                                                 break;
                                             }
                                         }
@@ -817,29 +851,32 @@ namespace sku_to_smv
                     {
                         if (k < OutTable.Length && OutTable[k].HasOutput)
                         {
-                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\toutputs(" + co.ToString() + ") <= '1';");
-                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\toutputs(" + co.ToString() + ") <= '0';");
+                            //sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\toutputs(" + co.ToString() + ") <= '1';");
+                            //sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\toutputs(" + co.ToString() + ") <= '0';");
+                            sb.Append(";\n\t\t\toutputs(" + co.ToString() + ") <= " + "newState(" + i.ToString() + ")");
                         }
                         else
                         {
-                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
-                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
+                            //sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
+                            //sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
                         }
                     }
                     else
                     {
                         if (k < OutTable.Length && OutTable[k].HasOutput)
                         {
-                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\t" + tmp.ToString() + " <= '1';");
-                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\t" + tmp.ToString() + " <= '0';");
+                            //sb.Append(") then " + "newState(" + i.ToString() + ") := '1';\n\t\t\t" + tmp.ToString() + " <= '1';");
+                            //sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';\n\t\t\t" + tmp.ToString() + " <= '0';");
+                            sb.Append(";\n\t\t\t" + tmp.ToString() + " <= " + "newState(" + i.ToString() + ")");
                         }
                         else
                         {
-                            sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
-                            sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
+                            //sb.Append(") then " + "newState(" + i.ToString() + ") := '1';");
+                            //sb.Append("\n\t\telse " + "newState(" + i.ToString() + ") := '0';");
                         }
                     }
-                    sb.AppendLine("\n\t\tend if;");
+                    //sb.AppendLine("\n\t\tend if;");
+                    sb.Append(";");
                 }
             }
             resultCode = resultCode.Insert(index, sb.ToString());

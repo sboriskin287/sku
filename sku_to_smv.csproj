@@ -68,6 +68,11 @@
   <ItemGroup>
     <None Include="template\tmpl.cs" />
     <None Include="bin\Debug\template\tmpl.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="src\components\ToolPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -130,14 +135,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="src\forms\StepsNumberForm.resx">
       <DependentUpon>StepsNumberForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -188,14 +188,12 @@
     <None Include="resources\new_sku.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\stop_simulation.gif" />
     <None Include="template\html.htm" />
     <None Include="template\vhd_tmpl.txt" />
     <None Include="resources\table_grey.bmp" />
     <None Include="resources\stop1.bmp" />
-    <None Include="resources\stop_simulation.png" />
     <None Include="resources\delete_col.bmp" />
-    <None Include="resources\add_col.bmp" />
-    <None Include="resources\create_simulation.png" />
     <None Include="resources\create_smv.png" />
     <None Include="resources\create_vhdl.png" />
     <None Include="resources\add_steps.bmp" />
@@ -218,6 +216,8 @@
     <None Include="resources\new\Edit_RedoHS.png" />
     <None Include="resources\new\save_anim.gif" />
     <None Include="resources\Icon.ico" />
+    <Content Include="resources\add_col.bmp" />
+    <Content Include="resources\create_simulation.gif" />
     <Content Include="resources\play.bmp" />
     <None Include="resources\repeateSteps.bmp" />
     <None Include="resources\play1.bmp" />
