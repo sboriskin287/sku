@@ -947,6 +947,7 @@ namespace sku_to_smv
                                     Links[Links.Length - 1].x1 = States[k].x + 30;
                                     Links[Links.Length - 1].y1 = States[k].y + 30;
                                 }
+                                Links[Links.Length - 1].setTimeDot();
                             }
                             //Если связь с локальным состоянием то черные линии
                             //иначе синие
