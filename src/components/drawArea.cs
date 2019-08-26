@@ -356,6 +356,8 @@ namespace sku_to_smv
                                 g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
                             }
                             g.DrawLine(penInputLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
+                            Links[i].setTimeDot();
+                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                             //вычисляем гипотенузу
                             gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
 
@@ -370,6 +372,8 @@ namespace sku_to_smv
                                     xn = 50 * sina * ScaleT;
                                     yn = 50 * cosa * ScaleT;
                                     g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
+                                    Links[i].setTimeDot();
+                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                                 }
                                 if (Links[i].y2 > Links[i].y1)
                                 {//2
@@ -378,6 +382,8 @@ namespace sku_to_smv
                                     xn = 50 * sina * ScaleT;
                                     yn = 50 * cosa * ScaleT;
                                     g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
+                                    Links[i].setTimeDot();
+                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                                 }
                             }
                             if (Links[i].x2 < Links[i].x1)
@@ -391,6 +397,8 @@ namespace sku_to_smv
                                     xn = 50 * sina * ScaleT;
                                     yn = 50 * cosa * ScaleT;
                                     g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
+                                    Links[i].setTimeDot();
+                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                                 }
                                 if (Links[i].y2 > Links[i].y1)
                                 {//3
@@ -399,6 +407,8 @@ namespace sku_to_smv
                                     xn = 50 * sina * ScaleT;
                                     yn = 50 * cosa * ScaleT;
                                     g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
+                                    Links[i].setTimeDot();
+                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                                 }
                             }
                         }
@@ -415,9 +425,12 @@ namespace sku_to_smv
                         if (Links[i].Selected)
                         {
                             g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
+                            Links[i].setTimeDot();
+                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                         }
                         g.DrawLine(penLocalLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                        gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
+                        Links[i].setTimeDot();
+                        drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY); gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
                         //xn = Math.Abs((Links[i].y1 + yT) * Scale-(Links[i].y2 + yT) * Scale)/gip*(gip-20);
                         //yn = Math.Abs((Links[i].x1 + xT) * Scale-(Links[i].x2 + xT) * Scale)/gip*(gip-20);
                         //g.DrawLine(p4,(Links[i].x1 + xT) * Scale,(Links[i].y1 + yT) * Scale,xn,yn);
@@ -434,7 +447,8 @@ namespace sku_to_smv
                                 yn = 50 * cosa * ScaleT;
 
                                 g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-
+                                Links[i].setTimeDot();
+                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                             }
                             if (Links[i].y2 > Links[i].y1)
                             {//2
@@ -443,6 +457,8 @@ namespace sku_to_smv
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
                                 g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
+                                Links[i].setTimeDot();
+                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                             }
                         }
                         if (Links[i].x2 < Links[i].x1)
@@ -456,6 +472,8 @@ namespace sku_to_smv
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
                                 g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
+                                Links[i].setTimeDot();
+                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                             }
                             if (Links[i].y2 > Links[i].y1)
                             {//3
@@ -464,6 +482,8 @@ namespace sku_to_smv
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
                                 g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
+                                Links[i].setTimeDot();
+                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
                             }
                         }
                     }
@@ -948,6 +968,10 @@ namespace sku_to_smv
                                     Links[Links.Length - 1].y1 = States[k].y + 30;
                                 }
                                 Links[Links.Length - 1].setTimeDot();
+                                if (Rules[i].Elems[j - 1].Type.Equals("TimeTransfer"))
+                                {
+                                    Links[Links.Length - 1].timeTransfer = float.Parse(Rules[i].Elems[j - 1].Value);
+                                }
                             }
                             //Если связь с локальным состоянием то черные линии
                             //иначе синие
@@ -1508,6 +1532,11 @@ namespace sku_to_smv
             Array.Resize(ref Links, 0);
             Array.Resize(ref States, 0);
             GC.Collect();
+        }
+
+        private void drawTime(Graphics g, float time, float x, float y)
+        {
+            if (time != 0) g.DrawString(time.ToString(), new Font("TimesNewRoman", 20), Brushes.Black, x, y);
         }
     } 
 }

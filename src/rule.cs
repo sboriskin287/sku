@@ -10,7 +10,7 @@ namespace sku_to_smv
     {
         public Element[] Elems;     //набор элементов правила.
 
-        int count;                  //счетчик элементов в правиле.
+        public int count;                  //счетчик элементов в правиле.
 
         public bool output;         //определяет евляется ли правило 
                                     // описанием выходного сигнала.

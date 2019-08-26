@@ -12,6 +12,7 @@
         public bool Selected;
         public bool Moved;
         public double leight;
+        public float timeTransfer; //Время перехода
         public double rst;
         public Link()
         {
@@ -28,6 +29,7 @@
             Selected = false;
             Moved = false;
             leight = 0.0;
+            timeTransfer = 0;
             rst = 0.0;
         }
 

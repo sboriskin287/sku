@@ -10,7 +10,7 @@ namespace sku_to_smv
 
     public class Parser
     {
-        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END, O1, O2, O3, O4, O5 };
+        enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END, TIME, O1, O2, O3, O4, O5 };
 
         int RCount;                    //Количество правил полученных после анализа
         bool Inv;
@@ -138,6 +138,7 @@ namespace sku_to_smv
             state st1 = StartState;
             int k = 0;
             string tmp;
+            string time = "";
             for (int i = 0; i < InputString.Length; i++ )
             {
                 switch (st1)
@@ -183,9 +184,14 @@ namespace sku_to_smv
                     case state.OPT_END: if (InputString[i] == ']')
                             st1 = state.H;
                         break;
-                    case state.O1: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                    case state.O1:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
                         {
                             st1 = state.O2;
+                        }
+                        else if (InputString[i].Equals("("))
+                        {
+                            st1 = state.TIME;
                         }
                         else st1 = state.ERR;
                         break;
@@ -193,6 +199,7 @@ namespace sku_to_smv
                         {
                             st1 = state.O3;
                             tmp = InputString.Substring(k, i - k);
+                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
@@ -224,13 +231,15 @@ namespace sku_to_smv
                         else if (InputString[i] == ';')
                         {
                             tmp = InputString.Substring(k, i - k);
+                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             st1 = state.END;
                         }
                         else st1 = state.ERR;
                         break;
                     //Буква или цифра или '(' или '='
-                    case state.S1: if (Regex.IsMatch(InputString[i].ToString(),"[a-z0-9]"))
+                    case state.S1:
+                        if (Regex.IsMatch(InputString[i].ToString(),"[a-z0-9]"))
                         {
                             st1 = state.S1;
                         }
@@ -238,6 +247,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S2;
                             tmp = InputString.Substring(k, i - k);
+                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
@@ -245,6 +255,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S7;
                             tmp = InputString.Substring(k, i - k);
+                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             Rules[Rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
@@ -286,7 +297,12 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     //Буква или '(' или '~'
-                    case state.S7: if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
+                    case state.S7:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[0-9]"))
+                        {
+                            st1 = state.S7;
+                        }
+                        else if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
                         {
                             k = i;
                             Inv = false;
@@ -337,14 +353,14 @@ namespace sku_to_smv
                         break;
                     // '&' или '|' или ';'
                     case state.S9: if (InputString[i] == '&')
-                        {
+                        {                                                                              
+                            Rules[Rules.Length - 1].AddData("&", "&", false);                           
                             st1 = state.S7;
-                            Rules[Rules.Length - 1].AddData("&", "&", false);
                         }
                         else if (InputString[i] == '|')
-                        {
+                        {                                                     
+                            Rules[Rules.Length - 1].AddData("|", "|", false);                                                          
                             st1 = state.S7;
-                            Rules[Rules.Length - 1].AddData("|", "|", false);
                         }
                         else if (InputString[i] == ';')
                         {
@@ -386,36 +402,50 @@ namespace sku_to_smv
                             st1 = state.S8;
                         }
                         break;
-                    case state.S11: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                    case state.S11:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
                         {
                             st1 = state.S11;
                         }
+                        else if (InputString[i] == '(')
+                        {
+                            st1 = state.TIME;
+                        }
                         else if (InputString[i] == '&')
                         {
-
                             st1 = state.S7;
-                            //---//
-
-                            Rules[Rules.Length - 1].AddData("State", InputString.Substring(k, i - k), Inv);
+                            string stateName = InputString.Substring(k, i - k);
+                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                             Rules[Rules.Length - 1].AddData("&", "&", false);
-
                         }
                         else if (InputString[i] == '|')
                         {
-
                             st1 = state.S7;
-                            //---//
-
-                            Rules[Rules.Length - 1].AddData("State", InputString.Substring(k, i - k), Inv);
+                            string stateName = InputString.Substring(k, i - k);
+                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                             Rules[Rules.Length - 1].AddData("|", "|", false);
-
                         }
                         else if (InputString[i] == ';')
                         {
                             st1 = state.END;
-                            Rules[Rules.Length - 1].AddData("State", InputString.Substring(k, i - k), Inv);
+                            string stateName = InputString.Substring(k, i - k);
+                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                         }
                         else st1 = state.ERR;
+                        break;
+                    case state.TIME:
+                        if (InputString[i] == ')')
+                        {
+                            Rules[Rules.Length - 1].AddData("TimeTransfer", time, Inv);
+                            st1 = state.S11;
+                            time = "";
+                            break;
+                        }
+                        time += InputString[i].ToString();
+                        st1 = state.TIME;                      
                         break;
                     case state.ERR: //PrintText("Ошибка разбора");
                         //st1 = state.EXT;
