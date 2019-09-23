@@ -1,4 +1,6 @@
-﻿namespace sku_to_smv
+﻿using sku_to_smv.src;
+
+namespace sku_to_smv
 {
     public class Link
     {
@@ -13,6 +15,7 @@
         public bool Moved;
         public double leight;
         public float timeTransfer; //Время перехода
+        public Signal signal;
         public double rst;
         public Link()
         {
@@ -31,6 +34,7 @@
             leight = 0.0;
             timeTransfer = 0;
             rst = 0.0;
+            signal = new Signal();
         }
 
         public void setTimeDot()

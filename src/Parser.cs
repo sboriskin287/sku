@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using sku_to_smv.Properties;
 using System.Text.RegularExpressions;
+using sku_to_smv.src;
 
 namespace sku_to_smv
 {
@@ -23,6 +24,8 @@ namespace sku_to_smv
         public string[] Inputs;        //Список входных сигналов
         public string[] RecovStates;   //Список повторновходимых состояний
         public string[] Outputs;       //Список выходных сигналов
+        public bool signalsParsed;
+        public System.Collections.Generic.List<Signal> signals;
         public Parser()
         {
             //Инициализируем массивы
@@ -30,8 +33,10 @@ namespace sku_to_smv
             LocalStates = new string[0];
             Inputs = new string[0];
             Outputs = new string[0];
+            signals = new System.Collections.Generic.List<Signal>();
             RecovStates = new string[0];
             RCount = 0;
+            signalsParsed = false;
         }
         /// <summary>
         /// Добавляет новое правило в массив
@@ -141,6 +146,7 @@ namespace sku_to_smv
             string time = "";
             for (int i = 0; i < InputString.Length; i++ )
             {
+                if (!signalsParsed) parce(InputString);
                 switch (st1)
                 {
                     //Буква
@@ -148,18 +154,9 @@ namespace sku_to_smv
                             st1 = state.OPT;
                         else if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
-                            if (isSKU)
-                            {
-                                k = i;
-                                Rules[Rules.Length - 1].output = isOUT;
-                                st1 = state.S1;
-                            }
-                            else
-                            {
-                                k = i;
-                                Rules[Rules.Length - 1].output = isOUT;
-                                st1 = state.O1;
-                            }
+                            k = i;
+                            Rules[Rules.Length - 1].output = isOUT;
+                            st1 = (isSKU) ? state.S1 : state.O1;
                         }
                         else st1 = state.ERR;
                         break;
@@ -464,6 +461,29 @@ namespace sku_to_smv
             }
             return parceResult.PARSE_OK;
         }
+
+        private parceResult parce(String input)
+        {
+            String str = input;
+            if (str.Contains("[input]"))
+            {
+                try
+                {
+                    str = str.Substring(str.IndexOf("{"), str.IndexOf("}") - str.IndexOf("{"));
+                    String[] signals = str.Split(',');
+                    for (int i = 0; i < signals.Length; i++)
+                    {
+                        this.signals.Add(new Signal(signals[i]));
+                    }
+                } catch(Exception)
+                {
+                    return parceResult.PARCE_ERROR;
+                }
+                signalsParsed = true;
+            }
+            return parceResult.PARSE_OK;
+        }
+
         /// <summary>
         /// Функция поиска входных сигналов
         /// </summary>
