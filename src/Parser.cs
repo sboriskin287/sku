@@ -189,7 +189,7 @@ namespace sku_to_smv
                         {
                             st1 = state.O2;
                         }
-                        else if (InputString[i].Equals("("))
+                        else if (InputString[i] == '{')
                         {
                             st1 = state.TIME;
                         }
@@ -199,7 +199,7 @@ namespace sku_to_smv
                         {
                             st1 = state.O3;
                             tmp = InputString.Substring(k, i - k);
-                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
+                            if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
@@ -231,7 +231,7 @@ namespace sku_to_smv
                         else if (InputString[i] == ';')
                         {
                             tmp = InputString.Substring(k, i - k);
-                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
+                            if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             st1 = state.END;
                         }
@@ -247,7 +247,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S2;
                             tmp = InputString.Substring(k, i - k);
-                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
+                            if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
@@ -255,7 +255,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S7;
                             tmp = InputString.Substring(k, i - k);
-                            if (tmp.Contains("(")) tmp = tmp.Substring(0, tmp.IndexOf("("));
+                            if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             Rules[Rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
@@ -407,7 +407,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S11;
                         }
-                        else if (InputString[i] == '(')
+                        else if (InputString[i] == '{')
                         {
                             st1 = state.TIME;
                         }
@@ -415,7 +415,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S7;
                             string stateName = InputString.Substring(k, i - k);
-                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                             Rules[Rules.Length - 1].AddData("&", "&", false);
                         }
@@ -423,7 +423,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S7;
                             string stateName = InputString.Substring(k, i - k);
-                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                             Rules[Rules.Length - 1].AddData("|", "|", false);
                         }
@@ -431,13 +431,13 @@ namespace sku_to_smv
                         {
                             st1 = state.END;
                             string stateName = InputString.Substring(k, i - k);
-                            if (stateName.Contains("(")) stateName = stateName.Substring(0, stateName.IndexOf("("));
+                            if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{"));
                             Rules[Rules.Length - 1].AddData("State", stateName, Inv);
                         }
                         else st1 = state.ERR;
                         break;
                     case state.TIME:
-                        if (InputString[i] == ')')
+                        if (InputString[i] == '}')
                         {
                             Rules[Rules.Length - 1].AddData("TimeTransfer", time, Inv);
                             st1 = state.S11;
