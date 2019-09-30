@@ -28,6 +28,7 @@ namespace sku_to_smv.src
         public Signal(string name)
         {
             this.name = name;
+            states = new List<KeyValuePair<State, State>>();
         }
 
         public Signal()

@@ -4,14 +4,16 @@ using System.IO;
 using sku_to_smv.Properties;
 using System.Text.RegularExpressions;
 using sku_to_smv.src;
+using System.Collections.Generic;
 
 namespace sku_to_smv
 {
-    public enum parceResult{PARSE_OK, PARCE_ERROR};
+    public enum parceResult { PARSE_OK, PARCE_ERROR };
 
     public class Parser
     {
         enum state { H, S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, ERR, END, EXT, OPT, OPT_END, TIME, O1, O2, O3, O4, O5 };
+        enum parseStates { TARGET_STATE, SOURCE_STATE, TIME, SIGNAL, OPERATION, INPUT_SIGNALS, SKU }
 
         int RCount;                    //Количество правил полученных после анализа
         bool Inv;
@@ -25,7 +27,8 @@ namespace sku_to_smv
         public string[] RecovStates;   //Список повторновходимых состояний
         public string[] Outputs;       //Список выходных сигналов
         public bool signalsParsed;
-        public System.Collections.Generic.List<Signal> signals;
+        public List<Signal> signals;
+        public List<State> states;
         public Parser()
         {
             //Инициализируем массивы
@@ -33,7 +36,8 @@ namespace sku_to_smv
             LocalStates = new string[0];
             Inputs = new string[0];
             Outputs = new string[0];
-            signals = new System.Collections.Generic.List<Signal>();
+            signals = new List<Signal>();
+            states = new List<State>();
             RecovStates = new string[0];
             RCount = 0;
             signalsParsed = false;
@@ -53,6 +57,24 @@ namespace sku_to_smv
             OutputRules[Rules.Length - 1] = new Rule();
             //RCount++;
         }
+
+        private bool isExistsState(String stateName)
+        {
+            foreach (State state in this.states)
+            {
+                if (state.Name.Equals(stateName)) return true;
+            }
+            return false;
+        }
+
+        private State getStateByName(String name)
+        {
+            foreach (State state in this.states)
+            {
+                if (state.Name.Equals(name)) return state;
+            }
+            throw new Exception("State with name " + name + " not found");
+        }
         /// <summary>
         /// Запуск парсера
         /// </summary>
@@ -60,7 +82,7 @@ namespace sku_to_smv
         /// <returns>Результат разбора типа parceResult</returns>
         public parceResult ParseStart(String InputString)
         {
-            int k = 0; 
+            int k = 0;
             string STR;
             string inputSTR = InputString;
             int[] EndOfRules = new int[0];
@@ -119,7 +141,7 @@ namespace sku_to_smv
                 if (Rules[i].Elems[0].Output)
                 {
                     Array.Resize(ref Outputs, Outputs.Length + 1);
-                    Outputs[Outputs.Length-1] = Rules[i].Elems[0].Value;
+                    Outputs[Outputs.Length - 1] = Rules[i].Elems[0].Value;
                 }
                 else
                 {
@@ -144,13 +166,14 @@ namespace sku_to_smv
             int k = 0;
             string tmp;
             string time = "";
-            for (int i = 0; i < InputString.Length; i++ )
+            for (int i = 0; i < InputString.Length; i++)
             {
-                if (!signalsParsed) parce(InputString);
+                if (!signalsParsed) parce(InputString, parseStates.INPUT_SIGNALS);
                 switch (st1)
                 {
                     //Буква
-                    case state.H: if (InputString[i] == '[')
+                    case state.H:
+                        if (InputString[i] == '[')
                             st1 = state.OPT;
                         else if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
@@ -161,7 +184,8 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     //Если новая секция
-                    case state.OPT: if (InputString[i] == 's')
+                    case state.OPT:
+                        if (InputString[i] == 's')
                         {
                             isSKU = true;
                             isOUT = false;
@@ -178,7 +202,8 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     //Ожидаем конца определения секции
-                    case state.OPT_END: if (InputString[i] == ']')
+                    case state.OPT_END:
+                        if (InputString[i] == ']')
                             st1 = state.H;
                         break;
                     case state.O1:
@@ -192,7 +217,8 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.O2: if (InputString[i] == '<')
+                    case state.O2:
+                        if (InputString[i] == '<')
                         {
                             st1 = state.O3;
                             tmp = InputString.Substring(k, i - k);
@@ -206,7 +232,8 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.O3: if (InputString[i] == '=')
+                    case state.O3:
+                        if (InputString[i] == '=')
                         {
                             st1 = state.O4;
                             Rules[Rules.Length - 1].AddData("<=", "<=", false, isOUT);
@@ -214,14 +241,16 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.O4: if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
+                    case state.O4:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
                             st1 = state.O5;
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.O5: if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
+                    case state.O5:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
                         {
                             st1 = state.O5;
                         }
@@ -236,7 +265,7 @@ namespace sku_to_smv
                         break;
                     //Буква или цифра или '(' или '='
                     case state.S1:
-                        if (Regex.IsMatch(InputString[i].ToString(),"[a-z0-9]"))
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
                         {
                             st1 = state.S1;
                         }
@@ -259,25 +288,29 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.S2: if (InputString[i] == 't')
+                    case state.S2:
+                        if (InputString[i] == 't')
                         {
                             st1 = state.S3;
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.S3: if (InputString[i] == '+')
+                    case state.S3:
+                        if (InputString[i] == '+')
                         {
                             st1 = state.S4;
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.S4: if (InputString[i] == '1')
+                    case state.S4:
+                        if (InputString[i] == '1')
                         {
                             st1 = state.S5;
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.S5: if (InputString[i] == ')')
+                    case state.S5:
+                        if (InputString[i] == ')')
                         {
                             Rules[Rules.Length - 1].AddData("t+1", "(t+1)", false);
                             k = i + 1;
@@ -285,7 +318,8 @@ namespace sku_to_smv
                         }
                         else st1 = state.ERR;
                         break;
-                    case state.S6: if (InputString[i] == '=')
+                    case state.S6:
+                        if (InputString[i] == '=')
                         {
                             Rules[Rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
@@ -299,7 +333,7 @@ namespace sku_to_smv
                         {
                             st1 = state.S7;
                         }
-                        else if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
+                        else if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
                             Inv = false;
@@ -310,7 +344,7 @@ namespace sku_to_smv
                             Inv = false;
                             Rules[Rules.Length - 1].AddData("(", "(", Inv);
                             int n = 0;
-                            for (int j = i; j < InputString.Length; j++ )
+                            for (int j = i; j < InputString.Length; j++)
                             {
                                 if (InputString[j] == '(')
                                 {
@@ -320,7 +354,7 @@ namespace sku_to_smv
                                 {
                                     n--;
                                 }
-                                if (n==0)
+                                if (n == 0)
                                 {
                                     k = j;
                                     break;
@@ -330,7 +364,7 @@ namespace sku_to_smv
                             {
                                 st1 = state.ERR;
                             }
-                            i = k-1;
+                            i = k - 1;
                             st1 = state.S8;
                         }
                         else if (InputString[i] == '~')
@@ -341,7 +375,8 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     // ')'
-                    case state.S8: if (InputString[i] == ')')
+                    case state.S8:
+                        if (InputString[i] == ')')
                         {
                             Rules[Rules.Length - 1].AddData(")", ")", false);
                             st1 = state.S9;
@@ -349,14 +384,15 @@ namespace sku_to_smv
                         else st1 = state.ERR;
                         break;
                     // '&' или '|' или ';'
-                    case state.S9: if (InputString[i] == '&')
-                        {                                                                              
-                            Rules[Rules.Length - 1].AddData("&", "&", false);                           
+                    case state.S9:
+                        if (InputString[i] == '&')
+                        {
+                            Rules[Rules.Length - 1].AddData("&", "&", false);
                             st1 = state.S7;
                         }
                         else if (InputString[i] == '|')
-                        {                                                     
-                            Rules[Rules.Length - 1].AddData("|", "|", false);                                                          
+                        {
+                            Rules[Rules.Length - 1].AddData("|", "|", false);
                             st1 = state.S7;
                         }
                         else if (InputString[i] == ';')
@@ -365,7 +401,8 @@ namespace sku_to_smv
                         }
                         break;
                     // Буква или '(' или
-                    case state.S10: if (Regex.IsMatch(InputString[i].ToString(),"[a-z]"))
+                    case state.S10:
+                        if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
                             st1 = state.S11;
@@ -395,7 +432,7 @@ namespace sku_to_smv
                             {
                                 st1 = state.ERR;
                             }
-                            i = k-1;
+                            i = k - 1;
                             st1 = state.S8;
                         }
                         break;
@@ -442,7 +479,7 @@ namespace sku_to_smv
                             break;
                         }
                         time += InputString[i].ToString();
-                        st1 = state.TIME;                      
+                        st1 = state.TIME;
                         break;
                     case state.ERR: //PrintText("Ошибка разбора");
                         //st1 = state.EXT;
@@ -462,25 +499,65 @@ namespace sku_to_smv
             return parceResult.PARSE_OK;
         }
 
-        private parceResult parce(String input)
+        private parceResult parce(String input, parseStates startParseState)
         {
+            String pattern = "(\\w+)[(<=)|=](\\(?[\\w+\\|?]+\\)?)([&\\w+]+)";
+            String statePattern = "\\(?(\\w+)\\|?\\)?";
+            String signalPattern = "&(\\w+)";
             String str = input;
-            if (str.Contains("[input]"))
+            Regex reg = new Regex(pattern, RegexOptions.Compiled);
+            Regex stateReg = new Regex(statePattern, RegexOptions.Compiled);
+            Regex signalReg = new Regex(signalPattern, RegexOptions.Compiled);
+            Match match = reg.Match(str);
+
+            parseStates state = startParseState;
+            State endState;
+            State endState;
+            for (int i = 1; i < match.Groups.Count; i++)
             {
-                try
+                if (i == 1)
                 {
-                    str = str.Substring(str.IndexOf("{"), str.IndexOf("}") - str.IndexOf("{"));
-                    String[] signals = str.Split(',');
-                    for (int i = 0; i < signals.Length; i++)
+                    String stateName = match.Groups[i].Value;
+                    if (isExistsState(stateName))
                     {
-                        this.signals.Add(new Signal(signals[i]));
+                        endState = getStateByName(stateName);
                     }
-                } catch(Exception)
+                    else
+                    {
+                        endState = new State();
+                        endState.Name = stateName;
+                    }
+                }
+                else if (i == 2)
+                {
+
+                    MatchCollection matches = stateReg.Matches(match.Groups[i].Value);
+                    foreach (Match m in matches)
+                    {
+                        for (int j = 1; j < m.Groups.Count; j++)
+                        {
+                            Console.WriteLine(m.Groups[j]);
+                        }
+                    }
+                }
+                else if (i == 3)
+                {
+                    MatchCollection matches = signalReg.Matches(match.Groups[i].Value);
+                    foreach (Match m in matches)
+                    {
+                        for (int j = 1; j < m.Groups.Count; j++)
+                        {
+                            Console.WriteLine(m.Groups[j]);
+                        }
+                    }
+                }
+                else
                 {
                     return parceResult.PARCE_ERROR;
+
                 }
-                signalsParsed = true;
             }
+
             return parceResult.PARSE_OK;
         }
 
@@ -716,7 +793,7 @@ namespace sku_to_smv
             }
             else
             {
-                for (int i = 0; i < Inputs.Length-1; i++ )
+                for (int i = 0; i < Inputs.Length - 1; i++)
                 {
                     tmp = "\t\t\t" + Inputs[i] + "				:	in		STD_LOGIC;\n";
                     resultCode = resultCode.Insert(index, tmp);
@@ -737,7 +814,7 @@ namespace sku_to_smv
                 }
                 else
                 {
-                    for (int i = 0; i < OutTable.Length-1; i++)
+                    for (int i = 0; i < OutTable.Length - 1; i++)
                     {
                         if (OutTable[i].HasOutput)
                         {
@@ -751,14 +828,14 @@ namespace sku_to_smv
                         tmp = "\t\t\t" + OutTable[OutTable.Length - 1].OutputName + "				:	out		STD_LOGIC\n";
                         resultCode = resultCode.Insert(index, tmp);
                     }
-                    else resultCode = resultCode.Remove(index-2, 1);
+                    else resultCode = resultCode.Remove(index - 2, 1);
                 }
             }
             //////////////////////////////////////////////////////////////////////////
             while ((index = resultCode.IndexOf("$width")) != -1)
             {
                 resultCode = resultCode.Remove(index, "$width".Length);
-                resultCode = resultCode.Insert(index, (Rules.Length-1).ToString());
+                resultCode = resultCode.Insert(index, (Rules.Length - 1).ToString());
             }
             //////////////////////////////////////////////////////////////////////////
             for (int i = 0; i < Rules.Length; i++)
@@ -823,9 +900,9 @@ namespace sku_to_smv
                                         {
                                             if (Inputs[n] == Rules[i].Elems[j].Value)
                                             {
-//                                                 if (CreateBus)
-//                                                     sb.Append("inputs(" + n.ToString() + ")  = '0'");
-//                                                 else sb.Append(Inputs[n] + "  = '0'");
+                                                //                                                 if (CreateBus)
+                                                //                                                     sb.Append("inputs(" + n.ToString() + ")  = '0'");
+                                                //                                                 else sb.Append(Inputs[n] + "  = '0'");
                                                 if (CreateBus)
                                                     sb.Append("(not inputs(" + n.ToString() + "))");
                                                 else sb.Append("(not " + Inputs[n] + ")");
@@ -854,9 +931,9 @@ namespace sku_to_smv
                                         {
                                             if (Inputs[n] == Rules[i].Elems[j].Value)
                                             {
-//                                                 if (CreateBus)
-//                                                     sb.Append("inputs(" + n.ToString() + ")  = '1'");
-//                                                 else sb.Append(Inputs[n] + "  = '1'");
+                                                //                                                 if (CreateBus)
+                                                //                                                     sb.Append("inputs(" + n.ToString() + ")  = '1'");
+                                                //                                                 else sb.Append(Inputs[n] + "  = '1'");
                                                 if (CreateBus)
                                                     sb.Append("inputs(" + n.ToString() + ")");
                                                 else sb.Append(Inputs[n]);
@@ -1003,12 +1080,13 @@ namespace sku_to_smv
             CurrentState = state.START;
             currentElement = -1;
             str = Input.ToLower();
-            
+
             for (int i = 0; i < str.Length; i++)
             {
                 switch (CurrentState)
                 {
-                    case state.START: if (str[i] == '#')
+                    case state.START:
+                        if (str[i] == '#')
                         {
                             Array.Resize(ref elements, elements.Length + 1);
                             currentElement++;
@@ -1053,7 +1131,8 @@ namespace sku_to_smv
                             CurrentState = state.OPT;
                         }
                         break;
-                    case state.COMMENT: if (str[i] == '#')
+                    case state.COMMENT:
+                        if (str[i] == '#')
                         {
                             elements[currentElement].EndIndex = i;
                             elements[currentElement].TextColor = Settings.Default.TextFieldCommentColor;
@@ -1061,7 +1140,8 @@ namespace sku_to_smv
                             CurrentState = state.START;
                         }
                         break;
-                    case state.OPT: if (str[i] == ']')
+                    case state.OPT:
+                        if (str[i] == ']')
                         {
                             elements[currentElement].EndIndex = i;
                             elements[currentElement].TextColor = Settings.Default.TextFieldOptionColor;
@@ -1069,7 +1149,8 @@ namespace sku_to_smv
                             CurrentState = state.START;
                         }
                         break;
-                    case state.SIGNAL: if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
+                    case state.SIGNAL:
+                        if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
                         {
                             break;
                         }
@@ -1094,7 +1175,7 @@ namespace sku_to_smv
                                 elements[currentElement].StartIndex = i;
                                 CurrentState = state.COMMENT;
                             }
-                        
+
                             if (str[i] == '(')
                             {
                                 Array.Resize(ref elements, elements.Length + 1);
@@ -1115,7 +1196,7 @@ namespace sku_to_smv
                                 elements[currentElement].Style = System.Drawing.FontStyle.Bold;
                                 CurrentState = state.START;
                             }
-                        
+
                             CurrentState = state.START;
                         }
                         break;

@@ -492,7 +492,7 @@ namespace sku_to_smv
             if (States != null)
             {
 
-                for (int i = 0; i < States.Length; i++)
+               /* for (int i = 0; i < States.Length; i++)
                 {
                     if (States[i].InputSignal == true)
                     {
@@ -539,7 +539,7 @@ namespace sku_to_smv
                         else g.DrawEllipse(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
                         g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 15 + yT) * ScaleT);
                     }
-                }
+                }*/
             }
             //Отрисовка панели инструментов
             if (!b_SavingImage)
@@ -866,8 +866,8 @@ namespace sku_to_smv
                 States[i].x = xs;
                 //xs += 70;
                 States[i].y = ys;
-                States[i].InputSignal = true;
-                States[i].Type = STATE_TYPE.INPUT;
+                //States[i].InputSignal = true;
+                //States[i].Type = STATE_TYPE.INPUT;
                 ys += 62;
             }
             InputsLeight = Inputs.Length;
@@ -884,7 +884,7 @@ namespace sku_to_smv
                 States[i].Name = LocalStates[i - Inputs.Length];
                 States[i].x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
                 States[i].y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
-                States[i].Type = STATE_TYPE.NONE;
+                //States[i].Type = STATE_TYPE.NONE;
 
                 ys += 70;
                 counter++;
@@ -911,7 +911,7 @@ namespace sku_to_smv
                     States[i].x = xs;
                     xs += 62;
                     States[i].y = ys;
-                    States[i].Type = STATE_TYPE.OUTPUT;
+                   // States[i].Type = STATE_TYPE.OUTPUT;
                 }
             }
         }
@@ -1298,10 +1298,10 @@ namespace sku_to_smv
                     {
                         switch (table.GetElementByNumber(i))
                         {
-                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                           /* case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
                                 break;
                             case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                                break;
+                                break;*/
                             case returnResults.rUNDEF: break;
                         }
                     }
@@ -1343,10 +1343,10 @@ namespace sku_to_smv
                     {
                         switch (table.GetElementByNumber(i))
                         {
-                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                            /*case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
                                 break;
                             case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                                break;
+                                break;*/
                             case returnResults.rUNDEF: break;
                         }
                     }
@@ -1360,17 +1360,17 @@ namespace sku_to_smv
             {
                 if (b_EnableLogging /*&& States[i].InputSignal == true*/)
                 {
-                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, States[i].Type == STATE_TYPE.INPUT, States[i].Type == STATE_TYPE.OUTPUT, StepStart);
+                    //log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, States[i].Type == STATE_TYPE.INPUT, States[i].Type == STATE_TYPE.OUTPUT, StepStart);
                     StepStart = false;
                 }
-                WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
+               // WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
             }
             WritePipe(0, 0, 't', stepNumber);
             stepNumber++;
             //StepStart = true;
             for (int i = 0; i < States.Length; i++)
             {
-                    States[i].Signaled = ReadPipe(i);
+                    //States[i].Signaled = ReadPipe(i);
 //                 if (b_EnableLogging && States[i].InputSignal != true)
 //                 {
 //                     log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
@@ -1387,10 +1387,10 @@ namespace sku_to_smv
                 {
                     switch (table.GetElementByNumber(i))
                     {
-                        case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                       /* case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
                             break;
                         case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                            break;
+                            break;*/
                         case returnResults.rUNDEF: break;
                     }
                 }
@@ -1415,13 +1415,13 @@ namespace sku_to_smv
         {
             switch (e.ClickedItem.Text)
             {
-                case "Установить 1": States[SelectedState].Signaled = true; 
+                /*case "Установить 1": States[SelectedState].Signaled = true; 
                     break;
                 case "Всегда 1": States[SelectedState].AlSignaled = true;
                     break;
                 case "Установить 0": States[SelectedState].Signaled = false;
                     States[SelectedState].AlSignaled = false; 
-                    break;
+                    break;*/
             }
             Refresh();
         }
@@ -1442,7 +1442,7 @@ namespace sku_to_smv
                 this.table.FormClosed += handler;
                 for (int i = 0; i < InputsLeight; i++)
                 {
-                    table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
+                   // table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
                 }
                 table.ShowT();
                 TableCreated = true;
@@ -1499,8 +1499,8 @@ namespace sku_to_smv
         {
             for (int i = 0; i < States.Length; i++ )
             {
-                States[i].Signaled = false;
-                States[i].AlSignaled = false;
+              //  States[i].Signaled = false;
+                //States[i].AlSignaled = false;
             }
         }
 

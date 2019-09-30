@@ -1,4 +1,7 @@
-﻿namespace sku_to_smv
+﻿using sku_to_smv.src;
+using System.Collections.Generic;
+
+namespace sku_to_smv
 {
     public enum STATE_TYPE { NONE, INPUT, OUTPUT};
     public class State
@@ -7,20 +10,16 @@
         public int x;               //координата x
         public int y;               //координата y
         public bool Selected;       //если выбрано = true
-        public bool InputSignal;    //если входной сигнал = true
-        public bool Signaled;
-        public bool AlSignaled;
-        public STATE_TYPE Type;
+        public List<Signal> inputs;
+        public List<Signal> outputs;
         public State()
         {
             Name = null;
             x = 0;
             y = 0;
             Selected = false;
-            InputSignal = false;
-            Signaled = false;
-            AlSignaled = false;
-            Type = STATE_TYPE.NONE;
+            inputs = new List<Signal>();
+            outputs = new List<Signal>();
         }
     }
 }
