@@ -75,6 +75,15 @@ namespace sku_to_smv
             }
             throw new Exception("State with name " + name + " not found");
         }
+
+        private Signal getSignalByName(String name)
+        {
+            foreach (Signal signal in this.signals)
+            {
+                if (signal.Name.Equals(name)) return signal;
+            }
+            throw new Exception("State with name " + name + " not found");
+        }
         /// <summary>
         /// Запуск парсера
         /// </summary>
@@ -129,7 +138,7 @@ namespace sku_to_smv
                 k = EndOfRules[i] + 1;
                 //Разбор правила
                 AddRule();
-                if (Parse(STR, state.H) == parceResult.PARCE_ERROR)
+                if (parce(STR) == parceResult.PARCE_ERROR)
                 {
                     return parceResult.PARCE_ERROR;
                 }
@@ -168,7 +177,7 @@ namespace sku_to_smv
             string time = "";
             for (int i = 0; i < InputString.Length; i++)
             {
-                if (!signalsParsed) parce(InputString, parseStates.INPUT_SIGNALS);
+                if (!signalsParsed) parce(InputString);
                 switch (st1)
                 {
                     //Буква
@@ -499,8 +508,22 @@ namespace sku_to_smv
             return parceResult.PARSE_OK;
         }
 
-        private parceResult parce(String input, parseStates startParseState)
+        private parceResult parce(String input)
         {
+            if (input.Contains("[input]="))
+            {
+                int firstBreaket = input.IndexOf("[", 7) + 1;
+                int lastBreaket = input.LastIndexOf("]");
+                String signalStr = input.Substring(firstBreaket, lastBreaket - firstBreaket);
+                String[] parsedSignals = signalStr.Split(',');
+                foreach (String s in parsedSignals)
+                {
+                    Signal signal = new Signal();
+                    signal.Name = s;
+                    this.signals.Add(signal);
+                }
+                return parceResult.PARSE_OK;
+            }
             String pattern = "(\\w+)[(<=)|=](\\(?[\\w+\\|?]+\\)?)([&\\w+]+)";
             String statePattern = "\\(?(\\w+)\\|?\\)?";
             String signalPattern = "&(\\w+)";
@@ -509,10 +532,9 @@ namespace sku_to_smv
             Regex stateReg = new Regex(statePattern, RegexOptions.Compiled);
             Regex signalReg = new Regex(signalPattern, RegexOptions.Compiled);
             Match match = reg.Match(str);
-
-            parseStates state = startParseState;
-            State endState;
-            State endState;
+            State endState = null;
+            List<State> beginStates = new List<State>();
+            List<Signal> signals = new List<Signal>();
             for (int i = 1; i < match.Groups.Count; i++)
             {
                 if (i == 1)
@@ -526,6 +548,7 @@ namespace sku_to_smv
                     {
                         endState = new State();
                         endState.Name = stateName;
+                        this.states.Add(endState);
                     }
                 }
                 else if (i == 2)
@@ -536,7 +559,20 @@ namespace sku_to_smv
                     {
                         for (int j = 1; j < m.Groups.Count; j++)
                         {
-                            Console.WriteLine(m.Groups[j]);
+                            String stateName = m.Groups[j].Value;
+                            State beginState;
+                            if (isExistsState(stateName))
+                            {
+                                beginState = getStateByName(stateName);                               
+                            }
+                            else
+                            {
+                                beginState = new State();
+                                beginState.Name = stateName;
+                                this.states.Add(beginState);
+
+                            }
+                            beginStates.Add(beginState);                         
                         }
                     }
                 }
@@ -547,17 +583,36 @@ namespace sku_to_smv
                     {
                         for (int j = 1; j < m.Groups.Count; j++)
                         {
-                            Console.WriteLine(m.Groups[j]);
+                            String signalName = m.Groups[j].Value;
+                            try
+                            {
+                                signals.Add(getSignalByName(signalName));
+                            }
+                            catch (Exception)
+                            {
+                                return parceResult.PARCE_ERROR;
+                            }
                         }
                     }
                 }
                 else
                 {
                     return parceResult.PARCE_ERROR;
-
                 }
             }
-
+            if (endState == null)
+            {
+                return parceResult.PARCE_ERROR;
+            }
+            foreach (Signal signal in signals)
+            {
+                endState.inputs.Add(signal);
+                foreach(State s in beginStates)
+                {
+                    s.outputs.Add(signal);
+                    signal.addPair(s, endState);
+                }
+            }         
             return parceResult.PARSE_OK;
         }
 

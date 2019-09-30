@@ -7,7 +7,7 @@ namespace sku_to_smv.src
 {
     public class Signal
     {
-        public String name
+        public String Name
         {
             get;
             set;
@@ -21,18 +21,19 @@ namespace sku_to_smv.src
 
         public Signal(String name, List<KeyValuePair<State, State>> states)
         {
-            this.name = name;
+            this.Name = name;
             this.states = states;
         }
 
         public Signal(string name)
         {
-            this.name = name;
+            this.Name = name;
             states = new List<KeyValuePair<State, State>>();
         }
 
         public Signal()
         {
+            states = new List<KeyValuePair<State, State>>();
         }
 
         public void addPair(State begin, State end)

@@ -205,7 +205,7 @@ namespace sku_to_smv
             if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
             {
                 PrintText("Ошибка разбора");
-                this.toolStripProgressBar1.Value = 0;
+                this.toolStripProgressBar1.Value = 25;
                 return;
             }
             this.toolStripProgressBar1.Value = 25;
