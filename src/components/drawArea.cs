@@ -10,6 +10,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.CSharp;
 using sku_to_smv.Properties;
+using sku_to_smv.src;
 
 namespace sku_to_smv
 {
@@ -36,8 +37,8 @@ namespace sku_to_smv
         Brush brushSignalActive;//кисть для активных сигналов
         Font TextFont;//Шрифт
 
-        public  State[] States;
-        public  Link[] Links;
+        public State[] States;
+        public Link[] Links;
         NamedPipeServerStream pipe;
         StreamWriter sw;
         SignalTable table;
@@ -993,6 +994,61 @@ namespace sku_to_smv
                     }
                 }
             }
+        }
+
+        private Link getLink(State start, State end)
+        {
+            foreach (Link link in Links)
+            {
+                if (link.StartState == null || link.EndState == null) return null;
+                if (link.StartState.Equals(start) && link.EndState.Equals(end))
+                {
+                    return link;
+                }
+            }
+            return null;
+        }
+
+        public void createLinks(List<Signal> signals, List<State> states)
+        {
+            foreach (State state in states)
+            {
+                foreach (Signal signal in state.outputs)
+                {
+                    Link link = new Link();
+                    link.StartState = state.Name;
+                    //link.EndState = signal.
+                    //Array.Resize(ref Links, Links.Length + 1);
+                    //Links[Links.Length - 1] = link;
+                }
+            }
+
+
+            foreach (Signal signal in signals)
+            {
+                foreach (KeyValuePair<State, State> pair in signal.states)
+                {
+                    Link link = getLink(pair.Key, pair.Value);
+                    if (link == null)
+                    {
+                        link = new Link();
+                        link.signals.Add(signal);
+                        link.StartState = pair.Key.Name;
+                        link.EndState = pair.Value.Name;
+                        if (pair.Key.Equals(pair.Value))
+                        {
+                            link.Arc = true;
+                        }
+                        Array.Resize(ref Links, Links.Length + 1);
+                        Links[Links.Length - 1] = link;
+                    }
+                    else
+                    {
+                        link.signals.Add(signal);
+                    }                 
+                }               
+            }
+            
         }
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {

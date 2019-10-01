@@ -211,9 +211,11 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
-            pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
+            //pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
+            pictureBox1.States = parser.states.ToArray();
             this.toolStripProgressBar1.Value = 50;
-            pictureBox1.CreateLinks(ref parser.Rules);
+            //pictureBox1.CreateLinks(ref parser.Rules);
+            pictureBox1.createLinks(parser.signals);
             this.toolStripProgressBar1.Value = 75;
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;

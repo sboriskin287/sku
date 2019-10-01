@@ -145,7 +145,7 @@ namespace sku_to_smv
             }
             //Составление списка локальных состояний//
             //LocalStates = new string[Rules.Length];
-            for (int i = 0; i < Rules.Length; i++)
+            /*for (int i = 0; i < Rules.Length; i++)
             {
                 if (Rules[i].Elems[0].Output)
                 {
@@ -159,7 +159,7 @@ namespace sku_to_smv
                 }
             }
             SearchForInputs();//Составление списка входных сигналов//
-            SearchForRecov();//Составление списка повторновходимых состояний//
+            SearchForRecov();//Составление списка повторновходимых состояний//*/
 
             return parceResult.PARSE_OK;
         }
@@ -518,7 +518,7 @@ namespace sku_to_smv
                 String[] parsedSignals = signalStr.Split(',');
                 foreach (String s in parsedSignals)
                 {
-                    Signal signal = new Signal();
+                    Signal signal = new Signal(); 
                     signal.Name = s;
                     this.signals.Add(signal);
                 }

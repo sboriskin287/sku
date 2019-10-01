@@ -1,4 +1,5 @@
 ﻿using sku_to_smv.src;
+using System.Collections.Generic;
 
 namespace sku_to_smv
 {
@@ -15,7 +16,7 @@ namespace sku_to_smv
         public bool Moved;
         public double leight;
         public float timeTransfer; //Время перехода
-        public Signal signal;
+        public List<Signal> signals;
         public double rst;
         public Link()
         {
@@ -34,7 +35,7 @@ namespace sku_to_smv
             leight = 0.0;
             timeTransfer = 0;
             rst = 0.0;
-            signal = new Signal();
+            signals = new List<Signal>();
         }
 
         public void setTimeDot()
