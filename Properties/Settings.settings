@@ -21,7 +21,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="TextFieldTextFont" Type="System.Drawing.Font" Scope="User">
-      <Value Profile="(Default)">Courier New, 12pt</Value>
+      <Value Profile="(Default)">Times New Roman, 12pt</Value>
     </Setting>
     <Setting Name="TextFieldTextColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Black</Value>
@@ -39,7 +39,7 @@
       <Value Profile="(Default)">1500</Value>
     </Setting>
     <Setting Name="GrafFieldTextFont" Type="System.Drawing.Font" Scope="User">
-      <Value Profile="(Default)">Courier New, 14.25pt</Value>
+      <Value Profile="(Default)">Times New Roman, 14.25pt</Value>
     </Setting>
     <Setting Name="GrafFieldTextColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Black</Value>

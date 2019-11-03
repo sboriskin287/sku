@@ -201,7 +201,7 @@ namespace sku_to_smv
         }
         private void CreateGraf(object sender, EventArgs e)
         {
-            this.toolStripProgressBar1.Value = 0;
+            this.toolStripProgressBar1.Value = 0;          
             if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
             {
                 PrintText("Ошибка разбора");
@@ -639,6 +639,11 @@ namespace sku_to_smv
         private void SimulStoped(object sender, EventArgs e)
         {
             this.toolStripProgressBar1.Style = ProgressBarStyle.Blocks;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
 
         private void CutToolButton_Click(object sender, EventArgs e)

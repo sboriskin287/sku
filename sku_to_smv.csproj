@@ -49,7 +49,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>resources\Icon.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -120,18 +121,23 @@
     <Compile Include="src\state.cs" />
     <EmbeddedResource Include="src\forms\options.resx">
       <DependentUpon>options.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\OutputSignalsTable.resx">
       <DependentUpon>OutputSignalsTable.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\SignalTable.resx">
       <DependentUpon>SignalTable.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="src\components\drawArea.resx">
       <DependentUpon>drawArea.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -140,6 +146,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\StepsNumberForm.resx">
       <DependentUpon>StepsNumberForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />
     <None Include="Properties\Settings.settings">
@@ -188,6 +195,8 @@
     <None Include="resources\new_sku.PNG" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\backgroung_graph.jpg" />
+    <None Include="resources\Icon.ico" />
     <Content Include="resources\stop_simulation.gif" />
     <None Include="template\html.htm" />
     <None Include="template\vhd_tmpl.txt" />
@@ -215,7 +224,6 @@
     <None Include="resources\new\Edit_UndoHS.png" />
     <None Include="resources\new\Edit_RedoHS.png" />
     <None Include="resources\new\save_anim.gif" />
-    <None Include="resources\Icon.ico" />
     <Content Include="resources\add_col.bmp" />
     <Content Include="resources\create_simulation.gif" />
     <Content Include="resources\play.bmp" />

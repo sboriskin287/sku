@@ -26,9 +26,9 @@ namespace sku_to_smv
             LoopSteps = false;
 
             inputStyle = new System.Windows.Forms.DataGridViewCellStyle();
-            inputStyle.BackColor = System.Drawing.Color.LightSalmon;
+            inputStyle.BackColor = System.Drawing.Color.White;
             selectStyle = new System.Windows.Forms.DataGridViewCellStyle();
-            selectStyle.BackColor = System.Drawing.Color.LightGreen;
+            selectStyle.BackColor = System.Drawing.Color.White;
             Table = new TableElement[CurrentRowCount];
             for (int i = 0; i < CurrentRowCount; i++)
             {

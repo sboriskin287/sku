@@ -129,7 +129,7 @@ namespace sku_to_smv
                             colorDlg.Color = Settings.Default.GrafFieldTextColor;
                             break;
                         case "Входные сигналы":
-                            colorDlg.Color = Settings.Default.GrafFieldInputSignalColor;
+                            colorDlg.Color = System.Drawing.Color.Red;
                             break;
                         case "Локальные состояния":
                             colorDlg.Color = Settings.Default.GrafFieldLocalSignalColor;
@@ -138,7 +138,7 @@ namespace sku_to_smv
                             colorDlg.Color = Settings.Default.GrafFieldOutputSignalColor;
                             break;
                         case "Выделение":
-                            colorDlg.Color = Settings.Default.GrafFieldSygnalSelectionColor;
+                            colorDlg.Color = System.Drawing.Color.LightPink;
                             break;
                     }
                     break;

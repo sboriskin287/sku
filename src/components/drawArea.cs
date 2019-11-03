@@ -21,7 +21,8 @@ namespace sku_to_smv
         ToolTip toolTip;
         Point MouseLastPosition;
         System.Windows.Forms.Timer ClickToolPanelTimer;
-        
+        System.ComponentModel.ComponentResourceManager resources;
+
         ToolPanel tools;
         Graphics g;
         Pen penHighlight;//цвет выделения
@@ -119,6 +120,7 @@ namespace sku_to_smv
             LogFileName = "";
 
             log = new LogWriter();
+            resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             drawContext = new BufferedGraphicsContext();
             handler = new System.Windows.Forms.FormClosedEventHandler(this.TableClosed);
             this.components = new System.ComponentModel.Container();
@@ -136,6 +138,7 @@ namespace sku_to_smv
 
             tools = new ToolPanel();
             tools.BackColor = Color.FromArgb(120, 145, 217, 255);
+           
             tools.ButtonClicked += this.ToolPanelButtonClicked;
             tools.PanelOrientation = Orientation.Vertical;
             tools.PanelAlignment = Alignment.RIGHT;
@@ -279,17 +282,17 @@ namespace sku_to_smv
         {
             //Определяются цвета
             penSignal = new System.Drawing.Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
-            penInputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldInputSignalColor, 2);
+            penInputSignal = new System.Drawing.Pen(Color.Aqua, 2);
             penOutputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
-            penLocalLine = new System.Drawing.Pen(System.Drawing.Brushes.Black, 1);
-            penLocalLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.Red, 3);
+            penLocalLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 3);
+            penLocalLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.Orange, 3);
             penHighlight = new System.Drawing.Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
-            penInputLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 1);
-            penInputLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.DarkGreen, 3);
-            brushSignalActive = new System.Drawing.SolidBrush(Settings.Default.GrafFieldSignalActiveColor);
+            penInputLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkRed, 3);
+            penInputLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.LightGreen, 3);
+            brushSignalActive = new System.Drawing.SolidBrush(System.Drawing.Color.LightPink);
             brushTextColor = new System.Drawing.SolidBrush(Settings.Default.GrafFieldTextColor);
             //И шрифт
-            TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
+            TextFont = new System.Drawing.Font("Consolas", 20);
 
             b_EnableLogging = Settings.Default.LogSimulation;
             if (b_EnableLogging)
@@ -338,10 +341,12 @@ namespace sku_to_smv
         {
             float gip, DeltaX, DeltaY, cosa, sina, xn, yn;
 
-            TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
+            TextFont = new System.Drawing.Font("Consolas", 15, FontStyle.Italic);
+           
             
-            g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
 
+            g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
+            g.DrawImage(new Bitmap("../../resources/backgroung_graph.jpg"), 1, 1);
             if (Links != null)
             {
                 for (int i = 0; i < Links.Length; i++)
@@ -1440,6 +1445,9 @@ namespace sku_to_smv
                 GC.Collect();
                 table = new SignalTable(InputsLeight, this);
                 this.table.FormClosed += handler;
+                table.Font = new Font("Consolas", 10, FontStyle.Italic);
+                table.Icon = new Icon("../../resources/Icon.ico");
+               
                 for (int i = 0; i < InputsLeight; i++)
                 {
                     table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
