@@ -507,7 +507,7 @@ namespace SCUConverterDrawArea
             // 
             // pictureBox1
             // 
-            this.pictureBox1.simulStarted = false;
+            this.pictureBox1.isStartSimul = false;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);

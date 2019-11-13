@@ -17,28 +17,28 @@ namespace SCUConverterDrawArea
         bool isSKU;
         bool isOUT;
 
-        public Rule[] Rules;           //Массив правил, строящийся при анализе
-        public Rule[] OutputRules;     //Массив правил, строящийся при анализе
-        public string[] LocalStates;   //Список локальных состояний
-        public string[] Inputs;        //Список входных сигналов
-        public string[] RecovStates;   //Список повторновходимых состояний
-        public string[] Outputs;       //Список выходных сигналов
+        public Rule[] rules;           //Массив правил, строящийся при анализе
+        public Rule[] rulesOutput;     //Массив правил, строящийся при анализе
+        public string[] localStates;   //Список локальных состояний
+        public string[] inputs;        //Список входных сигналов
+        public string[] statesRecov;   //Список повторновходимых состояний
+        public string[] outputs;       //Список выходных сигналов
         public Parser()
         {
             //Инициализируем массивы
-            Rules = new Rule[0];
-            LocalStates = new string[0];
-            Inputs = new string[0];
-            Outputs = new string[0];
-            RecovStates = new string[0];
+            rules = new Rule[0];
+            localStates = new string[0];
+            inputs = new string[0];
+            outputs = new string[0];
+            statesRecov = new string[0];
         }
         /// <summary>
         /// Добавляет новое правило в массив
         /// </summary>
-        private void AddRule()
+        private void addRule()
         {
-            Array.Resize(ref Rules, Rules.Length + 1);
-            Rules[Rules.Length - 1] = new Rule();
+            Array.Resize(ref rules, rules.Length + 1);
+            rules[rules.Length - 1] = new Rule();
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace SCUConverterDrawArea
         /// </summary>
         /// <param name="inputString">Текст для разбора</param>
         /// <returns>Результат разбора типа parceResult</returns>
-        public parceResult ParseStart(string inputString)
+        public parceResult parseStart(string inputString)
         {
             var inputStr = inputString;
             var endOfRules = new int[0];
@@ -54,11 +54,11 @@ namespace SCUConverterDrawArea
             isSKU = true;
             isOUT = false;
             var sb1 = new StringBuilder();
-            Rules = new Rule[0];
-            LocalStates = new string[0];
-            Inputs = new string[0];
-            Outputs = new string[0];
-            RecovStates = new string[0];
+            rules = new Rule[0];
+            localStates = new string[0];
+            inputs = new string[0];
+            outputs = new string[0];
+            statesRecov = new string[0];
             GC.Collect();
 
             //Убираем пробелы, знаки табуляции, перехода на новую строку и комментарии
@@ -93,28 +93,28 @@ namespace SCUConverterDrawArea
                 var str = inputStr.Substring(k, endRule - k + 1);
                 k = endRule + 1;
                 //Разбор правила
-                AddRule();
-                if (Parse(str, state.H) == parceResult.PARCE_ERROR)
+                addRule();
+                if (parse(str, state.H) == parceResult.PARCE_ERROR)
                 {
                     return parceResult.PARCE_ERROR;
                 }
             }
             //Составление списка локальных состояний//
-            foreach (var rule in Rules)
+            foreach (var rule in rules)
             {
                 if (rule.Elems[0].Output)
                 {
-                    Array.Resize(ref Outputs, Outputs.Length + 1);
-                    Outputs[Outputs.Length-1] = rule.Elems[0].Value;
+                    Array.Resize(ref outputs, outputs.Length + 1);
+                    outputs[outputs.Length-1] = rule.Elems[0].Value;
                 }
                 else
                 {
-                    Array.Resize(ref LocalStates, LocalStates.Length + 1);
-                    LocalStates[LocalStates.Length - 1] = rule.Elems[0].Value;
+                    Array.Resize(ref localStates, localStates.Length + 1);
+                    localStates[localStates.Length - 1] = rule.Elems[0].Value;
                 }
             }
-            SearchForInputs();//Составление списка входных сигналов//
-            SearchForRecov();//Составление списка повторновходимых состояний//
+            searchForInputs();//Составление списка входных сигналов//
+            searchForRecov();//Составление списка повторновходимых состояний//
 
             return parceResult.PARSE_OK;
         }
@@ -125,7 +125,7 @@ namespace SCUConverterDrawArea
         /// <param name="inputString">Строка для разбора</param>
         /// <param name="startState">Начальное состояние парсера</param>
         /// <returns>Результат разбора типа parceResult</returns>
-        private parceResult Parse(string inputString, state startState)
+        private parceResult parse(string inputString, state startState)
         {
             var st1 = startState;
             var k = 0;
@@ -143,13 +143,13 @@ namespace SCUConverterDrawArea
                             if (isSKU)
                             {
                                 k = i;
-                                Rules[Rules.Length - 1].output = isOUT;
+                                rules[rules.Length - 1].output = isOUT;
                                 st1 = state.S1;
                             }
                             else
                             {
                                 k = i;
-                                Rules[Rules.Length - 1].output = isOUT;
+                                rules[rules.Length - 1].output = isOUT;
                                 st1 = state.O1;
                             }
                         }
@@ -160,14 +160,14 @@ namespace SCUConverterDrawArea
                         {
                             isSKU = true;
                             isOUT = false;
-                            Rules[Rules.Length - 1].output = false;
+                            rules[rules.Length - 1].output = false;
                             st1 = state.OPT_END;
                         }
                         else if (inputString[i] == 'o')
                         {
                             isSKU = false;
                             isOUT = true;
-                            Rules[Rules.Length - 1].output = true;
+                            rules[rules.Length - 1].output = true;
                             st1 = state.OPT_END;
                         }
                         else st1 = state.ERR;
@@ -192,7 +192,7 @@ namespace SCUConverterDrawArea
                             st1 = state.O3;
                             tmp = inputString.Substring(k, i - k);
                             if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
-                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            rules[rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
                         else if (Regex.IsMatch(inputString[i].ToString(), "[a-z0-9]"))
@@ -204,7 +204,7 @@ namespace SCUConverterDrawArea
                     case state.O3: if (inputString[i] == '=')
                         {
                             st1 = state.O4;
-                            Rules[Rules.Length - 1].AddData("<=", "<=", false, isOUT);
+                            rules[rules.Length - 1].AddData("<=", "<=", false, isOUT);
                             k = i + 1;
                         }
                         else st1 = state.ERR;
@@ -224,7 +224,7 @@ namespace SCUConverterDrawArea
                         {
                             tmp = inputString.Substring(k, i - k);
                             if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            rules[rules.Length - 1].AddData("State", tmp, false, isOUT);
                             st1 = state.END;
                         }
                         else st1 = state.ERR;
@@ -240,7 +240,7 @@ namespace SCUConverterDrawArea
                             st1 = state.S2;
                             tmp = inputString.Substring(k, i - k);
                             if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            rules[rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
                         else if (inputString[i] == '=')
@@ -248,8 +248,8 @@ namespace SCUConverterDrawArea
                             st1 = state.S7;
                             tmp = inputString.Substring(k, i - k);
                             if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
-                            Rules[Rules.Length - 1].AddData("=", "=", false);
+                            rules[rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            rules[rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
                         }
                         else st1 = state.ERR;
@@ -262,7 +262,7 @@ namespace SCUConverterDrawArea
                         break;
                     case state.S5: if (inputString[i] == ')')
                         {
-                            Rules[Rules.Length - 1].AddData("t+1", "(t+1)", false);
+                            rules[rules.Length - 1].AddData("t+1", "(t+1)", false);
                             k = i + 1;
                             st1 = state.S6;
                         }
@@ -270,7 +270,7 @@ namespace SCUConverterDrawArea
                         break;
                     case state.S6: if (inputString[i] == '=')
                         {
-                            Rules[Rules.Length - 1].AddData("=", "=", false);
+                            rules[rules.Length - 1].AddData("=", "=", false);
                             k = i + 1;
                             st1 = state.S7;
                         }
@@ -291,7 +291,7 @@ namespace SCUConverterDrawArea
                         else if (inputString[i] == '(')
                         {
                             Inv = false;
-                            Rules[Rules.Length - 1].AddData("(", "(", Inv);
+                            rules[rules.Length - 1].AddData("(", "(", Inv);
                             var n = 0;
                             for (var j = i; j < inputString.Length; j++ )
                             {
@@ -311,7 +311,7 @@ namespace SCUConverterDrawArea
                                 k = j;
                                 break;
                             }
-                            if (Parse(string.Format("{0};", inputString.Substring(i + 1, k - i - 1)), state.S7) == parceResult.PARCE_ERROR)
+                            if (parse(string.Format("{0};", inputString.Substring(i + 1, k - i - 1)), state.S7) == parceResult.PARCE_ERROR)
                             {
                                 st1 = state.ERR;
                             }
@@ -331,7 +331,7 @@ namespace SCUConverterDrawArea
                     // ')'
                     case state.S8: if (inputString[i] == ')')
                         {
-                            Rules[Rules.Length - 1].AddData(")", ")", false);
+                            rules[rules.Length - 1].AddData(")", ")", false);
                             st1 = state.S9;
                         }
                         else st1 = state.ERR;
@@ -339,12 +339,12 @@ namespace SCUConverterDrawArea
                     // '&' или '|' или ';'
                     case state.S9: if (inputString[i] == '&')
                         {                                                                              
-                            Rules[Rules.Length - 1].AddData("&", "&", false);                           
+                            rules[rules.Length - 1].AddData("&", "&", false);                           
                             st1 = state.S7;
                         }
                         else if (inputString[i] == '|')
                         {                                                     
-                            Rules[Rules.Length - 1].AddData("|", "|", false);                                                          
+                            rules[rules.Length - 1].AddData("|", "|", false);                                                          
                             st1 = state.S7;
                         }
                         else if (inputString[i] == ';')
@@ -361,7 +361,7 @@ namespace SCUConverterDrawArea
                         else if (inputString[i] == '(')
                         {
                             Inv = false;
-                            Rules[Rules.Length - 1].AddData("(", "(", Inv);
+                            rules[rules.Length - 1].AddData("(", "(", Inv);
                             var n = 0;
                             for (var j = i; j < inputString.Length; j++)
                             {
@@ -379,7 +379,7 @@ namespace SCUConverterDrawArea
                                     break;
                                 }
                             }
-                            if (Parse(inputString.Substring(i + 1, k - i - 1) + ";", state.S7) == parceResult.PARCE_ERROR)
+                            if (parse(inputString.Substring(i + 1, k - i - 1) + ";", state.S7) == parceResult.PARCE_ERROR)
                             {
                                 st1 = state.ERR;
                             }
@@ -404,30 +404,30 @@ namespace SCUConverterDrawArea
                             st1 = state.S7;
                             var stateName = inputString.Substring(k, i - k);
                             if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
-                            Rules[Rules.Length - 1].AddData("&", "&", false);
+                            rules[rules.Length - 1].AddData("State", stateName, Inv);
+                            rules[rules.Length - 1].AddData("&", "&", false);
                         }
                         else if (inputString[i] == '|')
                         {
                             st1 = state.S7;
                             var stateName = inputString.Substring(k, i - k);
                             if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
-                            Rules[Rules.Length - 1].AddData("|", "|", false);
+                            rules[rules.Length - 1].AddData("State", stateName, Inv);
+                            rules[rules.Length - 1].AddData("|", "|", false);
                         }
                         else if (inputString[i] == ';')
                         {
                             st1 = state.END;
                             var stateName = inputString.Substring(k, i - k);
                             if (stateName.Contains("{")) stateName = stateName.Substring(0, stateName.IndexOf("{", StringComparison.Ordinal));
-                            Rules[Rules.Length - 1].AddData("State", stateName, Inv);
+                            rules[rules.Length - 1].AddData("State", stateName, Inv);
                         }
                         else st1 = state.ERR;
                         break;
                     case state.TIME:
                         if (inputString[i] == '}')
                         {
-                            Rules[Rules.Length - 1].AddData("TimeTransfer", time, Inv);
+                            rules[rules.Length - 1].AddData("TimeTransfer", time, Inv);
                             st1 = state.S11;
                             time = "";
                             break;
@@ -455,28 +455,28 @@ namespace SCUConverterDrawArea
         /// <summary>
         /// Функция поиска входных сигналов
         /// </summary>
-        private void SearchForInputs()
+        private void searchForInputs()
         {
             var notInput = false;
             var exists = false;
-            foreach (var rules in Rules)
+            foreach (var rules in rules)
             {
                 foreach (var element in rules.Elems)
                 {
                     if (element.Type != "State") continue;
-                    if (LocalStates.Any(localState => element.Value == localState))
+                    if (localStates.Any(localState => element.Value == localState))
                     {
                         notInput = true;
                     }
-                    if (Inputs.Any(input => element.Value == input))
+                    if (inputs.Any(input => element.Value == input))
                     {
                         exists = true;
                         element.Local = false;
                     }
                     if (!notInput && !exists && !element.Output)
                     {
-                        Array.Resize(ref Inputs, Inputs.Length + 1);
-                        Inputs[Inputs.Length - 1] = element.Value;
+                        Array.Resize(ref inputs, inputs.Length + 1);
+                        inputs[inputs.Length - 1] = element.Value;
                         element.Local = false;
                     }
                     notInput = false;
@@ -488,15 +488,15 @@ namespace SCUConverterDrawArea
         /// <summary>
         /// Функция поиска повторновходимых состояний
         /// </summary>
-        private void SearchForRecov()
+        private void searchForRecov()
         {
-            foreach (var rule in Rules)
+            foreach (var rule in rules)
             {
                 for (var j = 1; j < rule.Elems.Length; j++)
                 {
                     if (rule.Elems[0].Value != rule.Elems[j].Value) continue;
-                    Array.Resize(ref RecovStates, RecovStates.Length + 1);
-                    RecovStates[RecovStates.Length - 1] = rule.Elems[j].Value;
+                    Array.Resize(ref statesRecov, statesRecov.Length + 1);
+                    statesRecov[statesRecov.Length - 1] = rule.Elems[j].Value;
                     break;
                 }
             }
@@ -506,24 +506,24 @@ namespace SCUConverterDrawArea
         /// Функция сохранения результата в SMV
         /// </summary>
         /// <param name="path">Путь для сохранения</param>
-        public void SaveToSMV(string path)
+        public void saveToSMV(string path)
         {
             var sw = new StreamWriter(path, false);
             sw.Write("module main(");
             sw.Flush();
-            for (var i = 0; i < Inputs.Length; i++)
+            for (var i = 0; i < inputs.Length; i++)
             {
-                sw.Write(Inputs[i]);
-                if (i != Inputs.Length - 1 || Outputs.Length > 0)
+                sw.Write(inputs[i]);
+                if (i != inputs.Length - 1 || outputs.Length > 0)
                 {
                     sw.Write(",");
                 }
                 sw.Flush();
             }
-            for (var i = 0; i < Outputs.Length; i++)
+            for (var i = 0; i < outputs.Length; i++)
             {
-                sw.Write(Outputs[i]);
-                if (i != Outputs.Length - 1)
+                sw.Write(outputs[i]);
+                if (i != outputs.Length - 1)
                 {
                     sw.Write(",");
                 }
@@ -531,23 +531,23 @@ namespace SCUConverterDrawArea
             }
             sw.Write(")\r\n{\r\n");
             sw.Write("\tinput ");
-            for (var i = 0; i < Inputs.Length; i++)
+            for (var i = 0; i < inputs.Length; i++)
             {
-                sw.Write(Inputs[i]);
-                if (i != Inputs.Length - 1)
+                sw.Write(inputs[i]);
+                if (i != inputs.Length - 1)
                 {
                     sw.Write(",");
                 }
                 sw.Flush();
             }
             sw.Write(": boolean;\r\n");
-            if (Outputs.Length > 0)
+            if (outputs.Length > 0)
             {
                 sw.Write("\toutput ");
-                for (var i = 0; i < Outputs.Length; i++)
+                for (var i = 0; i < outputs.Length; i++)
                 {
-                    sw.Write(Outputs[i]);
-                    if (i != Outputs.Length - 1)
+                    sw.Write(outputs[i]);
+                    if (i != outputs.Length - 1)
                     {
                         sw.Write(",");
                     }
@@ -556,10 +556,10 @@ namespace SCUConverterDrawArea
                 sw.Write(": boolean;\r\n");
             }
             sw.Write("\tVAR ");
-            for (var i = 0; i < LocalStates.Length; i++)
+            for (var i = 0; i < localStates.Length; i++)
             {
-                sw.Write(LocalStates[i]);
-                if (i != LocalStates.Length - 1)
+                sw.Write(localStates[i]);
+                if (i != localStates.Length - 1)
                 {
                     sw.Write(",");
                 }
@@ -567,30 +567,30 @@ namespace SCUConverterDrawArea
             }
             sw.Write(": boolean;\r\n");
             sw.Write("ASSIGN\r\n");
-            foreach (var input in Inputs)
+            foreach (var input in inputs)
             {
                 sw.Write("\tinit({0}) :=0;\r\n", input);
                 sw.Flush();
             }
-            foreach (var localState in LocalStates)
+            foreach (var localState in localStates)
             {
                 sw.Write("\tinit({0}) :=0;\r\n", localState);
                 sw.Flush();
             }
             sw.Write("default\r\n{");
-            foreach (var localState in LocalStates)
+            foreach (var localState in localStates)
             {
                 sw.Write("\tnext({0}) :=0;\r\n", localState);
                 sw.Flush();
             }
-            foreach (var output in Outputs)
+            foreach (var output in outputs)
             {
                 sw.Write("\tnext({0}) :=0;\r\n", output);
                 sw.Flush();
             }
             sw.Write("}\r\n");
             sw.Write("in\r\n{\r\n");
-            foreach (var rule in Rules)
+            foreach (var rule in rules)
             {
                 rule.PrintRule(sw);
                 sw.Write("\r\n");
@@ -598,18 +598,18 @@ namespace SCUConverterDrawArea
             }
             sw.Write("}\r\n\r\n");
             sw.Write("--Reachability of states\r\n");
-            foreach (var localState in LocalStates)
+            foreach (var localState in localStates)
             {
                 sw.Write("SPEC EF {0};\r\n", localState);
                 sw.Flush();
             }
-            foreach (var output in Outputs)
+            foreach (var output in outputs)
             {
                 sw.Write("SPEC EF {0};\r\n", output);
                 sw.Flush();
             }
             sw.Write("--Recoverability of states\r\n");
-            foreach (var recovState in RecovStates)
+            foreach (var recovState in statesRecov)
             {
                 sw.Write("SPEC AG ( {0} -> AF {0} );\r\n", recovState);
                 sw.Flush();
@@ -619,7 +619,7 @@ namespace SCUConverterDrawArea
             sw.Close();
         }
         
-        public void SaveToVHDL(string path, bool createBus, int ouputSigCount, OutputTableElement[] outTable)
+        public void saveToVHDL(string path, bool createBus, int ouputSigCount, OutputTableElement[] outTable)
         {
             string tmp;
             var sb = new StringBuilder();
@@ -634,9 +634,9 @@ namespace SCUConverterDrawArea
                 tmp = "-- Входные сигналы\n";
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
-                for (var i = 0; i < Inputs.Length; i++)
+                for (var i = 0; i < inputs.Length; i++)
                 {
-                    tmp = string.Format("-- {0}\t->\tinputs[{1}]\n", Inputs[i], i);
+                    tmp = string.Format("-- {0}\t->\tinputs[{1}]\n", inputs[i], i);
                     resultCode = resultCode.Insert(index, tmp);
                     index += tmp.Length;
                 }
@@ -669,22 +669,22 @@ namespace SCUConverterDrawArea
             {
                 tmp = string.Format(ouputSigCount > 0 ?
                     "inputs				:	in		STD_LOGIC_VECTOR({0} downto 0);\n" 
-                    : "inputs				:	in		STD_LOGIC_VECTOR({0} downto 0)", Inputs.Length - 1);
+                    : "inputs				:	in		STD_LOGIC_VECTOR({0} downto 0)", inputs.Length - 1);
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
             }
             else
             {
-                for (var i = 0; i < Inputs.Length-1; i++ )
+                for (var i = 0; i < inputs.Length-1; i++ )
                 {
-                    tmp = string.Format("\t\t\t{0}				:	in		STD_LOGIC;\n", Inputs[i]);
+                    tmp = string.Format("\t\t\t{0}				:	in		STD_LOGIC;\n", inputs[i]);
                     resultCode = resultCode.Insert(index, tmp);
                     index += tmp.Length;
                 }
 
                 tmp = string.Format(ouputSigCount > 0 ?
                     "\t\t\t{0}				:	in		STD_LOGIC;\n"
-                    : "\t\t\t{0}				:	in		STD_LOGIC\n", Inputs[Inputs.Length - 1]);
+                    : "\t\t\t{0}				:	in		STD_LOGIC\n", inputs[inputs.Length - 1]);
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
             }
@@ -717,10 +717,10 @@ namespace SCUConverterDrawArea
             while ((index = resultCode.IndexOf("$width", StringComparison.Ordinal)) != -1)
             {
                 resultCode = resultCode.Remove(index, "$width".Length);
-                resultCode = resultCode.Insert(index, (Rules.Length-1).ToString());
+                resultCode = resultCode.Insert(index, (rules.Length-1).ToString());
             }
 
-            for (var i = 0; i < Rules.Length; i++)
+            for (var i = 0; i < rules.Length; i++)
             {
                 sb.Append("0");
             }
@@ -737,74 +737,74 @@ namespace SCUConverterDrawArea
             tmp = "-- Состояния автомата\n";
             resultCode = resultCode.Insert(index, tmp);
             index += tmp.Length;
-            for (int i = 0; i < Rules.Length; i++)
+            for (int i = 0; i < rules.Length; i++)
             {
-                if (Rules[i].output)
+                if (rules[i].output)
                 {
                     tmp = string.Format("-- not used\t->\tcurState[{0}]\n", i);
                 }
-                else tmp = string.Format("-- {0}\t->\tcurState[{1}]\n", Rules[i].Elems[0].Value, i);
+                else tmp = string.Format("-- {0}\t->\tcurState[{1}]\n", rules[i].Elems[0].Value, i);
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
             }
 
             index = resultCode.IndexOf("$rules", StringComparison.Ordinal);
             resultCode = resultCode.Remove(index, "$rules".Length);
-            for (var i = 0; i < Rules.Length; i++)
+            for (var i = 0; i < rules.Length; i++)
             {
-                if (Rules[i].output)
+                if (rules[i].output)
                 {
                     continue;
                 }
                 sb.AppendFormat("\n\t\tnewState({0}) := ", i);
-                for (var j = 1; j < Rules[i].Elems.Length; j++)
+                for (var j = 1; j < rules[i].Elems.Length; j++)
                 {
-                    if (Rules[i].Elems[j].Type == "=" || Rules[i].Elems[j].Type == "t+1" ||
-                        Rules[i].Elems[j].Empty) continue;
-                    if (Rules[i].Elems[j].Type == "State")
+                    if (rules[i].Elems[j].Type == "=" || rules[i].Elems[j].Type == "t+1" ||
+                        rules[i].Elems[j].Empty) continue;
+                    if (rules[i].Elems[j].Type == "State")
                     {
-                        if (Rules[i].Elems[j].Inverted)
+                        if (rules[i].Elems[j].Inverted)
                         {
-                            if (Rules[i].Elems[j].Local)
+                            if (rules[i].Elems[j].Local)
                             {
-                                for (var n = 0; n < Rules.Length; n++)
+                                for (var n = 0; n < rules.Length; n++)
                                 {
-                                    if (Rules[i].Elems[j].Value != Rules[n].Elems[0].Value) continue;
+                                    if (rules[i].Elems[j].Value != rules[n].Elems[0].Value) continue;
                                     sb.AppendFormat("(not curState({0}))", n);
                                     break;
                                 }
                             }
                             else
                             {
-                                for (var n = 0; n < Inputs.Length; n++)
+                                for (var n = 0; n < inputs.Length; n++)
                                 {
-                                    if (Inputs[n] != Rules[i].Elems[j].Value) continue;
+                                    if (inputs[n] != rules[i].Elems[j].Value) continue;
                                     if (createBus)
                                         sb.AppendFormat("(not inputs({0}))", n);
-                                    else sb.AppendFormat("(not {0})", Inputs[n]);
+                                    else sb.AppendFormat("(not {0})", inputs[n]);
                                     break;
                                 }
                             }
                         }
                         else
                         {
-                            if (Rules[i].Elems[j].Local)
+                            if (rules[i].Elems[j].Local)
                             {
-                                for (var n = 0; n < Rules.Length; n++)
+                                for (var n = 0; n < rules.Length; n++)
                                 {
-                                    if (Rules[i].Elems[j].Value != Rules[n].Elems[0].Value) continue;
+                                    if (rules[i].Elems[j].Value != rules[n].Elems[0].Value) continue;
                                     sb.AppendFormat("curState({0})", n);
                                     break;
                                 }
                             }
                             else
                             {
-                                for (var n = 0; n < Inputs.Length; n++)
+                                for (var n = 0; n < inputs.Length; n++)
                                 {
-                                    if (Inputs[n] != Rules[i].Elems[j].Value) continue;
+                                    if (inputs[n] != rules[i].Elems[j].Value) continue;
                                     if (createBus)
                                         sb.AppendFormat("inputs({0})", n);
-                                    else sb.Append(Inputs[n]);
+                                    else sb.Append(inputs[n]);
                                     break;
                                 }
                             }
@@ -812,17 +812,17 @@ namespace SCUConverterDrawArea
                     }
                     else
                     {
-                        if (Rules[i].Elems[j].Type == "|") sb.Append(" or ");
-                        if (Rules[i].Elems[j].Type == "&") sb.Append(" and ");
-                        if (Rules[i].Elems[j].Type == "(")
+                        if (rules[i].Elems[j].Type == "|") sb.Append(" or ");
+                        if (rules[i].Elems[j].Type == "&") sb.Append(" and ");
+                        if (rules[i].Elems[j].Type == "(")
                         {
-                            if (Rules[i].Elems[j].Inverted)
+                            if (rules[i].Elems[j].Inverted)
                             {
                                 sb.Append(" not ");
                             }
                             sb.Append("(");
                         }
-                        if (Rules[i].Elems[j].Type == ")")
+                        if (rules[i].Elems[j].Type == ")")
                         {
                             sb.Append(")");
                         }
@@ -832,7 +832,7 @@ namespace SCUConverterDrawArea
                 int k;
                 for (k = 0; k < outTable.Length; k++)
                 {
-                    if (Rules[i].Elems[0].Value == outTable[k].StateName && outTable[k].HasOutput)
+                    if (rules[i].Elems[0].Value == outTable[k].StateName && outTable[k].HasOutput)
                     {
                         tmp = outTable[k].OutputName;
                         break;
@@ -870,7 +870,7 @@ namespace SCUConverterDrawArea
         public SympleElement[] elements;
         public SympleElement brackets;
         public bool b_Brackets;
-        state CurrentState;
+        state stateCurrent;
         int currentElement;
         string str;
 
@@ -878,36 +878,36 @@ namespace SCUConverterDrawArea
         {
             b_Brackets = false;
             elements = new SympleElement[0];
-            CurrentState = state.START;
+            stateCurrent = state.START;
             brackets = new SympleElement();
             brackets.StartIndex = -1;
             brackets.EndIndex = -1;
         }
 
-        public void Start(string input)
+        public void start(string input)
         {
             elements = new SympleElement[0];
-            CurrentState = state.START;
+            stateCurrent = state.START;
             currentElement = -1;
             str = input.ToLower();
             
             for (var i = 0; i < str.Length; i++)
             {
-                switch (CurrentState)
+                switch (stateCurrent)
                 {
                     case state.START: if (str[i] == '#')
                         {
                             Array.Resize(ref elements, elements.Length + 1);
                             currentElement++;
                             elements[currentElement] = new SympleElement {StartIndex = i};
-                            CurrentState = state.COMMENT;
+                            stateCurrent = state.COMMENT;
                         }
                         else if (Regex.IsMatch(str[i].ToString(), "[a-z]"))
                         {
                             Array.Resize(ref elements, elements.Length + 1);
                             currentElement++;
                             elements[currentElement] = new SympleElement {StartIndex = i};
-                            CurrentState = state.SIGNAL;
+                            stateCurrent = state.SIGNAL;
                         }
                         else if (str[i] == '(')
                         {
@@ -917,7 +917,7 @@ namespace SCUConverterDrawArea
                             {
                                 StartIndex = i, EndIndex = i, Style = System.Drawing.FontStyle.Bold
                             };
-                            CurrentState = state.START;
+                            stateCurrent = state.START;
                         }
                         else if (str[i] == ')')
                         {
@@ -927,14 +927,14 @@ namespace SCUConverterDrawArea
                             {
                                 StartIndex = i, EndIndex = i, Style = System.Drawing.FontStyle.Bold
                             };
-                            CurrentState = state.START;
+                            stateCurrent = state.START;
                         }
                         else if (str[i] == '[')
                         {
                             Array.Resize(ref elements, elements.Length + 1);
                             currentElement++;
                             elements[currentElement] = new SympleElement {StartIndex = i};
-                            CurrentState = state.OPT;
+                            stateCurrent = state.OPT;
                         }
                         break;
                     case state.COMMENT: if (str[i] == '#')
@@ -942,7 +942,7 @@ namespace SCUConverterDrawArea
                             elements[currentElement].EndIndex = i;
                             elements[currentElement].TextColor = Settings.Default.TextFieldCommentColor;
                             elements[currentElement].Style = 0;
-                            CurrentState = state.START;
+                            stateCurrent = state.START;
                         }
                         break;
                     case state.OPT: if (str[i] == ']')
@@ -950,7 +950,7 @@ namespace SCUConverterDrawArea
                             elements[currentElement].EndIndex = i;
                             elements[currentElement].TextColor = Settings.Default.TextFieldOptionColor;
                             elements[currentElement].Style = 0;
-                            CurrentState = state.START;
+                            stateCurrent = state.START;
                         }
                         break;
                     case state.SIGNAL: if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
@@ -974,7 +974,7 @@ namespace SCUConverterDrawArea
                                 Array.Resize(ref elements, elements.Length + 1);
                                 currentElement++;
                                 elements[currentElement] = new SympleElement {StartIndex = i};
-                                CurrentState = state.COMMENT;
+                                stateCurrent = state.COMMENT;
                             }
                         
                             if (str[i] == '(')
@@ -985,7 +985,7 @@ namespace SCUConverterDrawArea
                                 {
                                     StartIndex = i, EndIndex = i, Style = System.Drawing.FontStyle.Bold
                                 };
-                                CurrentState = state.START;
+                                stateCurrent = state.START;
                             }
                             if (str[i] == ')')
                             {
@@ -995,10 +995,10 @@ namespace SCUConverterDrawArea
                                 {
                                     StartIndex = i, EndIndex = i, Style = System.Drawing.FontStyle.Bold
                                 };
-                                CurrentState = state.START;
+                                stateCurrent = state.START;
                             }
                         
-                            CurrentState = state.START;
+                            stateCurrent = state.START;
                         }
                         break;
                     default:

@@ -24,16 +24,16 @@ namespace SCUConverterDrawArea
 
         ToolPanel toolPanel;
         Graphics graphics;
-        Pen penHighlight;
-        Pen penSignal;
-        Pen penInputSignal;
-        Pen penOutputSignal;
-        Pen penLocalLine;
-        Pen penLocalLineEnd;
-        Pen penInputLine;
-        Pen penInputLineEnd;
-        Brush brushTextColor;
-        Brush brushSignalActive;
+        Pen highlightPen;
+        Pen signalPen;
+        Pen inputSignalPen;
+        Pen outputSignalPen;
+        Pen localLinePen;
+        Pen localLineEndPen;
+        Pen inputLinePen;
+        Pen inputLineEndPen;
+        Brush textColorBrush;
+        Brush signalActiveBrush;
         Font textFont;
 
         State[] states;
@@ -49,17 +49,17 @@ namespace SCUConverterDrawArea
         int xs, ys, xM, yM;
         int curX, curY;
         int inputsLeight;
-        bool stateSelected;
-        bool linkSelected;
-        bool tableCreated;
+        bool selectState;
+        bool selectLink;
+        bool createdTable;
         bool showDebugInfo;
         bool savingImage;
         int selectedState;
         int stepNumber;
-        bool drawInputs;
-        bool enableLogging;
+        bool inputsDraw;
+        bool enableLogs;
 
-        public bool simulStarted { get; set; }
+        public bool isStartSimul { get; set; }
         public string pathToLogFile { get; set; }
         private Timer timer;
         private IContainer components;
@@ -109,12 +109,12 @@ namespace SCUConverterDrawArea
             stepNumber = 1;
             inputsLeight = 0;
 
-            drawInputs = true;
-            simulStarted = false;
-            linkSelected = false;
-            tableCreated = false;
+            inputsDraw = true;
+            isStartSimul = false;
+            selectLink = false;
+            createdTable = false;
             savingImage = false;
-            enableLogging = true;
+            enableLogs = true;
             pathToLogFile = String.Empty;
 
             log = new LogWriter();
@@ -140,73 +140,73 @@ namespace SCUConverterDrawArea
             toolPanel.PanelOrientation = Orientation.Vertical;
             toolPanel.PanelAlignment = Alignment.RIGHT;
 
-            var tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetInactiveImage(Resources.create_simulation);
-            tButton.SetImage(Resources.create_simulation);
-            tButton.Name = "start";
-            tButton.Text = "Запустить Моделирование системы";
-            toolPanel.AddControl(ref tButton);
+            var toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetInactiveImage(Resources.create_simulation);
+            toolButton.SetImage(Resources.create_simulation);
+            toolButton.Name = "start";
+            toolButton.Text = "Запустить Моделирование системы";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetInactiveImage(Resources.play_grey);
-            tButton.SetImage(Resources.play);
-            tButton.Name = "run";
-            tButton.Text = "Запуск моделирования";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetInactiveImage(Resources.play_grey);
+            toolButton.SetImage(Resources.play);
+            toolButton.Name = "run";
+            toolButton.Text = "Запуск моделирования";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetInactiveImage(Resources.step_grey);
-            tButton.SetImage(Resources.step);
-            tButton.Name = "step";
-            tButton.Text = "Шаг с остановом";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetInactiveImage(Resources.step_grey);
+            toolButton.SetImage(Resources.step);
+            toolButton.Name = "step";
+            toolButton.Text = "Шаг с остановом";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetInactiveImage(Resources.stop_grey);
-            tButton.SetImage(Resources.stop);
-            tButton.Name = "stop";
-            tButton.Text = "Остановить моделирование";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetInactiveImage(Resources.stop_grey);
+            toolButton.SetImage(Resources.stop);
+            toolButton.Name = "stop";
+            toolButton.Text = "Остановить моделирование";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetInactiveImage(Resources.table_grey);
-            tButton.SetImage(Resources.table);
-            tButton.Name = "table";
-            tButton.Text = "Таблица сигналов";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetInactiveImage(Resources.table_grey);
+            toolButton.SetImage(Resources.table);
+            toolButton.Name = "table";
+            toolButton.Text = "Таблица сигналов";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetImage(Resources.reset_all);
-            tButton.Name = "reset";
-            tButton.Text = "Сбросить все сигналы";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetImage(Resources.reset_all);
+            toolButton.Name = "reset";
+            toolButton.Text = "Сбросить все сигналы";
+            toolPanel.AddControl(ref toolButton);
 
-            tButton = new ToolButton();
-            tButton.SetFrame(Resources.frame);
-            tButton.SetFrameHover(Resources.frame_hover);
-            tButton.SetFrameClick(Resources.frame_click);
-            tButton.SetImage(Resources.show_log);
-            tButton.Name = "showlog";
-            tButton.Text = "Показать лог-файл";
-            toolPanel.AddControl(ref tButton);
+            toolButton = new ToolButton();
+            toolButton.SetFrame(Resources.frame);
+            toolButton.SetFrameHover(Resources.frame_hover);
+            toolButton.SetFrameClick(Resources.frame_click);
+            toolButton.SetImage(Resources.show_log);
+            toolButton.Name = "showlog";
+            toolButton.Text = "Показать лог-файл";
+            toolPanel.AddControl(ref toolButton);
 
             toolPanel.Buttons[1].Enabled = false;
             toolPanel.Buttons[2].Enabled = false;
@@ -219,7 +219,7 @@ namespace SCUConverterDrawArea
             contextMenu.Items.Add("Установить 1");
             contextMenu.Items.Add("Всегда 1");
             contextMenu.Items.Add("Установить 0");
-            contextMenu.ItemClicked += contextMenuClick;
+            contextMenu.ItemClicked += clickContextMenu;
 
             Controls.Add(hScroll);
             Controls.Add(vScroll);
@@ -265,20 +265,20 @@ namespace SCUConverterDrawArea
         
         public void ApplySettings()
         {
-            penSignal = new Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
-            penInputSignal = new Pen(Color.Aqua, 2);
-            penOutputSignal = new Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
-            penLocalLine = new Pen(Brushes.DarkBlue, 3);
-            penLocalLineEnd = new Pen(Brushes.Orange, 3);
-            penHighlight = new Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
-            penInputLine = new Pen(Brushes.DarkRed, 3);
-            penInputLineEnd = new Pen(Brushes.LightGreen, 3);
-            brushSignalActive = new SolidBrush(Color.LightPink);
-            brushTextColor = new SolidBrush(Settings.Default.GrafFieldTextColor);
+            signalPen = new Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
+            inputSignalPen = new Pen(Color.Aqua, 2);
+            outputSignalPen = new Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
+            localLinePen = new Pen(Brushes.DarkBlue, 3);
+            localLineEndPen = new Pen(Brushes.Orange, 3);
+            highlightPen = new Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
+            inputLinePen = new Pen(Brushes.DarkRed, 3);
+            inputLineEndPen = new Pen(Brushes.LightGreen, 3);
+            signalActiveBrush = new SolidBrush(Color.LightPink);
+            textColorBrush = new SolidBrush(Settings.Default.GrafFieldTextColor);
             textFont = new Font("Consols", 20);
 
-            enableLogging = Settings.Default.LogSimulation;
-            toolPanel.Buttons[6].Visible = enableLogging;
+            enableLogs = Settings.Default.LogSimulation;
+            toolPanel.Buttons[6].Visible = enableLogs;
 
             if (timer.Enabled)
             {
@@ -348,19 +348,19 @@ namespace SCUConverterDrawArea
                     float yn;
                     if (link.FromInput)
                     {
-                        if (!drawInputs)
+                        if (!inputsDraw)
                         {
                             continue;
                         }
                         
                         if (link.Selected)
                         {
-                            g.DrawLine(penHighlight,
+                            g.DrawLine(highlightPen,
                                 (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
                                 (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
                         }
 
-                        g.DrawLine(penInputLine,
+                        g.DrawLine(inputLinePen,
                             (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
                             (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
                         link.setTimeDot();
@@ -379,7 +379,7 @@ namespace SCUConverterDrawArea
                                 cosa = deltaY / gip;
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penInputLineEnd,
+                                g.DrawLine(inputLineEndPen,
                                     (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                     (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
                                 link.setTimeDot();
@@ -392,7 +392,7 @@ namespace SCUConverterDrawArea
                                 cosa = deltaY / gip;
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penInputLineEnd,
+                                g.DrawLine(inputLineEndPen,
                                     (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                     (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT - yn);
                                 link.setTimeDot();
@@ -413,7 +413,7 @@ namespace SCUConverterDrawArea
                             cosa = deltaY / gip;
                             xn = 50 * sina * ScaleT;
                             yn = 50 * cosa * ScaleT;
-                            g.DrawLine(penInputLineEnd,
+                            g.DrawLine(inputLineEndPen,
                                 (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                 (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
                             link.setTimeDot();
@@ -429,7 +429,7 @@ namespace SCUConverterDrawArea
                         cosa = deltaY / gip;
                         xn = 50 * sina * ScaleT;
                         yn = 50 * cosa * ScaleT;
-                        g.DrawLine(penInputLineEnd,
+                        g.DrawLine(inputLineEndPen,
                             (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                             (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT - yn);
                         link.setTimeDot();
@@ -437,22 +437,22 @@ namespace SCUConverterDrawArea
                     }
                     else if (link.Arc)
                     {
-                        g.DrawArc(penLocalLine, (link.x1 - 50 + xT) * ScaleT,
+                        g.DrawArc(localLinePen, (link.x1 - 50 + xT) * ScaleT,
                             (link.y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 0, 360);
-                        g.DrawArc(penLocalLineEnd, (link.x1 - 50 + xT) * ScaleT,
+                        g.DrawArc(localLineEndPen, (link.x1 - 50 + xT) * ScaleT,
                             (link.y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 300, 60);
                     }
                     else
                     {
                         if (link.Selected)
                         {
-                            g.DrawLine(penHighlight, (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
+                            g.DrawLine(highlightPen, (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
                                 (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
                             link.setTimeDot();
                             DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                         }
 
-                        g.DrawLine(penLocalLine,
+                        g.DrawLine(localLinePen,
                             (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT, (link.x2 + xT) * ScaleT,
                             (link.y2 + yT) * ScaleT);
                         link.setTimeDot();
@@ -470,7 +470,7 @@ namespace SCUConverterDrawArea
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
 
-                                g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                g.DrawLine(localLineEndPen, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                     (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
                                 link.setTimeDot();
                                 DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
@@ -482,7 +482,7 @@ namespace SCUConverterDrawArea
                                 cosa = deltaY / gip;
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd,
+                                g.DrawLine(localLineEndPen,
                                     (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                     (link.x2 + xT) * ScaleT - xn, ((link.y2 + yT) * ScaleT) - yn);
                                 link.setTimeDot();
@@ -503,7 +503,7 @@ namespace SCUConverterDrawArea
                             cosa = deltaY / gip;
                             xn = 50 * sina * ScaleT;
                             yn = 50 * cosa * ScaleT;
-                            g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                            g.DrawLine(localLineEndPen, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                                 ((link.x2 + xT) * ScaleT) - xn, ((link.y2 + yT) * ScaleT) + yn);
                             link.setTimeDot();
                             DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
@@ -518,7 +518,7 @@ namespace SCUConverterDrawArea
                         cosa = deltaY / gip;
                         xn = 50 * sina * ScaleT;
                         yn = 50 * cosa * ScaleT;
-                        g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                        g.DrawLine(localLineEndPen, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
                             ((link.x2 + xT) * ScaleT) - xn, ((link.y2 + yT) * ScaleT) - yn);
                         link.setTimeDot();
                         DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
@@ -532,14 +532,14 @@ namespace SCUConverterDrawArea
                 {
                     if (state.InputSignal)
                     {
-                        if (!drawInputs)
+                        if (!inputsDraw)
                         {
                             continue;
                         }
                         
                         if (state.Signaled || state.AlSignaled)
                         {
-                            g.FillRectangle(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                            g.FillRectangle(signalActiveBrush, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
                                 60 * ScaleT, 60 * ScaleT);
                         }
                         else
@@ -548,18 +548,18 @@ namespace SCUConverterDrawArea
                                 width: 60 * ScaleT, height: 60 * ScaleT);
                         }
 
-                        g.DrawRectangle(state.Selected ? penHighlight : penInputSignal, (state.x + xT) * ScaleT,
+                        g.DrawRectangle(state.Selected ? highlightPen : inputSignalPen, (state.x + xT) * ScaleT,
                             (state.y + yT) * ScaleT,
                             60 * ScaleT, 60 * ScaleT);
 
-                        g.DrawString(state.Name, textFont, brushTextColor,
+                        g.DrawString(state.Name, textFont, textColorBrush,
                             (state.x + 10 + xT) * ScaleT, (state.y + 10 + yT) * ScaleT);
                     }
                     else if (state.Type == STATE_TYPE.OUTPUT)
                     {
                         if (state.Signaled || state.AlSignaled)
                         {
-                            g.FillRectangle(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                            g.FillRectangle(signalActiveBrush, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
                                 60 * ScaleT, 60 * ScaleT);
                         }
                         else
@@ -568,18 +568,18 @@ namespace SCUConverterDrawArea
                                 60 * ScaleT, 60 * ScaleT);
                         }
 
-                        g.DrawRectangle(state.Selected ? penHighlight : penOutputSignal, (state.x + xT) * ScaleT,
+                        g.DrawRectangle(state.Selected ? highlightPen : outputSignalPen, (state.x + xT) * ScaleT,
                             (state.y + yT) * ScaleT,
                             60 * ScaleT, 60 * ScaleT);
 
-                        g.DrawString(state.Name, textFont, brushTextColor, (state.x + 10 + xT) * ScaleT,
+                        g.DrawString(state.Name, textFont, textColorBrush, (state.x + 10 + xT) * ScaleT,
                             (state.y + 10 + yT) * ScaleT);
                     }
                     else
                     {
                         if (state.Signaled || state.AlSignaled)
                         {
-                            g.FillEllipse(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                            g.FillEllipse(signalActiveBrush, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
                                 60 * ScaleT, 60 * ScaleT);
                         }
                         else
@@ -588,11 +588,11 @@ namespace SCUConverterDrawArea
                                 60 * ScaleT, 60 * ScaleT);
                         }
 
-                        g.DrawEllipse(state.Selected ? penHighlight : penSignal, (state.x + xT) * ScaleT,
+                        g.DrawEllipse(state.Selected ? highlightPen : signalPen, (state.x + xT) * ScaleT,
                             (state.y + yT) * ScaleT,
                             60 * ScaleT, 60 * ScaleT);
 
-                        g.DrawString(state.Name, textFont, brushTextColor,
+                        g.DrawString(state.Name, textFont, textColorBrush,
                             (state.x + 10 + xT) * ScaleT, (state.y + 15 + yT) * ScaleT);
                     }
                 }
@@ -679,7 +679,7 @@ namespace SCUConverterDrawArea
             xM = e.X;
             yM = e.Y;
             
-            if (e.Button == MouseButtons.Right && simulStarted)
+            if (e.Button == MouseButtons.Right && isStartSimul)
             {
                 if (CheckSelectedState(cursorPositionX, cursorPositionY, r, true) >= 0)
                 {
@@ -713,7 +713,7 @@ namespace SCUConverterDrawArea
                     if (!right)
                     {
                         states[selectedState].Selected = false;
-                        stateSelected = true;
+                        selectState = true;
                         selectedState = i;
                         states[i].Selected = true;
                         return i;
@@ -727,7 +727,7 @@ namespace SCUConverterDrawArea
                 {
                     continue;
                 }
-                stateSelected = false;
+                selectState = false;
                 states[i].Selected = false;
             }
             return (int)defines.NO_STATE_SELECTED;
@@ -743,10 +743,10 @@ namespace SCUConverterDrawArea
         {
             var dx = (cursorPositionX - xT) / ScaleT;
             var dy = (cursorPositionY - yT) / ScaleT;
-            linkSelected = false;
+            selectLink = false;
             foreach (var link in links)
             {
-                if (!linkSelected)
+                if (!selectLink)
                 {
                     if (link.Arc)
                     {
@@ -759,7 +759,7 @@ namespace SCUConverterDrawArea
                     if (hlfl - sqrl < 1)
                     {
                         link.Selected = true;
-                        linkSelected = true;
+                        selectLink = true;
                     }
                     else link.Selected = false;
                 }
@@ -782,7 +782,7 @@ namespace SCUConverterDrawArea
                 toolTip.Show(str, this, curX + 10, curY - 15, 500);
             }
             CheckSelectedLink(e.X, e.Y);
-            if (e.Button == MouseButtons.Left && stateSelected)
+            if (e.Button == MouseButtons.Left && selectState)
             {
                 if (xM != e.X)
                 {
@@ -990,8 +990,8 @@ namespace SCUConverterDrawArea
             switch (e.Name)
             {
                 case "start":
-                    CreateSimulation(((Form1) Parent.Parent.Parent).parser.Rules,
-                        ((Form1) Parent.Parent.Parent).parser.Outputs);
+                    CreateSimulation(((Form1) Parent.Parent.Parent).parser.rules,
+                        ((Form1) Parent.Parent.Parent).parser.outputs);
                     break;
                 case "run":
                     SimulationStart();
@@ -1051,7 +1051,7 @@ namespace SCUConverterDrawArea
             const string outputAssembly = "simul.exe";
             var compilerParams = new CompilerParameters { OutputAssembly = outputAssembly, GenerateExecutable = true };
             var fi = new FileInfo(outputAssembly);
-            if (!simulStarted)
+            if (!isStartSimul)
             {
                 if (pipe != null)
                 {
@@ -1175,7 +1175,7 @@ namespace SCUConverterDrawArea
                 pipe = new NamedPipeServerStream("{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}", PipeDirection.InOut);
                 pipe.WaitForConnection();
                 sw = new StreamWriter(pipe) {AutoFlush = true};
-                simulStarted = true;
+                isStartSimul = true;
                 toolPanel.Buttons[0].SetImage(Resources.stop_simulation);
                 toolPanel.Buttons[0].Text = "Остановить моделирование";
                 toolPanel.Buttons[1].Enabled = true;
@@ -1184,12 +1184,12 @@ namespace SCUConverterDrawArea
             }
             else
             {
-                if (tableCreated)
+                if (createdTable)
                 {
                     table.Close();
                 }
                 SimulationStop();
-                simulStarted = false;
+                isStartSimul = false;
                 if (pipe.IsConnected)
                 {
                     WritePipe(0, 0, 'e');
@@ -1260,7 +1260,7 @@ namespace SCUConverterDrawArea
         public void SimulationStart()
         {
             OnSimulationStarted();
-            if (enableLogging)
+            if (enableLogs)
             {
                 log.LogFormat = Settings.Default.LogFormat;
                 log.FileName = pathToLogFile.Length > 0 ? pathToLogFile : string.Format("log_{0}", states.GetHashCode());
@@ -1275,7 +1275,7 @@ namespace SCUConverterDrawArea
             {
                 table.UpdateSimControls(new[] {true, false, true});
                 table.ResetSteps();
-                if (tableCreated)
+                if (createdTable)
                 {
                     for (var i = 0; i < inputsLeight; i++)
                     {
@@ -1305,7 +1305,7 @@ namespace SCUConverterDrawArea
         /// </summary>
         public void SimulationStop()
         {
-            if (enableLogging && timer.Enabled)
+            if (enableLogs && timer.Enabled)
                 log.EndLog();
             if (table != null)
                 table.UpdateSimControls(new[] { true, true, false });
@@ -1323,7 +1323,7 @@ namespace SCUConverterDrawArea
         {
             if (bManual)
             {
-                if (tableCreated)
+                if (createdTable)
                 {
                     for (var i = 0; i < inputsLeight; i++)
                     {
@@ -1347,7 +1347,7 @@ namespace SCUConverterDrawArea
 
             for (var i = 0; i < states.Length; i++)
             {
-                if (enableLogging)
+                if (enableLogs)
                 {
                     log.AddToLog(states[i].Signaled || states[i].AlSignaled, 
                         states[i].Type == STATE_TYPE.INPUT, 
@@ -1362,11 +1362,11 @@ namespace SCUConverterDrawArea
             {
                 states[i].Signaled = ReadPipe(i);
             }
-            if (tableCreated)
+            if (createdTable)
             {
                 table.NextStep();
             }
-            if (tableCreated)
+            if (createdTable)
             {
                 for (var i = 0; i < inputsLeight; i++)
                 {
@@ -1400,7 +1400,7 @@ namespace SCUConverterDrawArea
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void contextMenuClick(object sender, ToolStripItemClickedEventArgs  e)
+        private void clickContextMenu(object sender, ToolStripItemClickedEventArgs  e)
         {
             switch (e.ClickedItem.Text)
             {
@@ -1424,7 +1424,7 @@ namespace SCUConverterDrawArea
         /// </summary>
         public void CreateTable()
         {
-            if (inputsLeight == 0 || tableCreated)
+            if (inputsLeight == 0 || createdTable)
             {
                 return;
             }
@@ -1444,7 +1444,7 @@ namespace SCUConverterDrawArea
                 table.AddElement(i, states[i].Name, states[i].Signaled, states[i].InputSignal);
             }
             table.ShowT();
-            tableCreated = true;
+            createdTable = true;
         }
         
         /// <summary>
@@ -1454,7 +1454,7 @@ namespace SCUConverterDrawArea
         /// <param name="e"></param>
         private void TableClosed(object sender, FormClosedEventArgs e)
         {
-            tableCreated = false;
+            createdTable = false;
         }
         
         public void SaveImage(String path)
@@ -1514,7 +1514,7 @@ namespace SCUConverterDrawArea
         
         public void ClearArea()
         {
-            if (simulStarted)
+            if (isStartSimul)
             {
                 CreateSimulation(null, null);
             }

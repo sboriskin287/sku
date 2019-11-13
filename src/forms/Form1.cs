@@ -185,7 +185,7 @@ namespace SCUConverterDrawArea
             {
                 this.toolStripProgressBar1.Value = 0;
                 sSaveFileName = saveFileDialog1.FileName;
-                if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
+                if (parser.parseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
                 {
                     PrintText("Ошибка разбора");
                     this.toolStripProgressBar1.Value = 50;
@@ -193,7 +193,7 @@ namespace SCUConverterDrawArea
                 }
                 this.toolStripProgressBar1.Value = 50;
                 PrintText("Разбор окончен");
-                parser.SaveToSMV(sSaveFileName);
+                parser.saveToSMV(sSaveFileName);
                 this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
                 this.toolStripProgressBar1.Value = 100;
             }
@@ -202,7 +202,7 @@ namespace SCUConverterDrawArea
         private void CreateGraf(object sender, EventArgs e)
         {
             this.toolStripProgressBar1.Value = 0;          
-            if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
+            if (parser.parseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
             {
                 PrintText("Ошибка разбора");
                 this.toolStripProgressBar1.Value = 0;
@@ -211,9 +211,9 @@ namespace SCUConverterDrawArea
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
-            pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
+            pictureBox1.CreateStates(ref parser.localStates, ref parser.inputs, ref parser.outputs);
             this.toolStripProgressBar1.Value = 50;
-            pictureBox1.CreateLinks(ref parser.Rules);
+            pictureBox1.CreateLinks(ref parser.rules);
             this.toolStripProgressBar1.Value = 75;
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
@@ -400,7 +400,7 @@ namespace SCUConverterDrawArea
 
         private void toolStripButton10_Click(object sender, EventArgs e)
         {
-            if (!pictureBox1.simulStarted)
+            if (!pictureBox1.isStartSimul)
             {
                 this.toolStripButton10.Image = global::SCUConverterDrawArea.Properties.Resources.stop_simulation;
                 this.toolStripButton10.Text = "Остановить симуляцию";
@@ -418,7 +418,7 @@ namespace SCUConverterDrawArea
                 this.toolStripButton6.Enabled = false;
                 this.toolStripButton7.Enabled = false;
             }
-            pictureBox1.CreateSimulation(parser.Rules, parser.Outputs);
+            pictureBox1.CreateSimulation(parser.rules, parser.outputs);
         }
 
         private void генерироватьVHDLToolStripMenuItem_Click(object sender, EventArgs e)
@@ -441,32 +441,32 @@ namespace SCUConverterDrawArea
             {
                 this.toolStripProgressBar1.Value = 0;
                 sSaveFileName = saveFileDialog1.FileName;
-                if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
+                if (parser.parseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
                 {
                     PrintText("Ошибка разбора");
                     this.toolStripProgressBar1.Value = 50;
                     return;
                 }
-                OutputSignalsTable form3 = new OutputSignalsTable(parser.LocalStates.Length);
-                for (int i = 0; i < parser.LocalStates.Length; i++)
+                OutputSignalsTable form3 = new OutputSignalsTable(parser.localStates.Length);
+                for (int i = 0; i < parser.localStates.Length; i++)
                 {
                     isBreak = false;
-                    for (int j = 0; j < parser.Rules.Length; j++)
+                    for (int j = 0; j < parser.rules.Length; j++)
                     {
-                        if (parser.Rules[j].output && parser.Rules[j].Elems[2].Value == parser.LocalStates[i])
+                        if (parser.rules[j].output && parser.rules[j].Elems[2].Value == parser.localStates[i])
                         {
-                            form3.AddState(i, parser.LocalStates[i], parser.Rules[j].Elems[0].Value);
+                            form3.AddState(i, parser.localStates[i], parser.rules[j].Elems[0].Value);
                             isBreak = true;
                             break;
                         }
                     }
-                    if (!isBreak) form3.AddState(i, parser.LocalStates[i], null);
+                    if (!isBreak) form3.AddState(i, parser.localStates[i], null);
                 }
                 if (form3.ShowDialog() == DialogResult.OK)
                 {
                     this.toolStripProgressBar1.Value = 50;
                     PrintText("Разбор окончен");
-                    parser.SaveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
+                    parser.saveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
                     this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
                     this.toolStripProgressBar1.Value = 100;
                 }
@@ -498,7 +498,7 @@ namespace SCUConverterDrawArea
                 b_Parsing = true;
                 int Index = this.richTextBox1.SelectionStart;
                 if (!sParser.b_Brackets)
-                    sParser.Start(this.richTextBox1.Text);
+                    sParser.start(this.richTextBox1.Text);
                 this.richTextBox1.SelectAll();
                 this.richTextBox1.ForeColor = Settings.Default.TextFieldTextColor;
                 this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
