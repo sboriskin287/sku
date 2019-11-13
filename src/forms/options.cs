@@ -6,9 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using sku_to_smv.Properties;
+using SCUConverterDrawArea.Properties;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     public partial class options : Form
     {

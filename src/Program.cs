@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     static class Program
     {

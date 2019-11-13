@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     public partial class OutputSignalsTable : Form
     {

@@ -1,4 +1,4 @@
-﻿namespace sku_to_smv
+﻿namespace SCUConverterDrawArea
 {
     partial class options
     {

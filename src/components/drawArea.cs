@@ -1,44 +1,43 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using Microsoft.CSharp;
-using sku_to_smv.Properties;
+using SCUConverterDrawArea.Properties;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
-    class drawArea : PictureBox
+    class DrawArea : PictureBox
     {
         HScrollBar hScroll;
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
         ToolTip toolTip;
-        Point MouseLastPosition;
-        System.Windows.Forms.Timer ClickToolPanelTimer;
-        System.ComponentModel.ComponentResourceManager resources;
+        Point cursorLastPosition;
+        Timer clickToolPanelTimer;
 
-        ToolPanel tools;
-        Graphics g;
-        Pen penHighlight;//цвет выделения
-        Pen penSignal;//цвет сигналов
-        Pen penInputSignal;//цвет сигналов
-        Pen penOutputSignal;//цвет сигналов
-        Pen penLocalLine;//цвет линии между локальными сигналами
-        Pen penLocalLineEnd;//цвет стрелки
-        Pen penInputLine;//цвет линии от входных сигналов
-        Pen penInputLineEnd;//цвет стрелки
+        ToolPanel toolPanel;
+        Graphics graphics;
+        Pen penHighlight;
+        Pen penSignal;
+        Pen penInputSignal;
+        Pen penOutputSignal;
+        Pen penLocalLine;
+        Pen penLocalLineEnd;
+        Pen penInputLine;
+        Pen penInputLineEnd;
         Brush brushTextColor;
-        Brush brushSignalActive;//кисть для активных сигналов
-        Font TextFont;//Шрифт
+        Brush brushSignalActive;
+        Font textFont;
 
-        public  State[] States;
-        public  Link[] Links;
+        State[] states;
+        Link[] links;
         NamedPipeServerStream pipe;
         StreamWriter sw;
         SignalTable table;
@@ -46,31 +45,29 @@ namespace sku_to_smv
         BufferedGraphics drawBuffer;
         LogWriter log;
 
-        int xT, yT/*, dx, dy*/;
+        int xT, yT;
         int xs, ys, xM, yM;
         int curX, curY;
-        int InputsLeight;
-        int OutputsLeight;
-        bool StateSelected;
-        bool LinkSelected;
-        //bool AddStateButtonSelected;
-        bool TableCreated;
-        bool b_ShowDebugInfo;
-        bool b_SavingImage;
-        int SelectedState;
+        int inputsLeight;
+        bool stateSelected;
+        bool linkSelected;
+        bool tableCreated;
+        bool showDebugInfo;
+        bool savingImage;
+        int selectedState;
         int stepNumber;
-        bool DrawInputs;
-        bool b_EnableLogging;
+        bool drawInputs;
+        bool enableLogging;
 
-        public bool b_SimulStarted { get; set; }
-        public String LogFileName { get; set; }
-        private System.Windows.Forms.Timer timer1;
-        private System.ComponentModel.IContainer components;
+        public bool simulStarted { get; set; }
+        public string pathToLogFile { get; set; }
+        private Timer timer;
+        private IContainer components;
         FormClosedEventHandler handler;
 
         public delegate void drawAreaEventHandler(object sender, EventArgs a);
         public event drawAreaEventHandler SimulationStarted;
-        public event drawAreaEventHandler SimulationStoped;
+        public event drawAreaEventHandler SimulationEnded;
 
         private float scaleT; 
         
@@ -80,546 +77,573 @@ namespace sku_to_smv
             set
             {
                 scaleT = value;
-                TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * value), Settings.Default.GrafFieldTextFont.Style);
+                textFont = new Font(Settings.Default.GrafFieldTextFont.Name, 
+                    Settings.Default.GrafFieldTextFont.Size * value, 
+                    Settings.Default.GrafFieldTextFont.Style);
             }
         }
 
-       public drawArea()
+       public DrawArea()
         {
             InitializeArea();
         }
-        ~drawArea() 
+       
+        ~DrawArea() 
         {
             hScroll.Dispose();
             vScroll.Dispose();
-            g.Dispose();
-            Array.Clear(States, 0, States.Length);
-            Array.Clear(Links, 0, Links.Length);
+            graphics.Dispose();
+            Array.Clear(states, 0, states.Length);
+            Array.Clear(links, 0, links.Length);
         }
+        
         /// <summary>
         /// Функция инициализации области рисования
         /// </summary>
         private void InitializeArea()
         {
-            //Отображение отладочной информации на графе
-            b_ShowDebugInfo = false;
+            showDebugInfo = false;
             ScaleT = 1F;
             xT = 0;
             yT = 0;
             stepNumber = 1;
-            InputsLeight = 0;
-            OutputsLeight = 0;
+            inputsLeight = 0;
 
-            //AddStateButtonSelected = false;
-            DrawInputs = true;
-            b_SimulStarted = false;
-            LinkSelected = false;
-            TableCreated = false;
-            b_SavingImage = false;
-            b_EnableLogging = true;
-            LogFileName = "";
+            drawInputs = true;
+            simulStarted = false;
+            linkSelected = false;
+            tableCreated = false;
+            savingImage = false;
+            enableLogging = true;
+            pathToLogFile = String.Empty;
 
             log = new LogWriter();
-            resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             drawContext = new BufferedGraphicsContext();
-            handler = new System.Windows.Forms.FormClosedEventHandler(this.TableClosed);
-            this.components = new System.ComponentModel.Container();
-            this.toolTip = new ToolTip(components);
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
-            ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
-            this.SuspendLayout();
+            handler = TableClosed;
+            components = new Container();
+            toolTip = new ToolTip(components);
+            timer = new Timer(components);
+            ((ISupportInitialize)this).BeginInit();
+            SuspendLayout();
 
-            Links = new Link[1];
-            Links[0] = new Link();
+            links = new Link[1];
+            links[0] = new Link();
 
-            States = new State[0];
+            states = new State[0];
 
-            this.DoubleBuffered = true;
+            DoubleBuffered = true;
 
-            tools = new ToolPanel();
-            tools.BackColor = Color.FromArgb(120, 145, 217, 255);
+            toolPanel = new ToolPanel();
+            toolPanel.BackColor = Color.FromArgb(120, 145, 217, 255);
            
-            tools.ButtonClicked += this.ToolPanelButtonClicked;
-            tools.PanelOrientation = Orientation.Vertical;
-            tools.PanelAlignment = Alignment.RIGHT;
+            toolPanel.ButtonClicked += ToolPanelButtonClicked;
+            toolPanel.PanelOrientation = Orientation.Vertical;
+            toolPanel.PanelAlignment = Alignment.RIGHT;
 
-            ToolButton tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.create_simulation);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
+            var tButton = new ToolButton();
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetInactiveImage(Resources.create_simulation);
+            tButton.SetImage(Resources.create_simulation);
             tButton.Name = "start";
-            tButton.Text = "Запустить симуляцию";
-            tools.AddControl(ref tButton);
+            tButton.Text = "Запустить Моделирование системы";
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.play_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.play);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetInactiveImage(Resources.play_grey);
+            tButton.SetImage(Resources.play);
             tButton.Name = "run";
-            tButton.Text = "Запуск симуляции";
-            tools.AddControl(ref tButton);
+            tButton.Text = "Запуск моделирования";
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.step_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.step);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetInactiveImage(Resources.step_grey);
+            tButton.SetImage(Resources.step);
             tButton.Name = "step";
             tButton.Text = "Шаг с остановом";
-            tools.AddControl(ref tButton);
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.stop_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.stop);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetInactiveImage(Resources.stop_grey);
+            tButton.SetImage(Resources.stop);
             tButton.Name = "stop";
-            tButton.Text = "Остановить симуляцию";
-            tools.AddControl(ref tButton);
+            tButton.Text = "Остановить моделирование";
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.table);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetInactiveImage(Resources.table_grey);
+            tButton.SetImage(Resources.table);
             tButton.Name = "table";
             tButton.Text = "Таблица сигналов";
-            tools.AddControl(ref tButton);
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.reset_all);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetImage(Resources.reset_all);
             tButton.Name = "reset";
             tButton.Text = "Сбросить все сигналы";
-            tools.AddControl(ref tButton);
+            toolPanel.AddControl(ref tButton);
 
             tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.show_log);
+            tButton.SetFrame(Resources.frame);
+            tButton.SetFrameHover(Resources.frame_hover);
+            tButton.SetFrameClick(Resources.frame_click);
+            tButton.SetImage(Resources.show_log);
             tButton.Name = "showlog";
             tButton.Text = "Показать лог-файл";
-            tools.AddControl(ref tButton);
+            toolPanel.AddControl(ref tButton);
 
-            tools.Buttons[1].Enabled = false;
-            tools.Buttons[2].Enabled = false;
-            tools.Buttons[3].Enabled = false;
-            tools.Buttons[4].Enabled = false;
+            toolPanel.Buttons[1].Enabled = false;
+            toolPanel.Buttons[2].Enabled = false;
+            toolPanel.Buttons[3].Enabled = false;
+            toolPanel.Buttons[4].Enabled = false;
 
             hScroll = new HScrollBar();
             vScroll = new VScrollBar();
-            contextMenu = new ContextMenuStrip(components);
-            contextMenu.Visible = false;
+            contextMenu = new ContextMenuStrip(components) {Visible = false};
             contextMenu.Items.Add("Установить 1");
             contextMenu.Items.Add("Всегда 1");
             contextMenu.Items.Add("Установить 0");
-            contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(this.contextMenuClick);
+            contextMenu.ItemClicked += contextMenuClick;
 
-            this.Controls.Add(hScroll);
-            this.Controls.Add(vScroll);
+            Controls.Add(hScroll);
+            Controls.Add(vScroll);
 
-            hScroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            hScroll.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             hScroll.LargeChange = 50;
-            hScroll.Location = new System.Drawing.Point(0, this.Height - 20);
+            hScroll.Location = new Point(0, Height - 20);
             hScroll.Maximum = 1000;
             hScroll.Name = "hScroll";
-            hScroll.Size = new System.Drawing.Size(this.Width - 20, 20);
+            hScroll.Size = new Size(Width - 20, 20);
             hScroll.TabIndex = 2;
-            hScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScroll_Scroll);
+            hScroll.Scroll += hScroll_Scroll;
 
-            vScroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Right)));
+            vScroll.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             vScroll.LargeChange = 50;
-            vScroll.Location = new System.Drawing.Point(this.Width - 20, 0);
+            vScroll.Location = new Point(this.Width - 20, 0);
             vScroll.Maximum = 1000;
             vScroll.Name = "vScroll";
-            vScroll.Size = new System.Drawing.Size(20, this.Height);
+            vScroll.Size = new Size(20, Height);
             vScroll.TabIndex = 1;
-            vScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScroll_Scroll);
-
-
-
-            //графический буфер
-            drawBuffer = drawContext.Allocate(this.CreateGraphics(), this.ClientRectangle);
-            g = drawBuffer.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
+            vScroll.Scroll += vScroll_Scroll;
+            
+            drawBuffer = drawContext.Allocate(CreateGraphics(), ClientRectangle);
+            graphics = drawBuffer.Graphics;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
 
             ApplySettings();
 
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseClick);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseMove);
-            this.SizeChanged += new EventHandler(this.AreaResized);
-            
-            // 
-            // Таймер, отсчитывает шаги симуляции
-            // 
-            //this.timer1.Interval = 2000;
-            this.ClickToolPanelTimer = new System.Windows.Forms.Timer();
-            this.ClickToolPanelTimer.Interval = 200;
-            this.ClickToolPanelTimer.Tick += new System.EventHandler(this.ClickToolPanelTimer_Tick);
+            MouseClick += drawArea_MouseClick;
+            MouseDown += drawArea_MouseDown;
+            MouseMove += drawArea_MouseMove;
+            SizeChanged += AreaResized;
 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
-            this.ResumeLayout(false);
+            clickToolPanelTimer = new Timer {Interval = 200};
+            clickToolPanelTimer.Tick += ClickToolPanelTimer_Tick;
+
+            timer.Tick += timer1_Tick;
+            ((ISupportInitialize)this).EndInit();
+            ResumeLayout(false);
         }
+        
         public void ApplySettings()
         {
-            //Определяются цвета
-            penSignal = new System.Drawing.Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
-            penInputSignal = new System.Drawing.Pen(Color.Aqua, 2);
-            penOutputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
-            penLocalLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 3);
-            penLocalLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.Orange, 3);
-            penHighlight = new System.Drawing.Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
-            penInputLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkRed, 3);
-            penInputLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.LightGreen, 3);
-            brushSignalActive = new System.Drawing.SolidBrush(System.Drawing.Color.LightPink);
-            brushTextColor = new System.Drawing.SolidBrush(Settings.Default.GrafFieldTextColor);
-            //И шрифт
-            TextFont = new System.Drawing.Font("Consolas", 20);
+            penSignal = new Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
+            penInputSignal = new Pen(Color.Aqua, 2);
+            penOutputSignal = new Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
+            penLocalLine = new Pen(Brushes.DarkBlue, 3);
+            penLocalLineEnd = new Pen(Brushes.Orange, 3);
+            penHighlight = new Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
+            penInputLine = new Pen(Brushes.DarkRed, 3);
+            penInputLineEnd = new Pen(Brushes.LightGreen, 3);
+            brushSignalActive = new SolidBrush(Color.LightPink);
+            brushTextColor = new SolidBrush(Settings.Default.GrafFieldTextColor);
+            textFont = new Font("Consols", 20);
 
-            b_EnableLogging = Settings.Default.LogSimulation;
-            if (b_EnableLogging)
-                tools.Buttons[6].Visible = true;
-            else tools.Buttons[6].Visible = false;
+            enableLogging = Settings.Default.LogSimulation;
+            toolPanel.Buttons[6].Visible = enableLogging;
 
-            if (timer1.Enabled)
+            if (timer.Enabled)
             {
-                timer1.Stop();
-                timer1.Interval = int.Parse(Settings.Default.SimulationPeriod);
-                timer1.Start();
+                timer.Stop();
+                timer.Interval = int.Parse(Settings.Default.SimulationPeriod);
+                timer.Start();
             }
-            else timer1.Interval = int.Parse(Settings.Default.SimulationPeriod);
+            else
+            {
+                timer.Interval = int.Parse(Settings.Default.SimulationPeriod);
+            }
 
             Refresh();
         }
+        
         /// <summary>
         /// Закрывает именованный канал
         /// </summary>
         public void ClosePipe()
         {
-            if (pipe != null)
+            if (pipe == null)
             {
+                return;
+            }
+            
+            if (pipe.IsConnected)
+            {
+                WritePipe(0, 0, 'e');
                 if (pipe.IsConnected)
                 {
-                    WritePipe(0, 0, 'e');
-                    if (pipe.IsConnected) pipe.Disconnect();
+                    pipe.Disconnect();
                 }
-                sw = null;
-                pipe = null;
-                GC.Collect();
             }
+            sw = null;
+            pipe = null;
         }
+        
         public override void Refresh()
         {
+            GC.Collect();
             base.Refresh();
-            Refresh(g);
+            Refresh(graphics);
             drawBuffer.Render();
-            this.vScroll.Maximum = (int)(1000.0 * ScaleT);
-            this.hScroll.Maximum = (int)(1000.0 * ScaleT);
+            vScroll.Maximum = (int)(1000.0 * ScaleT);
+            hScroll.Maximum = (int)(1000.0 * ScaleT);
         }
+        
         /// <summary>
         /// Функция обновления(рисования) объекта
         /// </summary>
         private void Refresh(Graphics g)
         {
-            float gip, DeltaX, DeltaY, cosa, sina, xn, yn;
+            textFont = new Font("Consols", 15, FontStyle.Italic);
 
-            TextFont = new System.Drawing.Font("Consolas", 15, FontStyle.Italic);
-           
-            
-
-            g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
+            g.Clear(Color.White);
             g.DrawImage(new Bitmap("../../resources/backgroung_graph.jpg"), 1, 1);
-            if (Links != null)
+            if (links != null)
             {
-                for (int i = 0; i < Links.Length; i++)
+                foreach (var link in links)
                 {
-                    if (Links[i].FromInput == true)         //Связи от входных сигналов
+                    float deltaX;
+                    float gip;
+                    float deltaY;
+                    float cosa;
+                    float sina;
+                    float xn;
+                    float yn;
+                    if (link.FromInput)
                     {
-                        if (DrawInputs)
+                        if (!drawInputs)
                         {
-                            //рисуем связь(темно-синяя линия)
-                            if (Links[i].Selected)
-                            {
-                                g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            }
-                            g.DrawLine(penInputLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            Links[i].setTimeDot();
-                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            //вычисляем гипотенузу
-                            gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
+                            continue;
+                        }
+                        
+                        if (link.Selected)
+                        {
+                            g.DrawLine(penHighlight,
+                                (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
+                                (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
+                        }
 
-                            if (Links[i].x2 > Links[i].x1)
+                        g.DrawLine(penInputLine,
+                            (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
+                            (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
+                        link.setTimeDot();
+                        DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
+                        gip = (float) System.Math.Sqrt(
+                            Math.Pow((link.y1 + yT) * ScaleT - (link.y2 + yT) * ScaleT, 2) +
+                            Math.Pow((link.x1 + xT) * ScaleT - (link.x2 + xT) * ScaleT, 2));
+
+                        if (link.x2 > link.x1)
+                        {
+                            deltaX = (link.x2 - link.x1) * ScaleT;
+                            sina = deltaX / gip;
+                            if (link.y2 < link.y1)
                             {
-                                DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                                sina = DeltaX / gip;
-                                if (Links[i].y2 < Links[i].y1)
-                                {//1
-                                    DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                                if (Links[i].y2 > Links[i].y1)
-                                {//2
-                                    DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
+                                deltaY = (link.y1 - link.y2) * ScaleT;
+                                cosa = deltaY / gip;
+                                xn = 50 * sina * ScaleT;
+                                yn = 50 * cosa * ScaleT;
+                                g.DrawLine(penInputLineEnd,
+                                    (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                    (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
+                                link.setTimeDot();
+                                DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                             }
-                            if (Links[i].x2 < Links[i].x1)
+
+                            if (link.y2 > link.y1)
                             {
-                                DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                                sina = DeltaX / gip;
-                                if (Links[i].y2 < Links[i].y1)
-                                {//4
-                                    DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                                if (Links[i].y2 > Links[i].y1)
-                                {//3
-                                    DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
+                                deltaY = (link.y2 - link.y1) * ScaleT;
+                                cosa = deltaY / gip;
+                                xn = 50 * sina * ScaleT;
+                                yn = 50 * cosa * ScaleT;
+                                g.DrawLine(penInputLineEnd,
+                                    (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                    (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT - yn);
+                                link.setTimeDot();
+                                DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                             }
                         }
+
+                        if (link.x2 >= link.x1)
+                        {
+                            continue;
+                        }
+                            
+                        deltaX = (link.x2 - link.x1) * ScaleT;
+                        sina = deltaX / gip;
+                        if (link.y2 < link.y1)
+                        {
+                            deltaY = (link.y1 - link.y2) * ScaleT;
+                            cosa = deltaY / gip;
+                            xn = 50 * sina * ScaleT;
+                            yn = 50 * cosa * ScaleT;
+                            g.DrawLine(penInputLineEnd,
+                                (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
+                            link.setTimeDot();
+                            DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
+                        }
+
+                        if (link.y2 <= link.y1)
+                        {
+                            continue;
+                        }
+                                
+                        deltaY = (link.y2 - link.y1) * ScaleT;
+                        cosa = deltaY / gip;
+                        xn = 50 * sina * ScaleT;
+                        yn = 50 * cosa * ScaleT;
+                        g.DrawLine(penInputLineEnd,
+                            (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                            (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT - yn);
+                        link.setTimeDot();
+                        DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                     }
-                    else if (Links[i].Arc == true)
+                    else if (link.Arc)
                     {
-                        g.DrawArc(penLocalLine, (Links[i].x1 - 50 + xT) * ScaleT, (Links[i].y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 0, 360);
-                        g.DrawArc(penLocalLineEnd, (Links[i].x1 - 50 + xT) * ScaleT, (Links[i].y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 300, 60);
+                        g.DrawArc(penLocalLine, (link.x1 - 50 + xT) * ScaleT,
+                            (link.y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 0, 360);
+                        g.DrawArc(penLocalLineEnd, (link.x1 - 50 + xT) * ScaleT,
+                            (link.y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 300, 60);
                     }
                     else
                     {
-                        //PointF[] curvePoints = {new PointF((Links[i].x2 + xT) * Scale, (Links[i].y2 + yT) * Scale), new PointF(100.0f,100.0f), new PointF(((Links[i].x2 + xT) * Scale) - xn, ((Links[i].y2 + yT) * Scale) + yn)};
-                        //g.DrawCurve(penRed, curvePoints, 1.0f);
-                        if (Links[i].Selected)
+                        if (link.Selected)
                         {
-                            g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            Links[i].setTimeDot();
-                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
+                            g.DrawLine(penHighlight, (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT,
+                                (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT);
+                            link.setTimeDot();
+                            DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                         }
-                        g.DrawLine(penLocalLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                        Links[i].setTimeDot();
-                        drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY); gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
-                        //xn = Math.Abs((Links[i].y1 + yT) * Scale-(Links[i].y2 + yT) * Scale)/gip*(gip-20);
-                        //yn = Math.Abs((Links[i].x1 + xT) * Scale-(Links[i].x2 + xT) * Scale)/gip*(gip-20);
-                        //g.DrawLine(p4,(Links[i].x1 + xT) * Scale,(Links[i].y1 + yT) * Scale,xn,yn);
-                        //g.DrawLine(p3, (Links[i].x1 + 25)*4, (Links[i].y1 + 25)*4, Links[i].x2 + 25, Links[i].y2 + 25);
-                        if (Links[i].x2 > Links[i].x1)
+
+                        g.DrawLine(penLocalLine,
+                            (link.x1 + xT) * ScaleT, (link.y1 + yT) * ScaleT, (link.x2 + xT) * ScaleT,
+                            (link.y2 + yT) * ScaleT);
+                        link.setTimeDot();
+                        DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
+                        gip = (float) Math.Sqrt(Math.Pow((link.y1 + yT) * ScaleT - (link.y2 + yT) * ScaleT, 2)
+                                                + Math.Pow((link.x1 + xT) * ScaleT - (link.x2 + xT) * ScaleT, 2));
+                        if (link.x2 > link.x1)
                         {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//1
-                                DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                cosa = DeltaY / gip;
+                            deltaX = (link.x2 - link.x1) * ScaleT;
+                            sina = deltaX / gip;
+                            if (link.y2 < link.y1)
+                            {
+                                deltaY = (link.y1 - link.y2) * ScaleT;
+                                cosa = deltaY / gip;
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
 
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
+                                g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                    (link.x2 + xT) * ScaleT - xn, (link.y2 + yT) * ScaleT + yn);
+                                link.setTimeDot();
+                                DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                             }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//2
-                                DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                cosa = DeltaY / gip;
+
+                            if (link.y2 > link.y1)
+                            {
+                                deltaY = (link.y2 - link.y1) * ScaleT;
+                                cosa = deltaY / gip;
                                 xn = 50 * sina * ScaleT;
                                 yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
+                                g.DrawLine(penLocalLineEnd,
+                                    (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                    (link.x2 + xT) * ScaleT - xn, ((link.y2 + yT) * ScaleT) - yn);
+                                link.setTimeDot();
+                                DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                             }
                         }
-                        if (Links[i].x2 < Links[i].x1)
+
+                        if (link.x2 >= link.x1)
                         {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//4
-                                DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//3
-                                DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
+                            continue;
                         }
+                        
+                        deltaX = (link.x2 - link.x1) * ScaleT;
+                        sina = deltaX / gip;
+                        if (link.y2 < link.y1)
+                        {
+                            deltaY = (link.y1 - link.y2) * ScaleT;
+                            cosa = deltaY / gip;
+                            xn = 50 * sina * ScaleT;
+                            yn = 50 * cosa * ScaleT;
+                            g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                                ((link.x2 + xT) * ScaleT) - xn, ((link.y2 + yT) * ScaleT) + yn);
+                            link.setTimeDot();
+                            DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
+                        }
+
+                        if (link.y2 <= link.y1)
+                        {
+                            continue;
+                        }
+                        
+                        deltaY = (link.y2 - link.y1) * ScaleT;
+                        cosa = deltaY / gip;
+                        xn = 50 * sina * ScaleT;
+                        yn = 50 * cosa * ScaleT;
+                        g.DrawLine(penLocalLineEnd, (link.x2 + xT) * ScaleT, (link.y2 + yT) * ScaleT,
+                            ((link.x2 + xT) * ScaleT) - xn, ((link.y2 + yT) * ScaleT) - yn);
+                        link.setTimeDot();
+                        DrawTime(g, link.timeTransfer, link.timeX, link.timeY);
                     }
                 }
             }
-            if (States != null)
-            {
 
-                for (int i = 0; i < States.Length; i++)
+            if (states != null)
+            {
+                foreach (var state in states)
                 {
-                    if (States[i].InputSignal == true)
+                    if (state.InputSignal)
                     {
-                        if (DrawInputs)
+                        if (!drawInputs)
                         {
-                            if (States[i].Signaled || States[i].AlSignaled)
-                            {
-                                g.FillRectangle(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            }
-                            else
-                            {
-                                g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            }
-                            if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            else g.DrawRectangle(penInputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
+                            continue;
                         }
-                    }
-                    else if (States[i].Type == STATE_TYPE.OUTPUT)
-                    {
-                        if (States[i].Signaled || States[i].AlSignaled)
+                        
+                        if (state.Signaled || state.AlSignaled)
                         {
-                            g.FillRectangle(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                            g.FillRectangle(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                                60 * ScaleT, 60 * ScaleT);
                         }
                         else
                         {
-                            g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                            g.FillRectangle(Brushes.White, x: (state.x + xT) * ScaleT, y: (state.y + yT) * ScaleT,
+                                width: 60 * ScaleT, height: 60 * ScaleT);
                         }
-                        if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        else g.DrawRectangle(penOutputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
+
+                        g.DrawRectangle(state.Selected ? penHighlight : penInputSignal, (state.x + xT) * ScaleT,
+                            (state.y + yT) * ScaleT,
+                            60 * ScaleT, 60 * ScaleT);
+
+                        g.DrawString(state.Name, textFont, brushTextColor,
+                            (state.x + 10 + xT) * ScaleT, (state.y + 10 + yT) * ScaleT);
+                    }
+                    else if (state.Type == STATE_TYPE.OUTPUT)
+                    {
+                        if (state.Signaled || state.AlSignaled)
+                        {
+                            g.FillRectangle(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                                60 * ScaleT, 60 * ScaleT);
+                        }
+                        else
+                        {
+                            g.FillRectangle(Brushes.White, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                                60 * ScaleT, 60 * ScaleT);
+                        }
+
+                        g.DrawRectangle(state.Selected ? penHighlight : penOutputSignal, (state.x + xT) * ScaleT,
+                            (state.y + yT) * ScaleT,
+                            60 * ScaleT, 60 * ScaleT);
+
+                        g.DrawString(state.Name, textFont, brushTextColor, (state.x + 10 + xT) * ScaleT,
+                            (state.y + 10 + yT) * ScaleT);
                     }
                     else
                     {
-                        if (States[i].Signaled || States[i].AlSignaled)
+                        if (state.Signaled || state.AlSignaled)
                         {
-                            g.FillEllipse(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                            g.FillEllipse(brushSignalActive, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                                60 * ScaleT, 60 * ScaleT);
                         }
                         else
                         {
-                            g.FillEllipse(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
+                            g.FillEllipse(Brushes.White, (state.x + xT) * ScaleT, (state.y + yT) * ScaleT,
+                                60 * ScaleT, 60 * ScaleT);
                         }
-                        if (States[i].Selected) g.DrawEllipse(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        else g.DrawEllipse(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 15 + yT) * ScaleT);
+
+                        g.DrawEllipse(state.Selected ? penHighlight : penSignal, (state.x + xT) * ScaleT,
+                            (state.y + yT) * ScaleT,
+                            60 * ScaleT, 60 * ScaleT);
+
+                        g.DrawString(state.Name, textFont, brushTextColor,
+                            (state.x + 10 + xT) * ScaleT, (state.y + 15 + yT) * ScaleT);
                     }
                 }
             }
-            //Отрисовка панели инструментов
-            if (!b_SavingImage)
+
+            if (savingImage)
             {
-                if (tools.PanelOrientation == Orientation.Vertical)
-                    if (tools.PanelAlignment == Alignment.LEFT)
-                    {
-                        tools.size = new Size(40, this.Size.Height);
-                        tools.Location = new Point(0, 0);
-                    }
-                    else
-                    {
-                        tools.size = new Size(40, this.Size.Height);
-                        tools.Location = new Point(this.Size.Width - 40 - vScroll.Size.Width, 0);
-                    }
+                return;
+            }
+            
+            if (toolPanel.PanelOrientation == Orientation.Vertical)
+                if (toolPanel.PanelAlignment == Alignment.LEFT)
+                {
+                    toolPanel.size = new Size(40, this.Size.Height);
+                    toolPanel.Location = new Point(0, 0);
+                }
                 else
                 {
-                    if (tools.PanelAlignment == Alignment.TOP)
-                    {
-                        tools.size = new Size(this.Size.Width, 40);
-                        tools.Location = new Point(0, 0);
-                    }
-                    else
-                    {
-                        tools.size = new Size(this.Size.Width, 40);
-                        tools.Location = new Point(0, this.Size.Height - 40 - hScroll.Size.Height);
-                    }
+                    toolPanel.size = new Size(40, this.Size.Height);
+                    toolPanel.Location = new Point(this.Size.Width - 40 - vScroll.Size.Width, 0);
                 }
-                tools.UpdateControlsLocation();
-                tools.Draw(ref g); 
-            }
-            //////////////////////////////////////////////////
-            ///////////////////Для отладки//////////////////// 
-            ////////////////////////////////////////////////// 
-            if (b_ShowDebugInfo)
+            else
             {
-                int xSS = 700, ySS = 0;
-                for (int i = 0; i < Links.Length - 1; i++)
+                if (toolPanel.PanelAlignment == Alignment.TOP)
                 {
-                    if (!Links[i].Arc)
-                    {
-                        if (Links[i].Selected)
-                        {
-                            g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
-                             + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Red, xSS, ySS);
-                        }
-                        else g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
-                             + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;
-                    }
-                    else
-                    {
-                        g.DrawString("Arc" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx=" + Links[i].x1.ToString() + " y=" + Links[i].y1.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;
-                    }
+                    toolPanel.size = new Size(this.Size.Width, 40);
+                    toolPanel.Location = new Point(0, 0);
                 }
-
-                g.DrawString("mouse x = " + curX.ToString() + "\ty = " + curY.ToString(), TextFont, System.Drawing.Brushes.Black, 0, 0);
+                else
+                {
+                    toolPanel.size = new Size(this.Size.Width, 40);
+                    toolPanel.Location = new Point(0, this.Size.Height - 40 - hScroll.Size.Height);
+                }
             }
+
+            toolPanel.UpdateControlsLocation();
+            toolPanel.Draw(ref g);
         }
 
         private void AreaResized(object sender, EventArgs e)
         {
-            g.Dispose();
+            graphics.Dispose();
             drawBuffer.Dispose();
-            drawBuffer = drawContext.Allocate(this.CreateGraphics(), this.ClientRectangle);
-            g = drawBuffer.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
+            drawBuffer = drawContext.Allocate(CreateGraphics(), ClientRectangle);
+            graphics = drawBuffer.Graphics;
+            graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             Refresh();
         }
+        
         /// <summary>
         /// Обработчик горизонтального скролинга
         /// </summary>
@@ -630,6 +654,7 @@ namespace sku_to_smv
             xT = -hScroll.Value;
             Refresh();
         }
+        
         /// <summary>
         /// Обработчик вертикального скролинга
         /// </summary>
@@ -640,6 +665,7 @@ namespace sku_to_smv
             yT = -vScroll.Value;
             Refresh();
         }
+        
         /// <summary>
         /// Обработчик клика мышкой по области рисования
         /// </summary>
@@ -647,36 +673,15 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void drawArea_MouseDown(object sender, MouseEventArgs e)
         {
-            float r;
-            float xkur;
-            float ykur;
-            int result;
-
-            xkur = e.X;
-            ykur = e.Y;
-            r = 30 * ScaleT;
+            float cursorPositionX = e.X;
+            float cursorPositionY = e.Y;
+            var r = 30 * ScaleT;
             xM = e.X;
             yM = e.Y;
-
-            if (e.Button == MouseButtons.Left)
+            
+            if (e.Button == MouseButtons.Right && simulStarted)
             {
-//                 if (AddStateButtonSelected)
-//                 {
-//                     //Mu.WaitOne();
-//                     //States[i].Value = LocalStates[i];
-//                     Array.Resize(ref States, States.Length + 1);
-//                     States[States.Length - 1] = new State();
-//                     States[States.Length - 1].x = (int)(((float)e.X - 30 - xT) / ScaleT);
-//                     States[States.Length - 1].y = (int)(((float)e.Y - 30 - yT) / ScaleT);
-//                     //Mu.ReleaseMutex();
-//                 }
-
-                result = CheckSelectedState(xkur, ykur, r, false);
-                //CheckSelectedLink(xkur, ykur);
-            }
-            if (e.Button == MouseButtons.Right && b_SimulStarted)
-            {
-                if (CheckSelectedState(xkur, ykur, r, true) > -1)
+                if (CheckSelectedState(cursorPositionX, cursorPositionY, r, true) >= 0)
                 {
                     contextMenu.Visible = true;
                     contextMenu.Show(this, e.Location);
@@ -684,96 +689,84 @@ namespace sku_to_smv
             }
             Refresh();
         }
+        
         private void drawArea_MouseClick(object sender, MouseEventArgs e)
         {
-            tools.CheckMouseState(e, true);
+            toolPanel.CheckMouseState(e, true);
             Refresh();
         }
-        /// <summary>
-        /// Функция проверки наведения мыши на состояние
-        /// </summary>
-        /// <param name="xkur">Координата x мыши</param>
-        /// <param name="ykur">Координата y мыши</param>
-        /// <param name="r">Радиус состояния</param>
-        /// <param name="right">Нажата ли правая кнопка мыши</param>
-        /// <returns>Номер найденого состояния</returns>
-        private int CheckSelectedState(float xkur, float ykur, float r, bool right)
+
+        private int CheckSelectedState(float cursorPositionX, float cursorPositionY, float r, bool right)
         {
-            float x0, y0;
-            float f;
-            if (States != null)
+            if (states == null)
             {
-                for (int i = States.Length - 1; i >= 0; i--)
+                return (int) defines.NO_STATE_SELECTED;
+            }
+            
+            for (var i = states.Length - 1; i >= 0; i--)
+            {
+                var x0 = (states[i].x + 30 + xT) * ScaleT;
+                var y0 = (states[i].y + 30 + yT) * ScaleT;
+                var f = (float)Math.Pow(x0 - cursorPositionX, 2) + (float)Math.Pow(y0 - cursorPositionY, 2);
+                if (f <= (float)Math.Pow(r, 2))
                 {
-                    x0 = (States[i].x + 30 + xT) * ScaleT;
-                    y0 = (States[i].y + 30 + yT) * ScaleT;
-                    f = (float)System.Math.Pow(x0 - xkur, 2) + (float)System.Math.Pow(y0 - ykur, 2);
-                    if (f <= (float)System.Math.Pow(r, 2))
+                    if (!right)
                     {
-                        if (!right)
-                        {
-                            States[SelectedState].Selected = false;
-                            StateSelected = true;
-                            SelectedState = i;
-                            States[i].Selected = true;
-                            return i;
-                        }
-                        else
-                        {
-                            SelectedState = i;
-                            return i;
-                        }
+                        states[selectedState].Selected = false;
+                        stateSelected = true;
+                        selectedState = i;
+                        states[i].Selected = true;
+                        return i;
                     }
-                    else
-                    {
-                        if (!right)
-                        {
-                            StateSelected = false;
-                            States[i].Selected = false;
-                        }
-                    }
+
+                    selectedState = i;
+                    return i;
                 }
+
+                if (right)
+                {
+                    continue;
+                }
+                stateSelected = false;
+                states[i].Selected = false;
             }
             return (int)defines.NO_STATE_SELECTED;
         }
+        
         /// <summary>
         /// Функция проверки наведения мыши на линию
         /// и отображения информации о линии
         /// </summary>
-        /// <param name="xkur">Координата x мыши</param>
-        /// <param name="ykur">Координата y мыши</param>
-        private void CheckSelectedLink(float xkur, float ykur)
+        /// <param name="cursorPositionX">Координата x мыши</param>
+        /// <param name="cursorPositionY">Координата y мыши</param>
+        private void CheckSelectedLink(float cursorPositionX, float cursorPositionY)
         {
-            bool dl = false;
-            double sqrl = 0.0, hlfl = 0.0;
-            float dx, dy;
-            dx = (xkur - xT) / ScaleT;
-            dy = (ykur - yT) / ScaleT;
-            LinkSelected = false;
-            for (int i = 0; i < Links.Length; i++ )
+            var dx = (cursorPositionX - xT) / ScaleT;
+            var dy = (cursorPositionY - yT) / ScaleT;
+            linkSelected = false;
+            foreach (var link in links)
             {
-                if (!LinkSelected)
+                if (!linkSelected)
                 {
-                    if (!Links[i].Arc)
+                    if (link.Arc)
                     {
-                        sqrl = Math.Sqrt(Math.Pow((double)(Links[i].x2 - Links[i].x1), 2.0) + Math.Pow((double)(Links[i].y2 - Links[i].y1), 2.0));
-                        hlfl = Math.Sqrt(Math.Pow((double)(dx - Links[i].x1), 2.0) + Math.Pow((double)(dy - Links[i].y1), 2.0)) +
-                            Math.Sqrt(Math.Pow((double)(dx - Links[i].x2), 2.0) + Math.Pow((double)(dy - Links[i].y2), 2.0));
-                        dl = hlfl == sqrl;
-                        Links[i].leight = sqrl;
-                        Links[i].rst = hlfl;
-                        if (hlfl - sqrl < 1)
-                        {
-                            Links[i].Selected = true;
-                            //this.toolTip.Show(Links[i].StartState + "->" + Links[i].EndState, this, (int)xkur, (int)ykur - 10, 3000);
-                            LinkSelected = true;
-                        }
-                        else Links[i].Selected = false;
+                        continue;
                     }
+                    
+                    var sqrl = Math.Sqrt(Math.Pow(link.x2 - link.x1, 2.0) + Math.Pow(link.y2 - link.y1, 2.0));
+                    var hlfl = Math.Sqrt(Math.Pow(dx - link.x1, 2.0) + Math.Pow(dy - link.y1, 2.0)) +
+                                  Math.Sqrt(Math.Pow(dx - link.x2, 2.0) + Math.Pow(dy - link.y2, 2.0));
+                    if (hlfl - sqrl < 1)
+                    {
+                        link.Selected = true;
+                        linkSelected = true;
+                    }
+                    else link.Selected = false;
                 }
-                else Links[i].Selected = false;
+                else link.Selected = false;
             }
         }
+        
         /// <summary>
         /// Обработчик движения мыши по области рисования
         /// </summary>
@@ -781,30 +774,27 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
         {
-            int dx, dy;
-            float r;
-            String str;
-            r = 30 * ScaleT;
+            string str;
             curX = e.X;
             curY = e.Y;
-            if (MouseLastPosition != e.Location && (str = tools.CheckMouseState(e, false)) != null)
+            if (cursorLastPosition != e.Location && (str = toolPanel.CheckMouseState(e, false)) != null)
             {
-                this.toolTip.Show(str, this, curX + 10, curY - 15, 500);
+                toolTip.Show(str, this, curX + 10, curY - 15, 500);
             }
             CheckSelectedLink(e.X, e.Y);
-            if (e.Button == MouseButtons.Left && StateSelected)
+            if (e.Button == MouseButtons.Left && stateSelected)
             {
                 if (xM != e.X)
                 {
-                    dx = (int)(((float)e.X - xM) / ScaleT);
-                    States[SelectedState].x = States[SelectedState].x + dx;
+                    var dx = (int)(((float)e.X - xM) / ScaleT);
+                    states[selectedState].x = states[selectedState].x + dx;
                     UpdateLinks();
 
                 }
                 if (yM != e.Y)
                 {
-                    dy = (int)(((float)e.Y - yM) / ScaleT);
-                    States[SelectedState].y = States[SelectedState].y + dy;
+                    var dy = (int)(((float)e.Y - yM) / ScaleT);
+                    states[selectedState].y = states[selectedState].y + dy;
                     UpdateLinks();
 
                 }
@@ -812,255 +802,257 @@ namespace sku_to_smv
                 yM = e.Y;
                 
             }
-            MouseLastPosition = e.Location;
-//             if ((e.Button == MouseButtons.Left && StateSelected) || LinkSelected)
-//             {
-                Refresh();
-            //}
+            cursorLastPosition = e.Location;
+            Refresh();
         }
+        
         /// <summary>
         /// Обновляет связи между состояниями графа
         /// </summary>
         private void UpdateLinks()
         {
-            for (int i = 0; i < Links.Length; i++ )
+            foreach (var link in links)
             {
-                if (Links[i].StartState == States[SelectedState].Name)
+                if (link.StartState == states[selectedState].Name)
                 {
-                    Links[i].x1 = States[SelectedState].x + 30;
-                    Links[i].y1 = States[SelectedState].y + 30;
-                    if (Links[i].Moved)
+                    link.x1 = states[selectedState].x + 30;
+                    link.y1 = states[selectedState].y + 30;
+                    if (link.Moved)
                     {
-                        Links[i].x1 += 10;
-                        Links[i].y1 += 10;
+                        link.x1 += 10;
+                        link.y1 += 10;
                     }
                 }
-                if (Links[i].EndState == States[SelectedState].Name)
+
+                if (link.EndState != states[selectedState].Name)
                 {
-                    Links[i].x2 = States[SelectedState].x + 30;
-                    Links[i].y2 = States[SelectedState].y + 30;
-                    if (Links[i].Moved)
-                    {
-                        Links[i].x2 += 10;
-                        Links[i].y2 += 10;
-                    }
+                    continue;
                 }
+                link.x2 = states[selectedState].x + 30;
+                link.y2 = states[selectedState].y + 30;
+                
+                if (!link.Moved)
+                {
+                    continue;
+                }
+                link.x2 += 10;
+                link.y2 += 10;
             }
         }
+        
         /// <summary>
         /// Создает состояния для графа
         /// </summary>
-        public void CreateStates(ref string[] LocalStates, ref string[] Inputs, ref string[] Outputs)
+        public void CreateStates(ref string[] localStates, ref string[] inputs, ref string[] outputs)
         {
-            int n = 0;
-            int counter = 0;
+            var counter = 0;
             xs = 50;
             ys = 40;
-            Array.Resize(ref States, 0);
-            States = new State[Inputs.Length];
-            for (int j = 0; j < States.Length; j++)
+            Array.Resize(ref states, 0);
+            states = new State[inputs.Length];
+            for (var j = 0; j < states.Length; j++)
             {
-                States[j] = new State();
+                states[j] = new State();
             }
-            Random rnd = new Random();
 
             xs = 50;
-            for (int i = 0; i < Inputs.Length; i++)
+            for (var i = 0; i < inputs.Length; i++)
             {
-                States[i].Name = Inputs[i];
-                States[i].x = xs;
-                //xs += 70;
-                States[i].y = ys;
-                States[i].InputSignal = true;
-                States[i].Type = STATE_TYPE.INPUT;
+                states[i].Name = inputs[i];
+                states[i].x = xs;
+                states[i].y = ys;
+                states[i].InputSignal = true;
+                states[i].Type = STATE_TYPE.INPUT;
                 ys += 62;
             }
-            InputsLeight = Inputs.Length;
-            Array.Resize(ref States, States.Length + LocalStates.Length);
-            for (int i = Inputs.Length; i < States.Length; i++)
+            
+            inputsLeight = inputs.Length;
+            Array.Resize(ref states, states.Length + localStates.Length);
+            
+            for (var i = inputs.Length; i < states.Length; i++)
             {
-                States[i] = new State();
+                states[i] = new State();
             }
-            n = (int)Math.Truncate(Math.Sqrt(States.Length));
+            
+            var n = (int)Math.Truncate(Math.Sqrt(states.Length));
             xs = 120;
             ys = 62;
-            for (int i = Inputs.Length; i < States.Length; i++)
+            
+            for (var i = inputs.Length; i < states.Length; i++)
             {
-                States[i].Name = LocalStates[i - Inputs.Length];
-                States[i].x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
-                States[i].y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
-                States[i].Type = STATE_TYPE.NONE;
+                states[i].Name = localStates[i - inputs.Length];
+                states[i].x = xs;
+                states[i].y = ys;
+                states[i].Type = STATE_TYPE.NONE;
 
                 ys += 70;
                 counter++;
-                if (counter == n)
+                if (counter != n)
                 {
-                    counter = 0;
-                    xs += 70;
-                    ys = 62;
+                    continue;
                 }
+                counter = 0;
+                xs += 70;
+                ys = 62;
             }
-            if (Outputs != null && Outputs.Length > 0)
+
+            if (outputs == null || outputs.Length <= 0)
             {
-                OutputsLeight = Outputs.Length;
-                Array.Resize(ref States, States.Length + Outputs.Length);
-                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
-                {
-                    States[i] = new State();
-                }
-                xs = 112;
-                ys = 10;
-                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
-                {
-                    States[i].Name = Outputs[i - (Inputs.Length + LocalStates.Length)];
-                    States[i].x = xs;
-                    xs += 62;
-                    States[i].y = ys;
-                    States[i].Type = STATE_TYPE.OUTPUT;
-                }
+                return;
             }
+
+
+            Array.Resize(ref states, states.Length + outputs.Length);
+            for (var i = inputs.Length + localStates.Length; i < states.Length; i++)
+            {
+                states[i] = new State();
+            }
+
+            xs = 112;
+            ys = 10;
+            for (var i = inputs.Length + localStates.Length; i < states.Length; i++)
+            {
+                states[i].Name = outputs[i - (inputs.Length + localStates.Length)];
+                states[i].x = xs;
+                xs += 62;
+                states[i].y = ys;
+                states[i].Type = STATE_TYPE.OUTPUT;
+            }
+            
         }
+        
         /// <summary>
         /// Создает связи для графа
         /// </summary>
-        /// <param name="Rules">Массив разобранных правил</param>
-        public void CreateLinks(ref Rule[] Rules)
+        /// <param name="rules">Массив разобранных правил</param>
+        public void CreateLinks(ref Rule[] rules)
         {
-            bool DoubleLink = true;
-            Array.Resize(ref Links, 0);
-            //Обходи по всем правилам
-            for (int i = 0; i < Rules.Length; i++)
+            Array.Resize(ref links, 0);
+            foreach (var rule in rules)
             {
-                //Обход по всем элементам правил не считая 0-го
-                for (int j = 1; j < Rules[i].Elems.Length; j++)
+                var doubleLink = true;
+                for (var j = 1; j < rule.Elems.Length; j++)
                 {
-                    //Если элемент состояние
-                    if (Rules[i].Elems[j].Type == "State")
+                    if (rule.Elems[j].Type != "State")
                     {
-                        //Проверка на повторы связей
-                        DoubleLink = true;
-                        for (int m = 0; m < Links.Length; m++ )
-                        {
-                            if (Links[m].EndState == Rules[i].Elems[0].Value && Links[m].StartState == Rules[i].Elems[j].Value)
-                            {
-                                DoubleLink = false;
-                            }
-                        }
-                        //Если не было повтора, то добавляем новую связь
-                        if (DoubleLink)
-                        {
-                            Array.Resize(ref Links, Links.Length + 1);
-                            Links[Links.Length - 1] = new Link();
+                        continue;
+                    }
 
-                            Links[Links.Length - 1].EndState = Rules[i].Elems[0].Value;
-                            Links[Links.Length - 1].StartState = Rules[i].Elems[j].Value;
-                            //Если переход сам в себя, то арка
-                            if (Links[Links.Length - 1].EndState == Links[Links.Length - 1].StartState)
-                            {
-                                Links[Links.Length - 1].Arc = true;
-                            }
-                            //Задаем координаты начала и конца линий
-                            for (int k = 0; k < States.Length; k++)
-                            {
-                                if (States[k].Name == Rules[i].Elems[0].Value)
-                                {
-                                    Links[Links.Length - 1].x2 = States[k].x + 30;
-                                    Links[Links.Length - 1].y2 = States[k].y + 30;
-                                }
-                                if (States[k].Name == Rules[i].Elems[j].Value)
-                                {
-                                    Links[Links.Length - 1].x1 = States[k].x + 30;
-                                    Links[Links.Length - 1].y1 = States[k].y + 30;
-                                }
-                                Links[Links.Length - 1].setTimeDot();
-                                if (Rules[i].Elems[j - 1].Type.Equals("TimeTransfer"))
-                                {
-                                    Links[Links.Length - 1].timeTransfer = float.Parse(Rules[i].Elems[j - 1].Value);
-                                }
-                            }
-                            //Если связь с локальным состоянием то черные линии
-                            //иначе синие
-                            if (Rules[i].Elems[j].Local == true)
-                                Links[Links.Length - 1].FromInput = false;
-                            else Links[Links.Length - 1].FromInput = true;
-//                             for (int m = 0; m < Links.Length-2; m++)
-//                             {
-//                                 if ((Links[m].EndState == Links[Links.Length - 2].StartState) && (Links[m].StartState == Links[Links.Length - 2].EndState))
-//                                 {
-//                                     Links[m].x1 += 10;
-//                                     Links[m].x2 += 10;
-//                                     Links[m].y1 += 10;
-//                                     Links[m].y2 += 10;
-//                                     Links[m].Moved = true;
-//                                 }
-//                             }
+                    foreach (var link in links)
+                    {
+                        if (link.EndState == rule.Elems[0].Value && link.StartState == rule.Elems[j].Value)
+                        {
+                            doubleLink = false;
                         }
                     }
+
+                    if (!doubleLink)
+                    {
+                        continue;
+                    }
+                    Array.Resize(ref links, links.Length + 1);
+                    links[links.Length - 1] = new Link
+                    {
+                        EndState = rule.Elems[0].Value, StartState = rule.Elems[j].Value
+                    };
+                    
+                    if (links[links.Length - 1].EndState == links[links.Length - 1].StartState)
+                    {
+                        links[links.Length - 1].Arc = true;
+                    }
+
+                    foreach (var state in states)
+                    {
+                        if (state.Name == rule.Elems[0].Value)
+                        {
+                            links[links.Length - 1].x2 = state.x + 30;
+                            links[links.Length - 1].y2 = state.y + 30;
+                        }
+                        if (state.Name == rule.Elems[j].Value)
+                        {
+                            links[links.Length - 1].x1 = state.x + 30;
+                            links[links.Length - 1].y1 = state.y + 30;
+                        }
+                        links[links.Length - 1].setTimeDot();
+                        if (rule.Elems[j - 1].Type.Equals("TimeTransfer"))
+                        {
+                            links[links.Length - 1].timeTransfer = float.Parse(rule.Elems[j - 1].Value);
+                        }
+                    }
+                    links[links.Length - 1].FromInput = rule.Elems[j].Local != true;
                 }
             }
         }
+        
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {
-            this.ClickToolPanelTimer.Start();
+            clickToolPanelTimer.Start();
             switch (e.Name)
             {
                 case "start":
-                    CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
+                    CreateSimulation(((Form1) Parent.Parent.Parent).parser.Rules,
+                        ((Form1) Parent.Parent.Parent).parser.Outputs);
                     break;
                 case "run":
-                    SimulStart();
+                    SimulationStart();
                     break;
                 case "step":
-                    SimulStep(true);
+                    SimulationStep(true);
                     break;
                 case "stop":
-                    SimulStop();
+                    SimulationStop();
                     break;
                 case "table":
                     CreateTable();
                     break;
                 case "reset":
-                    ResetAllsignals();
+                    ResetAllSignals();
                     break;
                 case "showlog":
                     ShowLog();
                     break;
             }
-
         }
         private void ClickToolPanelTimer_Tick(object sender, EventArgs e)
         {
-            this.OnMouseClick(null);
-            this.ClickToolPanelTimer.Stop();
-            this.Refresh();
+            OnMouseClick(null);
+            clickToolPanelTimer.Stop();
+            Refresh();
         }
 
-        private void OnSimulStarted()
+        private void OnSimulationStarted()
         {
-            drawAreaEventHandler handler = SimulationStarted;
+            var handler = SimulationStarted;
             if (handler != null)
                 handler(this, new EventArgs());
         }
 
-        private void OnSimiulStoped()
+        private void OnSimiulationEnded()
         {
-            drawAreaEventHandler handler = SimulationStoped;
+            var handler = SimulationEnded;
             if (handler != null)
                 handler(this, new EventArgs());
         }
+        
         /// <summary>
         /// Создает исходники программы симуляции
         /// компилирует их, запускает программу и 
         /// ожидает подключения к именованному каналу
         /// </summary>
-        /// <param name="Rules">Массив разобранных правил</param>
-        public void CreateSimul(Rule[] Rules, string[] Outputs) 
+        /// <param name="rules">Массив разобранных правил</param>
+        public void CreateSimulation(Rule[] rules, string[] outputs) 
         {
-            int tmp = -1;
-            if (!b_SimulStarted)
+            var sb = new StringBuilder();
+            var providerOptions = new Dictionary<string, string>
             {
-                String resultCode;
-                int index;
+                {"CompilerVersion", "v3.5"}
+            };
+            var provider = new CSharpCodeProvider(providerOptions);
+            const string outputAssembly = "simul.exe";
+            var compilerParams = new CompilerParameters { OutputAssembly = outputAssembly, GenerateExecutable = true };
+            var fi = new FileInfo(outputAssembly);
+            if (!simulStarted)
+            {
                 if (pipe != null)
                 {
                     if (pipe.IsConnected)
@@ -1072,143 +1064,132 @@ namespace sku_to_smv
                     pipe = null;
                     GC.Collect();
                 }
-                resultCode = global::sku_to_smv.Properties.Resources.tmpl;
-                index = resultCode.IndexOf('$');
-
-
-                StringBuilder sb = new StringBuilder();
-
-                //Определяем номера состояний
+                var resultCode = Resources.tmpl;
+                var index = resultCode.IndexOf('$');
+                
                 resultCode = resultCode.Remove(index, 1);
-                for (int i = 0; i < States.Length; i++)
+                for (var i = 0; i < states.Length; i++)
                 {
-                    sb.AppendLine(States[i].Name.ToUpper() + " = " + i.ToString() + ",");
+                    sb.AppendLine(string.Format("{0} = {1},", states[i].Name.ToUpper(), i));
                 }
                 resultCode = resultCode.Insert(index, sb.ToString());
                 sb.Clear();
                 index = resultCode.IndexOf('$');
                 resultCode = resultCode.Remove(index, 1);
-                resultCode = resultCode.Insert(index, States.Length.ToString());
+                resultCode = resultCode.Insert(index, states.Length.ToString());
 
                 index = resultCode.IndexOf('$');
                 resultCode = resultCode.Remove(index, 1);
-                resultCode = resultCode.Insert(index, States.Length.ToString());
-
+                resultCode = resultCode.Insert(index, states.Length.ToString());
 
                 index = resultCode.IndexOf('$');
                 resultCode = resultCode.Remove(index, 1);
 
-                for (int i = 0; i < Rules.Length; i++)
+                foreach (var rule in rules)
                 {
-                    if (!Rules[i].output)
+                    if (rule.output)
                     {
-                        sb.Append("if(");
-                        for (int j = 1; j < Rules[i].Elems.Length; j++)
-                        {
-
-                            if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
-                            {
-                                if (Rules[i].Elems[j].Type == "State")
-                                {
-                                    if (Rules[i].Elems[j].Inverted)
-                                    {
-                                        sb.Append(" !");
-                                    }
-                                    sb.Append("curState[(int)simulDefines." + Rules[i].Elems[j].Value.ToUpper() + "] ");
-                                }
-                                else
-                                {
-                                    if (Rules[i].Elems[j].Type == "|") sb.Append(" || ");
-                                    if (Rules[i].Elems[j].Type == "&") sb.Append(" && ");
-                                    if (Rules[i].Elems[j].Type == "(")
-                                    {
-                                        if (Rules[i].Elems[j].Inverted)
-                                        {
-                                            sb.Append(" !");
-                                        }
-                                        sb.Append("(");
-                                    }
-                                    if (Rules[i].Elems[j].Type == ")")
-                                    {
-                                        sb.Append(")");
-                                    }
-                                }
-                            }
-                        }
-                        tmp = -1;
-                        bool br = false;
-                        for (int j = 0; j < Outputs.Length; j++ )
-                        {
-                            for (int k = 0; k < Rules.Length; k++ )
-                            {
-                                if (Rules[k].Elems[0].Value == Outputs[j] && Rules[i].Elems[0].Value == Rules[k].Elems[2].Value)
-                                {
-                                    tmp = k;
-                                    br = true;
-                                    break;
-                                }
-                                else tmp = -1;
-                            }
-                            if (br) break;
-                        }
-                        sb.Append(") {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = true;");
-                        if (tmp != -1)
-                        {
-                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = true;}");
-                        }
-                        else sb.Append("}");
-                        sb.Append("\nelse {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = false;");
-                        if (tmp != -1)
-                        {
-                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = false;}");
-                        }
-                        else sb.Append("}");
-                        sb.AppendLine();
+                        continue;
                     }
+                    
+                    sb.Append("if(");
+                    for (var j = 1; j < rule.Elems.Length; j++)
+                    {
+                        if (rule.Elems[j].Type == "=" || rule.Elems[j].Type == "t+1" || rule.Elems[j].Empty)
+                        {
+                            continue;
+                        }
+                            
+                        if (rule.Elems[j].Type == "State")
+                        {
+                            if (rule.Elems[j].Inverted)
+                            {
+                                sb.Append(" !");
+                            }
+                            sb.AppendFormat("curState[(int)simulationDefines.{0}] ", rule.Elems[j].Value.ToUpper());
+                        }
+                        else
+                        {
+                            if (rule.Elems[j].Type == "|") sb.Append(" || ");
+                            if (rule.Elems[j].Type == "&") sb.Append(" && ");
+                            if (rule.Elems[j].Type == "(")
+                            {
+                                if (rule.Elems[j].Inverted)
+                                {
+                                    sb.Append(" !");
+                                }
+                                sb.Append("(");
+                            }
+                            if (rule.Elems[j].Type == ")")
+                            {
+                                sb.Append(")");
+                            }
+                        }
+                    }
+                    var tmp = -1;
+                    var br = false;
+                    foreach (var output in outputs)
+                    {
+                        for (var k = 0; k < rules.Length; k++ )
+                        {
+                            if (rules[k].Elems[0].Value == output && rule.Elems[0].Value == rules[k].Elems[2].Value)
+                            {
+                                tmp = k;
+                                br = true;
+                                break;
+                            }
+                            else
+                            {
+                                tmp = -1;
+                            }
+                        }
+                        if (br) break;
+                    }
+                    sb.AppendFormat(") {{" + "newState[(int)simulationDefines.{0}] = true;", rule.Elems[0].Value.ToUpper());
+                    if (tmp != -1)
+                    {
+                        sb.AppendFormat("\nnewState[(int)simulationDefines.{0}] = true;}}", rules[tmp].Elems[0].Value.ToUpper());
+                    }
+                    else sb.Append("}");
+                    sb.AppendFormat("\nelse {{" + "newState[(int)simulationDefines.{0}] = false;", rule.Elems[0].Value.ToUpper());
+                    if (tmp != -1)
+                    {
+                        sb.AppendFormat("\nnewState[(int)simulationDefines.{0}] = false;}}", rules[tmp].Elems[0].Value.ToUpper());
+                    }
+                    else sb.Append("}");
+                    sb.AppendLine();
                 }
                 resultCode = resultCode.Insert(index, sb.ToString());
 
-                // Настройки компиляции
-                Dictionary<string, string> providerOptions = new Dictionary<string, string>
-         {
-           {"CompilerVersion", "v3.5"}
-         };
-                CSharpCodeProvider provider = new CSharpCodeProvider(providerOptions);
-
-                string outputAssembly = "simul.exe";
-                CompilerParameters compilerParams = new CompilerParameters { OutputAssembly = outputAssembly, GenerateExecutable = true };
                 compilerParams.ReferencedAssemblies.Add("System.Core.dll");
+                
+                var results = provider.CompileAssemblyFromSource(compilerParams, resultCode);
 
-                // Компиляция
-                CompilerResults results = provider.CompileAssemblyFromSource(compilerParams, resultCode);
-
-                FileInfo fi = new FileInfo(outputAssembly);
-                if (results.Errors.Count == 0 && fi.Exists)
+                if (results.Errors.Count != 0 || !fi.Exists)
                 {
-                    ProcessStartInfo psi= new ProcessStartInfo(outputAssembly);
-                    psi.WindowStyle = ProcessWindowStyle.Minimized;
-                    Process pr = Process.Start(psi);
-                    pipe = new NamedPipeServerStream("{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}", PipeDirection.InOut);
-                    pipe.WaitForConnection();
-                    sw = new StreamWriter(pipe);
-                    sw.AutoFlush = true;
-                    b_SimulStarted = true;
-                    tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.stop_simulation);
-                    tools.Buttons[0].Text = "Остановить симуляцию";
-                    tools.Buttons[1].Enabled = true;
-                    tools.Buttons[2].Enabled = true;
-                    //tools.Buttons[3].Enabled = true;
-                    tools.Buttons[4].Enabled = true;
+                    return;
                 }
+
+                var psi = new ProcessStartInfo(outputAssembly) {WindowStyle = ProcessWindowStyle.Minimized};
+                Process.Start(psi);
+                pipe = new NamedPipeServerStream("{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}", PipeDirection.InOut);
+                pipe.WaitForConnection();
+                sw = new StreamWriter(pipe) {AutoFlush = true};
+                simulStarted = true;
+                toolPanel.Buttons[0].SetImage(Resources.stop_simulation);
+                toolPanel.Buttons[0].Text = "Остановить моделирование";
+                toolPanel.Buttons[1].Enabled = true;
+                toolPanel.Buttons[2].Enabled = true;
+                toolPanel.Buttons[4].Enabled = true;
             }
             else
             {
-                if (TableCreated)
+                if (tableCreated)
                 {
                     table.Close();
                 }
-                SimulStop();
-                b_SimulStarted = false;
+                SimulationStop();
+                simulStarted = false;
                 if (pipe.IsConnected)
                 {
                     WritePipe(0, 0, 'e');
@@ -1216,16 +1197,16 @@ namespace sku_to_smv
                 }
                 sw = null;
                 pipe = null;
-                GC.Collect();
-                tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
-                tools.Buttons[0].Text = "Запустить симуляцию";
-                tools.Buttons[1].Enabled = false;
-                tools.Buttons[2].Enabled = false;
-                tools.Buttons[3].Enabled = false;
-                tools.Buttons[4].Enabled = false;
+                toolPanel.Buttons[0].SetImage(Resources.create_simulation);
+                toolPanel.Buttons[0].Text = "Запустить моделирование";
+                toolPanel.Buttons[1].Enabled = false;
+                toolPanel.Buttons[2].Enabled = false;
+                toolPanel.Buttons[3].Enabled = false;
+                toolPanel.Buttons[4].Enabled = false;
             }
         }
-        /// <summary>
+        /// <summary
+        /// >
         /// Запись в именованный канал
         /// </summary>
         /// <param name="num">Номер сигнала</param>
@@ -1235,20 +1216,22 @@ namespace sku_to_smv
         {
             try
             {
-                if (pipe != null && pipe.IsConnected)
+                if (pipe == null || !pipe.IsConnected)
                 {
-                    if (ch == 's')
-                    {
-                        sw.WriteLine("set " + num.ToString() + " " + b.ToString());
-                    }
-                    if (ch == 't')
-                    {
-                        sw.WriteLine("step " + step);
-                    }
-                    if (ch == 'e')
-                    {
-                        sw.WriteLine("exit");
-                    }
+                    return;
+                }
+             
+                if (ch == 's')
+                {
+                    sw.WriteLine("set {0} {1}", num, b);
+                }
+                if (ch == 't')
+                {
+                    sw.WriteLine("step {0}", step);
+                }
+                if (ch == 'e')
+                {
+                    sw.WriteLine("exit");
                 }
             }
             catch (IOException e)
@@ -1257,6 +1240,7 @@ namespace sku_to_smv
             }
 
         }
+        
         /// <summary>
         /// Чтение из именованного канала
         /// </summary>
@@ -1264,144 +1248,143 @@ namespace sku_to_smv
         /// <returns>Значение сигнала</returns>
         private bool ReadPipe(int num)
         {
-            if (pipe != null && pipe.IsConnected)
-            {
-                sw.WriteLine("get " + num.ToString() + " ");
-                pipe.WaitForPipeDrain();
-                return pipe.ReadByte() > 0? true : false;
-            }
-            return false;
+            if (pipe == null || !pipe.IsConnected) return false;
+            sw.WriteLine("get {0} ", num);
+            pipe.WaitForPipeDrain();
+            return pipe.ReadByte() > 0;
         }
+        
         /// <summary>
         /// Записк автоматической симуляции
         /// </summary>
-        public void SimulStart()
+        public void SimulationStart()
         {
-            OnSimulStarted();
-            if (b_EnableLogging)
+            OnSimulationStarted();
+            if (enableLogging)
             {
                 log.LogFormat = Settings.Default.LogFormat;
-                if (LogFileName.Length > 0)
-                {
-                    log.FileName = LogFileName;
-                }
-                else log.FileName = "log_" + States.GetHashCode().ToString();
+                log.FileName = pathToLogFile.Length > 0 ? pathToLogFile : string.Format("log_{0}", states.GetHashCode());
                 log.StartLog(true, false, null);
             }
 
-            tools.Buttons[1].Enabled = false;
-            tools.Buttons[2].Enabled = false;
-            tools.Buttons[3].Enabled = true;
+            toolPanel.Buttons[1].Enabled = false;
+            toolPanel.Buttons[2].Enabled = false;
+            toolPanel.Buttons[3].Enabled = true;
 
             if (table != null)
             {
-                table.UpdateSimControls(new bool[] {true, false, true});
+                table.UpdateSimControls(new[] {true, false, true});
                 table.ResetSteps();
-                if (TableCreated)
+                if (tableCreated)
                 {
-                    for (int i = 0; i < InputsLeight; i++)
+                    for (var i = 0; i < inputsLeight; i++)
                     {
                         switch (table.GetElementByNumber(i))
                         {
-                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                            case returnResults.rFALSE: states[i].Signaled = states[i].Signaled;
                                 break;
-                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
+                            case returnResults.rTRUE: states[i].Signaled = true;
                                 break;
                             case returnResults.rUNDEF: break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
                         }
                     }
                 }
-                //Refresh();
             }
-            for (int i = 0; i < States.Length; i++ )
+            foreach (var state in states)
             {
-                log.StartLog(false, false, States[i].Name);
+                log.StartLog(false, false, state.Name);
             }
             log.StartLog(false, true, null);
-            this.timer1.Start();
+            this.timer.Start();
         }
+        
         /// <summary>
         /// Останов автоматической симуляции
         /// </summary>
-        public void SimulStop()
+        public void SimulationStop()
         {
-            if (b_EnableLogging && this.timer1.Enabled)
+            if (enableLogging && timer.Enabled)
                 log.EndLog();
             if (table != null)
-                table.UpdateSimControls(new bool[] { true, true, false });
-            this.timer1.Stop();
-            OnSimiulStoped();
-            tools.Buttons[1].Enabled = true;
-            tools.Buttons[2].Enabled = true;
-            tools.Buttons[3].Enabled = false;
+                table.UpdateSimControls(new[] { true, true, false });
+            timer.Stop();
+            OnSimiulationEnded();
+            toolPanel.Buttons[1].Enabled = true;
+            toolPanel.Buttons[2].Enabled = true;
+            toolPanel.Buttons[3].Enabled = false;
         }
+        
         /// <summary>
         /// Шаг симуляции
         /// </summary>
-        public void SimulStep(bool b_Manual = false)
+        public void SimulationStep(bool bManual = false)
         {
-            if (b_Manual)
+            if (bManual)
             {
-                if (TableCreated)
+                if (tableCreated)
                 {
-                    for (int i = 0; i < InputsLeight; i++)
+                    for (var i = 0; i < inputsLeight; i++)
                     {
                         switch (table.GetElementByNumber(i))
                         {
-                            case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                            case returnResults.rFALSE: states[i].Signaled = states[i].Signaled;
                                 break;
-                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
+                            case returnResults.rTRUE: states[i].Signaled = true;
                                 break;
                             case returnResults.rUNDEF: break;
+                            default:
+                                throw new ArgumentOutOfRangeException();
                         }
                     }
                 }
                 Refresh();
                 System.Threading.Thread.Sleep(500);
             }
-            bool StepStart = true;
+            
+            var stepStart = true;
 
-            for (int i = 0; i < States.Length; i++)
+            for (var i = 0; i < states.Length; i++)
             {
-                if (b_EnableLogging /*&& States[i].InputSignal == true*/)
+                if (enableLogging)
                 {
-                    log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, States[i].Type == STATE_TYPE.INPUT, States[i].Type == STATE_TYPE.OUTPUT, StepStart);
-                    StepStart = false;
+                    log.AddToLog(states[i].Signaled || states[i].AlSignaled, 
+                        states[i].Type == STATE_TYPE.INPUT, 
+                        states[i].Type == STATE_TYPE.OUTPUT, stepStart);
+                    stepStart = false;
                 }
-                WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
+                WritePipe(i, Convert.ToInt16((states[i].Signaled || states[i].AlSignaled)), 's');
             }
             WritePipe(0, 0, 't', stepNumber);
             stepNumber++;
-            //StepStart = true;
-            for (int i = 0; i < States.Length; i++)
+            for (var i = 0; i < states.Length; i++)
             {
-                    States[i].Signaled = ReadPipe(i);
-//                 if (b_EnableLogging && States[i].InputSignal != true)
-//                 {
-//                     log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
-//                     StepStart = false;
-//                 }
+                states[i].Signaled = ReadPipe(i);
             }
-            if (TableCreated)
+            if (tableCreated)
             {
                 table.NextStep();
             }
-            if (TableCreated)
+            if (tableCreated)
             {
-                for (int i = 0; i < InputsLeight; i++)
+                for (var i = 0; i < inputsLeight; i++)
                 {
                     switch (table.GetElementByNumber(i))
                     {
-                        case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
+                        case returnResults.rFALSE: states[i].Signaled = states[i].Signaled;
                             break;
-                        case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
+                        case returnResults.rTRUE: states[i].Signaled = true;
                             break;
                         case returnResults.rUNDEF: break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
             Refresh();
         }
+        
         /// <summary>
         /// Обработчик такта таймера
         /// </summary>
@@ -1409,8 +1392,9 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-            SimulStep();
+            SimulationStep();
         }
+        
         /// <summary>
         /// Обработчик клика по выпадающему меню
         /// </summary>
@@ -1420,42 +1404,49 @@ namespace sku_to_smv
         {
             switch (e.ClickedItem.Text)
             {
-                case "Установить 1": States[SelectedState].Signaled = true; 
+                case "Установить 1":
+                    states[selectedState].Signaled = true;
                     break;
-                case "Всегда 1": States[SelectedState].AlSignaled = true;
+                case "Всегда 1":
+                    states[selectedState].AlSignaled = true;
                     break;
-                case "Установить 0": States[SelectedState].Signaled = false;
-                    States[SelectedState].AlSignaled = false; 
+                case "Установить 0":
+                    states[selectedState].Signaled = false;
+                    states[selectedState].AlSignaled = false;
                     break;
             }
+
             Refresh();
         }
+        
         /// <summary>
         /// Создает таблицу сигналов и отображает ее
         /// </summary>
         public void CreateTable()
         {
-            if (InputsLeight != 0 && !TableCreated)
+            if (inputsLeight == 0 || tableCreated)
             {
-                if (table != null)
-                {
-                    this.table.FormClosed -= handler;
-                }
-                table = null;
-                GC.Collect();
-                table = new SignalTable(InputsLeight, this);
-                this.table.FormClosed += handler;
-                table.Font = new Font("Consolas", 10, FontStyle.Italic);
-                table.Icon = new Icon("../../resources/Icon.ico");
-               
-                for (int i = 0; i < InputsLeight; i++)
-                {
-                    table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
-                }
-                table.ShowT();
-                TableCreated = true;
+                return;
             }
+            
+            if (table != null)
+            {
+                table.FormClosed -= handler;
+            }
+            table = null;
+            table = new SignalTable(inputsLeight, this);
+            table.FormClosed += handler;
+            table.Font = new Font("Consols", 10, FontStyle.Italic);
+            table.Icon = new Icon("../../resources/Icon.ico");
+               
+            for (var i = 0; i < inputsLeight; i++)
+            {
+                table.AddElement(i, states[i].Name, states[i].Signaled, states[i].InputSignal);
+            }
+            table.ShowT();
+            tableCreated = true;
         }
+        
         /// <summary>
         /// Обработчик закрытия таблицы сигналов
         /// </summary>
@@ -1463,38 +1454,39 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void TableClosed(object sender, FormClosedEventArgs e)
         {
-            TableCreated = false;
+            tableCreated = false;
         }
-        public void SaveImage(String Path)
+        
+        public void SaveImage(String path)
         {
-            int maxX = 0;
-            int maxY = 0;
-            int tempX, tempY;
-            float tempScale;
-            for (int i = 0; i < States.Length; i++ )
+            var maxX = 0;
+            var maxY = 0;
+            foreach (var state in states)
             {
-                if (States[i].x > maxX) maxX = States[i].x;
-                if (States[i].y > maxY) maxY = States[i].y;
+                if (state.x > maxX) maxX = state.x;
+                if (state.y > maxY) maxY = state.y;
             }
-            Bitmap imageB = new Bitmap(maxX + 70, maxY + 70);
-            Graphics graf = Graphics.FromImage(imageB);
+            
+            var imageB = new Bitmap(maxX + 70, maxY + 70);
+            var graf = Graphics.FromImage(imageB);
             graf.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
             graf.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
             graf.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
-            tempX = xT;
-            tempY = yT;
-            tempScale = ScaleT;
+            var tempX = xT;
+            var tempY = yT;
+            var tempScale = ScaleT;
             xT = 0;
             yT = 0;
             ScaleT = 1F;
-            b_SavingImage = true;
+            savingImage = true;
             Refresh(graf);
-            b_SavingImage = false;
+            savingImage = false;
             xT = tempX;
             yT = tempY;
             ScaleT = tempScale;
-            imageB.Save(Path);
+            imageB.Save(path);
         }
+        
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -1503,46 +1495,34 @@ namespace sku_to_smv
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
             Refresh(e.Graphics);
         }
-        private void ResetAllsignals()
+        
+        private void ResetAllSignals()
         {
-            for (int i = 0; i < States.Length; i++ )
+            foreach (var state in states)
             {
-                States[i].Signaled = false;
-                States[i].AlSignaled = false;
+                state.Signaled = false;
+                state.AlSignaled = false;
             }
         }
 
         private void ShowLog()
         {
-            Process pr;
-            ProcessStartInfo prInf = new ProcessStartInfo();
-            prInf.FileName = log.SavedFileName;
-            if(log.FileName != null && log.FileName.Length > 0)
-                pr = Process.Start(prInf);
-            //prInf.Arguments = log.FileName;
-            /*if ((prInf.Arguments = log.FileName) == null)
-            {
-                if (LogFileName.Length > 0)
-                {
-                    prInf.Arguments = LogFileName + ".log";
-                }
-                else prInf.Arguments = "log" + States.GetHashCode().ToString() + ".log";
-            }
-            prInf.FileName = "notepad.exe";
-            Process pr = Process.Start(prInf);*/
+            var prInf = new ProcessStartInfo {FileName = log.SavedFileName};
+            if(!string.IsNullOrEmpty(log.FileName))
+                Process.Start(prInf);
         }
+        
         public void ClearArea()
         {
-            if (b_SimulStarted)
+            if (simulStarted)
             {
-                CreateSimul(null, null);
+                CreateSimulation(null, null);
             }
-            Array.Resize(ref Links, 0);
-            Array.Resize(ref States, 0);
-            GC.Collect();
+            Array.Resize(ref links, 0);
+            Array.Resize(ref states, 0);
         }
 
-        private void drawTime(Graphics g, float time, float x, float y)
+        private static void DrawTime(Graphics g, float time, float x, float y)
         {
             if (time != 0) g.DrawString(time.ToString(), new Font("TimesNewRoman", 20), Brushes.Black, x, y);
         }

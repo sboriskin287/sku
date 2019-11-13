@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.IO;
-using sku_to_smv.Properties;
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using SCUConverterDrawArea.Properties;
 
 // TODO Дописать таблицу входных сигналов
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     enum defines{NO_STATE_SELECTED = -1};
 
@@ -56,7 +56,7 @@ namespace sku_to_smv
             TextContextMenu.ItemClicked += new ToolStripItemClickedEventHandler(TextContextMenu_Click);
 
             this.pictureBox1.SimulationStarted += this.SimulStarted;
-            this.pictureBox1.SimulationStoped += this.SimulStoped;
+            this.pictureBox1.SimulationEnded += this.SimulEnded;
 
             Saved = true;
             TextCH = false;
@@ -114,7 +114,7 @@ namespace sku_to_smv
                 //TextCH = false;
                 sOpenSaveFileName = sOpenSaveFileName.Remove(sOpenSaveFileName.Length - 4);
                 pictureBox1.ClearArea();
-                pictureBox1.LogFileName = sOpenSaveFileName;
+                pictureBox1.pathToLogFile = sOpenSaveFileName;
                 Analysed = false;
             }
             
@@ -156,7 +156,7 @@ namespace sku_to_smv
         /// </summary>
         private void TextboxToFile(string Name)
         {
-            this.toolStripStatusLabel3.Image = global::sku_to_smv.Properties.Resources.save_anim;
+            this.toolStripStatusLabel3.Image = global::SCUConverterDrawArea.Properties.Resources.save_anim;
             this.toolStripStatusLabel3.Visible = true;
             this.AnimationTimer.Start();
             String str;
@@ -288,12 +288,12 @@ namespace sku_to_smv
         {
             if (!AddStateButtonSelected)
             {
-                this.toolStripButton3.Image = global::sku_to_smv.Properties.Resources.state2;
+                this.toolStripButton3.Image = global::SCUConverterDrawArea.Properties.Resources.state2;
                 AddStateButtonSelected = true;
             }
             else
             {
-                this.toolStripButton3.Image = global::sku_to_smv.Properties.Resources.state1;
+                this.toolStripButton3.Image = global::SCUConverterDrawArea.Properties.Resources.state1;
                 AddStateButtonSelected = false;
             }
         }
@@ -313,7 +313,7 @@ namespace sku_to_smv
 
         private void NewGraf_Click(object sender, EventArgs e)
         {
-            drawArea dwa = new drawArea();
+            DrawArea dwa = new DrawArea();
             dwa.Dock = System.Windows.Forms.DockStyle.Fill;
             dwa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             dwa.Location = new System.Drawing.Point(3, 3);
@@ -348,17 +348,17 @@ namespace sku_to_smv
 
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStart();
+            this.pictureBox1.SimulationStart();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStep();
+            this.pictureBox1.SimulationStep();
         }
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStop();
+            this.pictureBox1.SimulationStop();
         }
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -383,7 +383,7 @@ namespace sku_to_smv
             {
                 if (this.tabControl1.TabPages[i].Name == "grafPage")
                 {
-                    (this.tabControl1.TabPages[i].Controls[0] as drawArea).ClosePipe();
+                    (this.tabControl1.TabPages[i].Controls[0] as DrawArea).ClosePipe();
                 }
             }
             if (this.WindowState != FormWindowState.Maximized)
@@ -400,9 +400,9 @@ namespace sku_to_smv
 
         private void toolStripButton10_Click(object sender, EventArgs e)
         {
-            if (!pictureBox1.b_SimulStarted)
+            if (!pictureBox1.simulStarted)
             {
-                this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.stop_simulation;
+                this.toolStripButton10.Image = global::SCUConverterDrawArea.Properties.Resources.stop_simulation;
                 this.toolStripButton10.Text = "Остановить симуляцию";
                 this.toolStripButton4.Enabled = true;
                 this.toolStripButton5.Enabled = true;
@@ -411,14 +411,14 @@ namespace sku_to_smv
             }
             else
             {
-                this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.create_simulation;
+                this.toolStripButton10.Image = global::SCUConverterDrawArea.Properties.Resources.create_simulation;
                 this.toolStripButton10.Text = "Запустить симуляцию";
                 this.toolStripButton4.Enabled = false;
                 this.toolStripButton5.Enabled = false;
                 this.toolStripButton6.Enabled = false;
                 this.toolStripButton7.Enabled = false;
             }
-            pictureBox1.CreateSimul(parser.Rules, parser.Outputs);
+            pictureBox1.CreateSimulation(parser.Rules, parser.Outputs);
         }
 
         private void генерироватьVHDLToolStripMenuItem_Click(object sender, EventArgs e)
@@ -636,7 +636,7 @@ namespace sku_to_smv
         {
             this.toolStripProgressBar1.Style = ProgressBarStyle.Marquee;
         }
-        private void SimulStoped(object sender, EventArgs e)
+        private void SimulEnded(object sender, EventArgs e)
         {
             this.toolStripProgressBar1.Style = ProgressBarStyle.Blocks;
         }
@@ -680,7 +680,7 @@ namespace sku_to_smv
 
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            this.toolStripStatusLabel3.Image = global::sku_to_smv.Properties.Resources.saveHS;
+            this.toolStripStatusLabel3.Image = global::SCUConverterDrawArea.Properties.Resources.saveHS;
             this.toolStripStatusLabel3.Visible = false;
             this.AnimationTimer.Stop();
         }

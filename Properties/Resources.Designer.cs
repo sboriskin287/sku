@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace sku_to_smv.Properties {
+namespace SCUConverterDrawArea.Properties {
     using System;
     
     

@@ -5,9 +5,9 @@ using System.Text;
 using System.IO;
 using System.Globalization;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
-    class LogWriter
+    internal class LogWriter
     {
         public int LogFormat;
         public String FileName { get; set; }
@@ -29,27 +29,28 @@ namespace sku_to_smv
             }
         }
 
-        public void StartLog(bool isStart, bool isEnd, string StateName)
+        public void StartLog(bool isStart, bool isEnd, string stateName)
         {
             switch (LogFormat)
             {
-                case 0: StartLogTxt(isStart, isEnd, StateName);
+                case 0: StartLogTxt(isStart, isEnd, stateName);
                     break;
-                case 1: StartLogHTML(isStart, isEnd, StateName);
+                case 1: StartLogHTML(isStart, isEnd, stateName);
                     break;
-                case 2: StartLogCSV(isStart, isEnd, StateName);
+                case 2: StartLogCSV(isStart, isEnd, stateName);
                     break;
-                default: StartLogTxt(isStart, isEnd, StateName);
+                default: StartLogTxt(isStart, isEnd, stateName);
                     break;
            }
         }
-        private void StartLogTxt(bool isStart, bool isEnd, string StateName)
+        
+        private void StartLogTxt(bool isStart, bool isEnd, string stateName)
         {
             Step = 0;
             if (isStart)
             {
-                result += "Начало лог-файла " + DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-                result += "\r\nШаг симуляции";
+                result += string.Format("Начало лог-файла {0} {1}", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
+                result += "\r\nШаг моделирования";
             }
             else if (isEnd)
             {
@@ -57,20 +58,20 @@ namespace sku_to_smv
             }
             else
             {
-                result += "\t" + StateName;
+                result += string.Format("\t{0}", stateName);
             }
         }
-        private void StartLogHTML(bool isStart, bool isEnd, string StateName)
+        
+        private void StartLogHTML(bool isStart, bool isEnd, string stateName)
         {
-            string tmp;
             Step = 0;
             if (isStart)
             {
-                result = global::sku_to_smv.Properties.Resources.html;
-                _index = result.IndexOf("$data");
+                result = Properties.Resources.html;
+                _index = result.IndexOf("$data", StringComparison.Ordinal);
                 result = result.Remove(_index, "$data".Length);
-                result = result.Insert(_index, "<tr>\n<th>Шаг симуляции</th>");
-                _index += "<tr>\n<th>Шаг симуляции</th>".Length;
+                result = result.Insert(_index, "<tr>\n<th>Шаг моделирования</th>");
+                _index += "<tr>\n<th>Шаг моделирования</th>".Length;
             }
             else if (isEnd)
             {
@@ -79,17 +80,18 @@ namespace sku_to_smv
             }
             else
             {
-                tmp = "<th>" + StateName + "</th>";
+                var tmp = string.Format("<th>{0}</th>", stateName);
                 result = result.Insert(_index, tmp);
                 _index += tmp.Length;
             }
         }
-        private void StartLogCSV(bool isStart, bool isEnd, string StateName)
+        
+        private void StartLogCSV(bool isStart, bool isEnd, string stateName)
         {
             Step = 0;
             if (isStart)
             {
-                result += "Шаг симуляции";
+                result += "Шаг моделирования";
             }
             else if (isEnd)
             {
@@ -97,59 +99,60 @@ namespace sku_to_smv
             }
             else
             {
-                result += ";" + StateName;
+                result += string.Format(";{0}", stateName);
             }
         }
-        public void AddToLog(String Name, bool Value, bool Input, bool Output, bool StepStart)
+        public void AddToLog(bool value, bool input, bool output, bool stepStart)
         {
             switch (LogFormat)
             {
-                case 0: AddToLogTxt(Name, Value, Input, Output, StepStart);
+                case 0: AddToLogTxt(value, stepStart);
                     break;
-                case 1: AddToLogHTML(Name, Value, Input, Output, StepStart);
+                case 1: AddToLogHTML(value, input, output, stepStart);
                     break;
-                case 2: AddToLogCSV(Name, Value, Input, Output, StepStart);
+                case 2: AddToLogCSV(value, stepStart);
                     break;
-                default: AddToLogTxt(Name, Value, Input, Output, StepStart);
+                default: AddToLogTxt(value, stepStart);
                     break;
             }
         }
-        private void AddToLogTxt(String Name, bool Value, bool Input, bool Output, bool StepStart)
+        private void AddToLogTxt(bool value, bool stepStart)
         {
-            if (StepStart)
+            if (stepStart)
             {
-                result += "\r\nШаг " + Step;
+                result += string.Format("\r\nШаг {0}", Step);
                 Step++;
             }
-            result += (Value ? "\t1" : "\t0");
+            result += (value ? "\t1" : "\t0");
         }
-        private void AddToLogHTML(String Name, bool Value, bool Input, bool Output, bool StepStart)
+        
+        private void AddToLogHTML(bool value, bool input, bool output, bool stepStart)
         {
             string tmp;
-            if (StepStart)
+            if (stepStart)
             {
-                tmp = "\n</tr>\n<tr><td>Шаг " + Step + "</td>";
+                tmp = string.Format("\n</tr>\n<tr><td>Шаг {0}</td>", Step);
                 result = result.Insert(_index, tmp);
                 _index += tmp.Length;
                 Step++;
             }
-            if (Input)
-                tmp = "<td class=\"input\"" + (Value ? "style=\"font-weight: bold; color: red;\"" : "") + ">" + (Value ? "1" : "0") + "</td>";
-            else if (Output)
-                tmp = "<td class=\"output\"" + (Value ? "style=\"font-weight: bold; color: red;\"" : "") + ">" + (Value ? "1" : "0") + "</td>";
+            if (input)
+                tmp = string.Format("<td class=\"input\"{0}>{1}</td>", (value ? "style=\"font-weight: bold; color: red;\"" : ""), (value ? "1" : "0"));
+            else if (output)
+                tmp = string.Format("<td class=\"output\"{0}>{1}</td>", (value ? "style=\"font-weight: bold; color: red;\"" : ""), (value ? "1" : "0"));
             else
-                tmp = "<td class=\"local\"" + (Value ? "style=\"font-weight: bold; color: red;\"" : "") + ">" + (Value ? "1" : "0") + "</td>";
+                tmp = string.Format("<td class=\"local\"{0}>{1}</td>", (value ? "style=\"font-weight: bold; color: red;\"" : ""), (value ? "1" : "0"));
             result = result.Insert(_index, tmp);
             _index += tmp.Length;
         }
-        private void AddToLogCSV(String Name, bool Value, bool Input, bool Output, bool StepStart)
+        private void AddToLogCSV(bool value, bool stepStart)
         {
-            if (StepStart)
+            if (stepStart)
             {
-                result += "\r\nШаг " + Step;
+                result += string.Format("\r\nШаг {0}", Step);
                 Step++;
             }
-            result += (Value ? ";1" : ";0");
+            result += (value ? ";1" : ";0");
         }
         public void EndLog()
         {
@@ -165,43 +168,49 @@ namespace sku_to_smv
                     break;
             }
         }
-        public void EndLogTxt()
+
+        private void EndLogTxt()
         {
-            SavedFileName = FileName + "_" + DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture) + GetFormat();
-            sw = new StreamWriter(SavedFileName, false, System.Text.Encoding.GetEncoding("windows-1251"));
-            if (sw != null)
+            SavedFileName = string.Format("{0}_{1}{2}", FileName, DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture), GetFormat());
+            sw = new StreamWriter(SavedFileName, false, Encoding.GetEncoding("windows-1251"));
+            if (sw == null)
             {
-                result += "\r\nКонец лог-файла " + DateTime.Now.ToLongDateString() + " " + DateTime.Now.ToLongTimeString();
-                sw.Write(result);
-                sw.Flush();
-                sw.Close();
-                sw = null;
+                return;
             }
+            result += string.Format("\r\nКонец лог-файла {0} {1}", DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString());
+            sw.Write(result);
+            sw.Flush();
+            sw.Close();
+            sw = null;
         }
-        public void EndLogHTML()
+
+        private void EndLogHTML()
         {
-            SavedFileName = FileName + "_" + DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture) + GetFormat();
+            SavedFileName = string.Format("{0}_{1}{2}", FileName, DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture), GetFormat());
             sw = new StreamWriter(SavedFileName, false);
-            if (sw != null)
+            if (sw == null)
             {
-                result = result.Insert(_index, "</tr>");
-                sw.Write(result);
-                sw.Flush();
-                sw.Close();
-                sw = null;
+                return;
             }
+            result = result.Insert(_index, "</tr>");
+            sw.Write(result);
+            sw.Flush();
+            sw.Close();
+            sw = null;
         }
-        public void EndLogCSV()
+
+        private void EndLogCSV()
         {
-            SavedFileName = FileName + "_" + DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture) + GetFormat();
-            sw = new StreamWriter(SavedFileName, false, System.Text.Encoding.GetEncoding("windows-1251"));
-            if (sw != null)
+            SavedFileName = string.Format("{0}_{1}{2}", FileName, DateTime.Now.ToString("dMyhms", CultureInfo.InvariantCulture), GetFormat());
+            sw = new StreamWriter(SavedFileName, false, Encoding.GetEncoding("windows-1251"));
+            if (sw == null)
             {
-                sw.Write(result);
-                sw.Flush();
-                sw.Close();
-                sw = null;
+                return;
             }
+            sw.Write(result);
+            sw.Flush();
+            sw.Close();
+            sw = null;
         }
     }
 }

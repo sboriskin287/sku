@@ -1,4 +1,4 @@
-﻿namespace sku_to_smv.Properties {
+﻿namespace SCUConverterDrawArea.Properties {
     
     
     // Этот класс позволяет обрабатывать определенные события в классе параметров:

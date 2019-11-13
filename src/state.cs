@@ -1,4 +1,4 @@
-﻿namespace sku_to_smv
+﻿namespace SCUConverterDrawArea
 {
     public enum STATE_TYPE { NONE, INPUT, OUTPUT};
     public class State

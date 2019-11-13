@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     // Summary:
     //     Описывает элемент списка создающегося при 

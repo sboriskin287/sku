@@ -1,4 +1,4 @@
-﻿namespace sku_to_smv
+﻿namespace SCUConverterDrawArea
 {
     partial class SignalTable
     {
@@ -78,7 +78,7 @@
             // toolStripButton1
             // 
             this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = global::sku_to_smv.Properties.Resources.add_steps;
+            this.toolStripButton1.Image = global::SCUConverterDrawArea.Properties.Resources.add_steps;
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
@@ -88,7 +88,7 @@
             // toolStripButton2
             // 
             this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::sku_to_smv.Properties.Resources.add_col;
+            this.toolStripButton2.Image = global::SCUConverterDrawArea.Properties.Resources.add_col;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
@@ -98,7 +98,7 @@
             // toolStripButton3
             // 
             this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton3.Image = global::sku_to_smv.Properties.Resources.delete_col;
+            this.toolStripButton3.Image = global::SCUConverterDrawArea.Properties.Resources.delete_col;
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
@@ -114,7 +114,7 @@
             // toolStripButton4
             // 
             this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton4.Image = global::sku_to_smv.Properties.Resources.repeateSteps;
+            this.toolStripButton4.Image = global::SCUConverterDrawArea.Properties.Resources.repeateSteps;
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
@@ -143,7 +143,7 @@
             // startStripButton
             // 
             this.startStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.startStripButton.Image = global::sku_to_smv.Properties.Resources.play;
+            this.startStripButton.Image = global::SCUConverterDrawArea.Properties.Resources.play;
             this.startStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.startStripButton.Name = "startStripButton";
             this.startStripButton.Size = new System.Drawing.Size(23, 22);
@@ -153,7 +153,7 @@
             // stepStripButton
             // 
             this.stepStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.stepStripButton.Image = global::sku_to_smv.Properties.Resources.step;
+            this.stepStripButton.Image = global::SCUConverterDrawArea.Properties.Resources.step;
             this.stepStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stepStripButton.Name = "stepStripButton";
             this.stepStripButton.Size = new System.Drawing.Size(23, 22);
@@ -164,7 +164,7 @@
             // 
             this.stopStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.stopStripButton.Enabled = false;
-            this.stopStripButton.Image = global::sku_to_smv.Properties.Resources.stop;
+            this.stopStripButton.Image = global::SCUConverterDrawArea.Properties.Resources.stop;
             this.stopStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopStripButton.Name = "stopStripButton";
             this.stopStripButton.Size = new System.Drawing.Size(23, 22);
@@ -174,7 +174,7 @@
             // resetStripButton
             // 
             this.resetStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.resetStripButton.Image = global::sku_to_smv.Properties.Resources.RepeatHS;
+            this.resetStripButton.Image = global::SCUConverterDrawArea.Properties.Resources.RepeatHS;
             this.resetStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.resetStripButton.Name = "resetStripButton";
             this.resetStripButton.Size = new System.Drawing.Size(23, 22);

@@ -1,4 +1,4 @@
-﻿namespace sku_to_smv
+﻿namespace SCUConverterDrawArea
 {
     public class Link
     {
@@ -11,9 +11,8 @@
         public bool FromInput;      //если от входного сигнала = true
         public bool Selected;
         public bool Moved;
-        public double leight;
         public float timeTransfer; //Время перехода
-        public double rst;
+
         public Link()
         {
             x1 = 0;
@@ -28,9 +27,7 @@
             FromInput = false;
             Selected = false;
             Moved = false;
-            leight = 0.0;
             timeTransfer = 0;
-            rst = 0.0;
         }
 
         public void setTimeDot()

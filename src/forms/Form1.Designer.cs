@@ -1,7 +1,7 @@
-﻿using sku_to_smv;
+﻿using SCUConverterDrawArea;
 using System.Drawing;
 
-namespace sku_to_smv
+namespace SCUConverterDrawArea
 {
     partial class Form1
     {
@@ -75,7 +75,7 @@ namespace sku_to_smv
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.grafPage = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = new sku_to_smv.drawArea();
+            this.pictureBox1 = new DrawArea();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.button5 = new System.Windows.Forms.Button();
@@ -274,7 +274,7 @@ namespace sku_to_smv
             // toolStripButton1
             // 
             this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = global::sku_to_smv.Properties.Resources.openHS;
+            this.toolStripButton1.Image = global::SCUConverterDrawArea.Properties.Resources.openHS;
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(24, 24);
@@ -284,7 +284,7 @@ namespace sku_to_smv
             // toolStripButton2
             // 
             this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::sku_to_smv.Properties.Resources.saveHS;
+            this.toolStripButton2.Image = global::SCUConverterDrawArea.Properties.Resources.saveHS;
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(24, 24);
@@ -299,7 +299,7 @@ namespace sku_to_smv
             // CutToolButton
             // 
             this.CutToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CutToolButton.Image = global::sku_to_smv.Properties.Resources.CutHS;
+            this.CutToolButton.Image = global::SCUConverterDrawArea.Properties.Resources.CutHS;
             this.CutToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.CutToolButton.Name = "CutToolButton";
             this.CutToolButton.Size = new System.Drawing.Size(24, 24);
@@ -309,7 +309,7 @@ namespace sku_to_smv
             // CopyToolButton
             // 
             this.CopyToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.CopyToolButton.Image = global::sku_to_smv.Properties.Resources.CopyHS;
+            this.CopyToolButton.Image = global::SCUConverterDrawArea.Properties.Resources.CopyHS;
             this.CopyToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.CopyToolButton.Name = "CopyToolButton";
             this.CopyToolButton.Size = new System.Drawing.Size(24, 24);
@@ -319,7 +319,7 @@ namespace sku_to_smv
             // PasteToolButton
             // 
             this.PasteToolButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.PasteToolButton.Image = global::sku_to_smv.Properties.Resources.PasteHS;
+            this.PasteToolButton.Image = global::SCUConverterDrawArea.Properties.Resources.PasteHS;
             this.PasteToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.PasteToolButton.Name = "PasteToolButton";
             this.PasteToolButton.Size = new System.Drawing.Size(24, 24);
@@ -334,7 +334,7 @@ namespace sku_to_smv
             // toolStripButton8
             // 
             this.toolStripButton8.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton8.Image = global::sku_to_smv.Properties.Resources.create_smv;
+            this.toolStripButton8.Image = global::SCUConverterDrawArea.Properties.Resources.create_smv;
             this.toolStripButton8.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton8.Name = "toolStripButton8";
             this.toolStripButton8.Size = new System.Drawing.Size(24, 24);
@@ -344,7 +344,7 @@ namespace sku_to_smv
             // toolStripButton9
             // 
             this.toolStripButton9.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton9.Image = global::sku_to_smv.Properties.Resources.create_vhdl;
+            this.toolStripButton9.Image = global::SCUConverterDrawArea.Properties.Resources.create_vhdl;
             this.toolStripButton9.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton9.Name = "toolStripButton9";
             this.toolStripButton9.Size = new System.Drawing.Size(24, 24);
@@ -354,7 +354,7 @@ namespace sku_to_smv
             // NewGraf
             // 
             this.NewGraf.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.NewGraf.Image = global::sku_to_smv.Properties.Resources.new_graf;
+            this.NewGraf.Image = global::SCUConverterDrawArea.Properties.Resources.new_graf;
             this.NewGraf.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.NewGraf.Name = "NewGraf";
             this.NewGraf.Size = new System.Drawing.Size(24, 24);
@@ -365,7 +365,7 @@ namespace sku_to_smv
             // 
             this.NewSKU.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.NewSKU.Enabled = false;
-            this.NewSKU.Image = global::sku_to_smv.Properties.Resources.new_sku;
+            this.NewSKU.Image = global::SCUConverterDrawArea.Properties.Resources.new_sku;
             this.NewSKU.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.NewSKU.Name = "NewSKU";
             this.NewSKU.Size = new System.Drawing.Size(24, 24);
@@ -377,7 +377,7 @@ namespace sku_to_smv
             // 
             this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton3.Enabled = false;
-            this.toolStripButton3.Image = global::sku_to_smv.Properties.Resources.state1;
+            this.toolStripButton3.Image = global::SCUConverterDrawArea.Properties.Resources.state1;
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Size = new System.Drawing.Size(24, 24);
@@ -394,7 +394,7 @@ namespace sku_to_smv
             // toolStripButton10
             // 
             this.toolStripButton10.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.create_simulation;
+            this.toolStripButton10.Image = global::SCUConverterDrawArea.Properties.Resources.create_simulation;
             this.toolStripButton10.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton10.Name = "toolStripButton10";
             this.toolStripButton10.Size = new System.Drawing.Size(24, 24);
@@ -406,7 +406,7 @@ namespace sku_to_smv
             // 
             this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton4.Enabled = false;
-            this.toolStripButton4.Image = global::sku_to_smv.Properties.Resources.play;
+            this.toolStripButton4.Image = global::SCUConverterDrawArea.Properties.Resources.play;
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(24, 24);
@@ -418,7 +418,7 @@ namespace sku_to_smv
             // 
             this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton5.Enabled = false;
-            this.toolStripButton5.Image = global::sku_to_smv.Properties.Resources.step;
+            this.toolStripButton5.Image = global::SCUConverterDrawArea.Properties.Resources.step;
             this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton5.Name = "toolStripButton5";
             this.toolStripButton5.Size = new System.Drawing.Size(24, 24);
@@ -430,7 +430,7 @@ namespace sku_to_smv
             // 
             this.toolStripButton6.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton6.Enabled = false;
-            this.toolStripButton6.Image = global::sku_to_smv.Properties.Resources.stop;
+            this.toolStripButton6.Image = global::SCUConverterDrawArea.Properties.Resources.stop;
             this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton6.Name = "toolStripButton6";
             this.toolStripButton6.Size = new System.Drawing.Size(24, 24);
@@ -442,7 +442,7 @@ namespace sku_to_smv
             // 
             this.toolStripButton7.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButton7.Enabled = false;
-            this.toolStripButton7.Image = global::sku_to_smv.Properties.Resources.table;
+            this.toolStripButton7.Image = global::SCUConverterDrawArea.Properties.Resources.table;
             this.toolStripButton7.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton7.Name = "toolStripButton7";
             this.toolStripButton7.Size = new System.Drawing.Size(24, 24);
@@ -507,11 +507,11 @@ namespace sku_to_smv
             // 
             // pictureBox1
             // 
-            this.pictureBox1.b_SimulStarted = false;
+            this.pictureBox1.simulStarted = false;
             this.pictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.LogFileName = "";
+            this.pictureBox1.pathToLogFile = "";
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.ScaleT = 1F;
             this.pictureBox1.Size = new System.Drawing.Size(802, 425);
@@ -644,7 +644,7 @@ namespace sku_to_smv
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.Timer AnimationTimer;
-        private drawArea pictureBox1;
+        private DrawArea pictureBox1;
     }
 }
 

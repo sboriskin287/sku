@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace sku_to_smv.Properties {
+namespace SCUConverterDrawArea.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
