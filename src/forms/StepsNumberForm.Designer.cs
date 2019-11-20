@@ -44,7 +44,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(202, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Введите количество шагов симуляции";
+            this.label1.Text = "Set number of steps simulation";
             // 
             // textBox1
             // 
@@ -60,7 +60,7 @@
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 1;
-            this.button1.Text = "Отмена";
+            this.button1.Text = "Cansel";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 

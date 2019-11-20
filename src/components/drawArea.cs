@@ -134,7 +134,7 @@ namespace sku_to_smv
 
             States = new State[0];
 
-            this.DoubleBuffered = true;
+            this.DoubleBuffered = true;          
 
             tools = new ToolPanel();
             tools.BackColor = Color.FromArgb(120, 145, 217, 255);
@@ -150,7 +150,7 @@ namespace sku_to_smv
             tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.create_simulation);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
             tButton.Name = "start";
-            tButton.Text = "Запустить симуляцию";
+            tButton.Text = "Run simulation";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -160,7 +160,7 @@ namespace sku_to_smv
             tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.play_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.play);
             tButton.Name = "run";
-            tButton.Text = "Запуск симуляции";
+            tButton.Text = "Start simulation";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -170,7 +170,7 @@ namespace sku_to_smv
             tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.step_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.step);
             tButton.Name = "step";
-            tButton.Text = "Шаг с остановом";
+            tButton.Text = "Step with wait";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -180,7 +180,7 @@ namespace sku_to_smv
             tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.stop_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.stop);
             tButton.Name = "stop";
-            tButton.Text = "Остановить симуляцию";
+            tButton.Text = "Stop simulation";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -190,7 +190,7 @@ namespace sku_to_smv
             tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.table);
             tButton.Name = "table";
-            tButton.Text = "Таблица сигналов";
+            tButton.Text = "Table of signals";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -200,7 +200,7 @@ namespace sku_to_smv
             //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.reset_all);
             tButton.Name = "reset";
-            tButton.Text = "Сбросить все сигналы";
+            tButton.Text = "Drop all signals";
             tools.AddControl(ref tButton);
 
             tButton = new ToolButton();
@@ -210,7 +210,7 @@ namespace sku_to_smv
             //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
             tButton.SetImage(global::sku_to_smv.Properties.Resources.show_log);
             tButton.Name = "showlog";
-            tButton.Text = "Показать лог-файл";
+            tButton.Text = "Shpw log-file";
             tools.AddControl(ref tButton);
 
             tools.Buttons[1].Enabled = false;
@@ -222,9 +222,9 @@ namespace sku_to_smv
             vScroll = new VScrollBar();
             contextMenu = new ContextMenuStrip(components);
             contextMenu.Visible = false;
-            contextMenu.Items.Add("Установить 1");
-            contextMenu.Items.Add("Всегда 1");
-            contextMenu.Items.Add("Установить 0");
+            contextMenu.Items.Add("Set 1");
+            contextMenu.Items.Add("Always 1");
+            contextMenu.Items.Add("Set 0");
             contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(this.contextMenuClick);
 
             this.Controls.Add(hScroll);
@@ -254,7 +254,7 @@ namespace sku_to_smv
 
             //графический буфер
             drawBuffer = drawContext.Allocate(this.CreateGraphics(), this.ClientRectangle);
-            g = drawBuffer.Graphics;
+            g = drawBuffer.Graphics;           
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
@@ -346,7 +346,16 @@ namespace sku_to_smv
             
 
             g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
-            g.DrawImage(new Bitmap("../../resources/backgroung_graph.jpg"), 1, 1);
+           //g.DrawImage(new Bitmap("../../resources/backgroung_graph.jpg"), 1, 1);
+           //Отрисовка клетчатого фона
+            for (int i = 1; i < 1920; i += 10)
+            {
+                g.DrawLine(new Pen(Color.Gray), i, 1, i, 1080);
+            }
+            for (int i = 1; i < 1080; i += 10)
+            {
+                g.DrawLine(new Pen(Color.Gray), 1, i, 1920, i);
+            }
             if (Links != null)
             {
                 for (int i = 0; i < Links.Length; i++)
@@ -1194,7 +1203,7 @@ namespace sku_to_smv
                     sw.AutoFlush = true;
                     b_SimulStarted = true;
                     tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.stop_simulation);
-                    tools.Buttons[0].Text = "Остановить симуляцию";
+                    tools.Buttons[0].Text = "Stop simulation";
                     tools.Buttons[1].Enabled = true;
                     tools.Buttons[2].Enabled = true;
                     //tools.Buttons[3].Enabled = true;
@@ -1218,7 +1227,7 @@ namespace sku_to_smv
                 pipe = null;
                 GC.Collect();
                 tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
-                tools.Buttons[0].Text = "Запустить симуляцию";
+                tools.Buttons[0].Text = "Run simulation";
                 tools.Buttons[1].Enabled = false;
                 tools.Buttons[2].Enabled = false;
                 tools.Buttons[3].Enabled = false;
@@ -1420,11 +1429,11 @@ namespace sku_to_smv
         {
             switch (e.ClickedItem.Text)
             {
-                case "Установить 1": States[SelectedState].Signaled = true; 
+                case "Set 1": States[SelectedState].Signaled = true; 
                     break;
-                case "Всегда 1": States[SelectedState].AlSignaled = true;
+                case "Always 1": States[SelectedState].AlSignaled = true;
                     break;
-                case "Установить 0": States[SelectedState].Signaled = false;
+                case "Set 0": States[SelectedState].Signaled = false;
                     States[SelectedState].AlSignaled = false; 
                     break;
             }

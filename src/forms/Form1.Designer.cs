@@ -114,27 +114,27 @@ namespace sku_to_smv
             this.выходToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
             this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
-            this.файлToolStripMenuItem.Text = "Файл";
+            this.файлToolStripMenuItem.Text = "File";
             // 
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
             this.открытьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-            this.открытьToolStripMenuItem.Text = "Открыть...";
+            this.открытьToolStripMenuItem.Text = "Open...";
             this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // сохранитьToolStripMenuItem
             // 
             this.сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
             this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-            this.сохранитьToolStripMenuItem.Text = "Сохранить...";
+            this.сохранитьToolStripMenuItem.Text = "Save...";
             this.сохранитьToolStripMenuItem.Click += new System.EventHandler(this.сохранитьToolStripMenuItem_Click);
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
             this.выходToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
-            this.выходToolStripMenuItem.Text = "Выход";
+            this.выходToolStripMenuItem.Text = "Exit";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
             // правкаToolStripMenuItem
@@ -146,48 +146,48 @@ namespace sku_to_smv
             this.сохранитьКакРисунокToolStripMenuItem});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
             this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
-            this.правкаToolStripMenuItem.Text = "Правка";
+            this.правкаToolStripMenuItem.Text = "Edit";
             // 
             // построитьГрафToolStripMenuItem
             // 
             this.построитьГрафToolStripMenuItem.Name = "построитьГрафToolStripMenuItem";
             this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.построитьГрафToolStripMenuItem.Text = "Построить граф";
+            this.построитьГрафToolStripMenuItem.Text = "Build graph";
             this.построитьГрафToolStripMenuItem.Click += new System.EventHandler(this.CreateGraf);
             // 
             // анализироватьToolStripMenuItem
             // 
             this.анализироватьToolStripMenuItem.Name = "анализироватьToolStripMenuItem";
             this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.анализироватьToolStripMenuItem.Text = "Генерировать SMV...";
+            this.анализироватьToolStripMenuItem.Text = "Generate SMV...";
             this.анализироватьToolStripMenuItem.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // генерироватьVHDLToolStripMenuItem
             // 
             this.генерироватьVHDLToolStripMenuItem.Name = "генерироватьVHDLToolStripMenuItem";
             this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.генерироватьVHDLToolStripMenuItem.Text = "Генерировать VHDL...";
+            this.генерироватьVHDLToolStripMenuItem.Text = "Generate VHDL...";
             this.генерироватьVHDLToolStripMenuItem.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // сохранитьКакРисунокToolStripMenuItem
             // 
             this.сохранитьКакРисунокToolStripMenuItem.Name = "сохранитьКакРисунокToolStripMenuItem";
             this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
-            this.сохранитьКакРисунокToolStripMenuItem.Text = "Сохранить как рисунок...";
+            this.сохранитьКакРисунокToolStripMenuItem.Text = "Save as picture...";
             this.сохранитьКакРисунокToolStripMenuItem.Click += new System.EventHandler(this.сохранитьКакРисунокToolStripMenuItem_Click);
             // 
             // настройкиToolStripMenuItem
             // 
             this.настройкиToolStripMenuItem.Name = "настройкиToolStripMenuItem";
             this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
-            this.настройкиToolStripMenuItem.Text = "Настройки";
+            this.настройкиToolStripMenuItem.Text = "Settings";
             this.настройкиToolStripMenuItem.Click += new System.EventHandler(this.настройкиToolStripMenuItem_Click);
             // 
             // помощьToolStripMenuItem
             // 
             this.помощьToolStripMenuItem.Name = "помощьToolStripMenuItem";
             this.помощьToolStripMenuItem.Size = new System.Drawing.Size(94, 20);
-            this.помощьToolStripMenuItem.Text = "О программе";
+            this.помощьToolStripMenuItem.Text = "About";
             this.помощьToolStripMenuItem.Click += new System.EventHandler(this.помощьToolStripMenuItem_Click);
             // 
             // statusStrip1
@@ -241,7 +241,7 @@ namespace sku_to_smv
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
             this.toolStripSplitButton1.Size = new System.Drawing.Size(106, 24);
-            this.toolStripSplitButton1.Text = "Масштаб 100%";
+            this.toolStripSplitButton1.Text = "Scale 100%";
             // 
             // toolStrip1
             // 
@@ -278,7 +278,7 @@ namespace sku_to_smv
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton1.Text = "Открыть документ...";
+            this.toolStripButton1.Text = "Open document...";
             this.toolStripButton1.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // toolStripButton2
@@ -288,7 +288,7 @@ namespace sku_to_smv
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton2.Text = "Сохранить документ...";
+            this.toolStripButton2.Text = "Save document...";
             this.toolStripButton2.Click += new System.EventHandler(this.сохранитьToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
@@ -303,7 +303,7 @@ namespace sku_to_smv
             this.CutToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.CutToolButton.Name = "CutToolButton";
             this.CutToolButton.Size = new System.Drawing.Size(24, 24);
-            this.CutToolButton.Text = "Вырезать";
+            this.CutToolButton.Text = "Cut";
             this.CutToolButton.Click += new System.EventHandler(this.CutToolButton_Click);
             // 
             // CopyToolButton
@@ -313,7 +313,7 @@ namespace sku_to_smv
             this.CopyToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.CopyToolButton.Name = "CopyToolButton";
             this.CopyToolButton.Size = new System.Drawing.Size(24, 24);
-            this.CopyToolButton.Text = "Копировать";
+            this.CopyToolButton.Text = "Copy";
             this.CopyToolButton.Click += new System.EventHandler(this.CopyToolButton_Click);
             // 
             // PasteToolButton
@@ -323,7 +323,7 @@ namespace sku_to_smv
             this.PasteToolButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.PasteToolButton.Name = "PasteToolButton";
             this.PasteToolButton.Size = new System.Drawing.Size(24, 24);
-            this.PasteToolButton.Text = "Вставить";
+            this.PasteToolButton.Text = "Paste";
             this.PasteToolButton.Click += new System.EventHandler(this.PasteToolButton_Click);
             // 
             // toolStripSeparator4
@@ -338,7 +338,7 @@ namespace sku_to_smv
             this.toolStripButton8.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton8.Name = "toolStripButton8";
             this.toolStripButton8.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton8.Text = "Генерировать SMV...";
+            this.toolStripButton8.Text = "Generate SMV...";
             this.toolStripButton8.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // toolStripButton9
@@ -348,7 +348,7 @@ namespace sku_to_smv
             this.toolStripButton9.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton9.Name = "toolStripButton9";
             this.toolStripButton9.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton9.Text = "Генерировать VHDL...";
+            this.toolStripButton9.Text = "Generate VHDL...";
             this.toolStripButton9.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // NewGraf
@@ -358,7 +358,7 @@ namespace sku_to_smv
             this.NewGraf.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.NewGraf.Name = "NewGraf";
             this.NewGraf.Size = new System.Drawing.Size(24, 24);
-            this.NewGraf.Text = "Построить граф";
+            this.NewGraf.Text = "Build graph";
             this.NewGraf.Click += new System.EventHandler(this.CreateGraf);
             // 
             // NewSKU
@@ -398,7 +398,7 @@ namespace sku_to_smv
             this.toolStripButton10.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton10.Name = "toolStripButton10";
             this.toolStripButton10.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton10.Text = "Запустить симуляцию";
+            this.toolStripButton10.Text = "Run simulation";
             this.toolStripButton10.Visible = false;
             this.toolStripButton10.Click += new System.EventHandler(this.toolStripButton10_Click);
             // 
@@ -410,7 +410,7 @@ namespace sku_to_smv
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton4.Text = "Запуск симуляции";
+            this.toolStripButton4.Text = "Start simulation";
             this.toolStripButton4.Visible = false;
             this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
@@ -422,7 +422,7 @@ namespace sku_to_smv
             this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton5.Name = "toolStripButton5";
             this.toolStripButton5.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton5.Text = "Шаг с остановом";
+            this.toolStripButton5.Text = "Stap with wait";
             this.toolStripButton5.Visible = false;
             this.toolStripButton5.Click += new System.EventHandler(this.toolStripButton5_Click);
             // 
@@ -434,7 +434,7 @@ namespace sku_to_smv
             this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton6.Name = "toolStripButton6";
             this.toolStripButton6.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton6.Text = "Остановить симуляцию";
+            this.toolStripButton6.Text = "Stop simulation";
             this.toolStripButton6.Visible = false;
             this.toolStripButton6.Click += new System.EventHandler(this.toolStripButton6_Click);
             // 
@@ -446,7 +446,7 @@ namespace sku_to_smv
             this.toolStripButton7.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton7.Name = "toolStripButton7";
             this.toolStripButton7.Size = new System.Drawing.Size(24, 24);
-            this.toolStripButton7.Text = "Таблица сигналов";
+            this.toolStripButton7.Text = "Table of signals";
             this.toolStripButton7.Visible = false;
             this.toolStripButton7.Click += new System.EventHandler(this.toolStripButton7_Click);
             // 
@@ -476,7 +476,7 @@ namespace sku_to_smv
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(808, 431);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "СКУ";           
+            this.tabPage1.Text = "SKU";           
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
             // richTextBox1
@@ -501,7 +501,7 @@ namespace sku_to_smv
             this.grafPage.Padding = new System.Windows.Forms.Padding(3);
             this.grafPage.Size = new System.Drawing.Size(808, 431);
             this.grafPage.TabIndex = 1;
-            this.grafPage.Text = "Граф";
+            this.grafPage.Text = "Graph";
             this.grafPage.UseVisualStyleBackColor = true;
             this.grafPage.Click += new System.EventHandler(this.tabPage2_Click);
             // 
@@ -573,7 +573,7 @@ namespace sku_to_smv
             this.Icon = new Icon("../../resources/Icon.ico");
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Среда моделирования вычислительных систем";
+            this.Text = "Environment of modelling computing systems";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);

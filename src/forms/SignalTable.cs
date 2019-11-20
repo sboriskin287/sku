@@ -43,7 +43,7 @@ namespace sku_to_smv
             this.dataGridView1.Columns[0].HeaderText = "1";
             this.dataGridView1.AllowUserToAddRows = false;
             this.dataGridView1.AllowUserToOrderColumns = false;
-            this.toolStripLabel1.Text = "Шаг " + (CurrentStep+1);
+            this.toolStripLabel1.Text = "Step " + (CurrentStep+1);
             for (int i = 0; i < CurrentRowCount; i++)
             {
                 this.dataGridView1.Rows[i].Cells[CurrentStep].Style = selectStyle;
@@ -167,7 +167,7 @@ namespace sku_to_smv
             }
             if (CurrentStep < this.dataGridView1.ColumnCount)
                 this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep;
-            this.toolStripLabel1.Text = "Шаг " + (CurrentStep + 1);
+            this.toolStripLabel1.Text = "Step " + (CurrentStep + 1);
             if (CurrentStep < CurrentColCount)
             {
                 for (int i = 0; i < CurrentRowCount; i++)
@@ -196,7 +196,7 @@ namespace sku_to_smv
             {
                 this.dataGridView1.Rows[i].Cells[CurrentStep].Style = selectStyle;
             }
-            this.toolStripLabel1.Text = "Шаг " + (CurrentStep + 1);
+            this.toolStripLabel1.Text = "Step " + (CurrentStep + 1);
             this.dataGridView1.FirstDisplayedScrollingColumnIndex = CurrentStep;
             UpdateTable();
             this.dataGridView1.Refresh();

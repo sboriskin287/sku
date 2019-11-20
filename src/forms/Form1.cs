@@ -49,9 +49,9 @@ namespace sku_to_smv
             sParser = new SympleParser();
             optWindow = new options();
             TextContextMenu = new ContextMenuStrip();
-            TextContextMenu.Items.Add("Вырезать");
-            TextContextMenu.Items.Add("Копировать");
-            TextContextMenu.Items.Add("Вставить");
+            TextContextMenu.Items.Add("Cut");
+            TextContextMenu.Items.Add("Copy");
+            TextContextMenu.Items.Add("Paste");
             this.richTextBox1.ContextMenuStrip = TextContextMenu;
             TextContextMenu.ItemClicked += new ToolStripItemClickedEventHandler(TextContextMenu_Click);
 
@@ -105,7 +105,7 @@ namespace sku_to_smv
                 sOpenFileName = openFileDialog1.FileName;
                 sAutoSaveFileName = sOpenFileName;
                 sOpenSaveFileName = openFileDialog1.SafeFileName;
-                this.toolStripStatusLabel1.Text = "Открыт файл: " + sOpenFileName;
+                this.toolStripStatusLabel1.Text = "File is opened: " + sOpenFileName;
                 this.toolStripProgressBar1.Value = 0;
                 FileToTextbox();
                 this.toolStripProgressBar1.Value = 100;
@@ -131,7 +131,7 @@ namespace sku_to_smv
                 sSaveFileName = saveFileDialog1.FileName;
                 sAutoSaveFileName = sSaveFileName;
                 TextboxToFile(sSaveFileName);
-                this.toolStripStatusLabel1.Text = "Файл " + sSaveFileName + " сохранен";
+                this.toolStripStatusLabel1.Text = "File " + sSaveFileName + "is saved";
                 this.toolStripProgressBar1.Value = 100;
                 Saved = true;
             }
@@ -187,14 +187,14 @@ namespace sku_to_smv
                 sSaveFileName = saveFileDialog1.FileName;
                 if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
                 {
-                    PrintText("Ошибка разбора");
+                    PrintText("Parse error");
                     this.toolStripProgressBar1.Value = 50;
                     return;
                 }
                 this.toolStripProgressBar1.Value = 50;
-                PrintText("Разбор окончен");
+                PrintText("Parse is finished");
                 parser.SaveToSMV(sSaveFileName);
-                this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
+                this.toolStripStatusLabel1.Text = "File is saved by name: " + sSaveFileName;
                 this.toolStripProgressBar1.Value = 100;
             }
             ///////////////////////////////////////////////////
@@ -204,12 +204,12 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 0;          
             if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
             {
-                PrintText("Ошибка разбора");
+                PrintText("Parse error");
                 this.toolStripProgressBar1.Value = 0;
                 return;
             }
             this.toolStripProgressBar1.Value = 25;
-            PrintText("Разбор окончен");
+            PrintText("Parse is finished");
             this.tabControl1.SelectedIndex = 1;
             pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
             this.toolStripProgressBar1.Value = 50;
@@ -231,7 +231,7 @@ namespace sku_to_smv
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
             pictureBox1.ScaleT = (float)((TrackBar)scaleTrack.Control).Value / 100;
-            this.toolStripSplitButton1.Text = "Масштаб " + ((TrackBar)scaleTrack.Control).Value.ToString() + "%";
+            this.toolStripSplitButton1.Text = "Scale " + ((TrackBar)scaleTrack.Control).Value.ToString() + "%";
             RefreshScreen();
         }
 
@@ -245,7 +245,7 @@ namespace sku_to_smv
                 this.toolStripProgressBar1.Value = 0;
                 sSaveFileName = saveFileDialog1.FileName;
                 this.pictureBox1.SaveImage(sSaveFileName);
-                this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
+                this.toolStripStatusLabel1.Text = "File is saved by name: " + sSaveFileName;
                 this.toolStripProgressBar1.Value = 100;
             }
             ///////////////////////////////////////////////////
@@ -322,7 +322,7 @@ namespace sku_to_smv
             tbp.Controls.Add(dwa);
             tbp.Name = "grafPage";
             tbp.Padding = new System.Windows.Forms.Padding(3);
-            tbp.Text = "Граф";
+            tbp.Text = "Graph";
             tbp.UseVisualStyleBackColor = true;
 
             this.tabControl1.Controls.Add(tbp);
@@ -340,7 +340,7 @@ namespace sku_to_smv
             tbp.Controls.Add(rtb);
             tbp.Name = "SKUPage";
             tbp.Padding = new System.Windows.Forms.Padding(3);
-            tbp.Text = "СКУ";
+            tbp.Text = "SKU";
             tbp.UseVisualStyleBackColor = true;
 
             this.tabControl1.Controls.Add(tbp);
@@ -365,7 +365,7 @@ namespace sku_to_smv
             base.OnClosing(e);
             if (!Saved)
             {
-                switch (MessageBox.Show("Сохранить документ перед выходом?", this.Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
+                switch (MessageBox.Show("Do you save document until exit?", this.Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question))
                 {
                     case DialogResult.OK: сохранитьToolStripMenuItem_Click(this, e);
                         break;
@@ -403,7 +403,7 @@ namespace sku_to_smv
             if (!pictureBox1.b_SimulStarted)
             {
                 this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.stop_simulation;
-                this.toolStripButton10.Text = "Остановить симуляцию";
+                this.toolStripButton10.Text = "Stop simulation";
                 this.toolStripButton4.Enabled = true;
                 this.toolStripButton5.Enabled = true;
                 this.toolStripButton6.Enabled = true;
@@ -412,7 +412,7 @@ namespace sku_to_smv
             else
             {
                 this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.create_simulation;
-                this.toolStripButton10.Text = "Запустить симуляцию";
+                this.toolStripButton10.Text = "Run simelation";
                 this.toolStripButton4.Enabled = false;
                 this.toolStripButton5.Enabled = false;
                 this.toolStripButton6.Enabled = false;
@@ -429,7 +429,7 @@ namespace sku_to_smv
             saveFileDialog1.Filter = "VHDL files (*.vdh)|*.vhd";
             saveFileDialog1.RestoreDirectory = true;
             bool b_CreateBus = false;
-            switch (MessageBox.Show("Объединять входные сигналы в шину?", "Генерация VHDL", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
+            switch (MessageBox.Show("Do you want to combine input signals i bus?", "Generation VHDL", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2))
             {
                 case DialogResult.Yes: b_CreateBus = true;
                     break;
@@ -443,7 +443,7 @@ namespace sku_to_smv
                 sSaveFileName = saveFileDialog1.FileName;
                 if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
                 {
-                    PrintText("Ошибка разбора");
+                    PrintText("Parse error");
                     this.toolStripProgressBar1.Value = 50;
                     return;
                 }
@@ -465,9 +465,9 @@ namespace sku_to_smv
                 if (form3.ShowDialog() == DialogResult.OK)
                 {
                     this.toolStripProgressBar1.Value = 50;
-                    PrintText("Разбор окончен");
+                    PrintText("Parse is finished");
                     parser.SaveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
-                    this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
+                    this.toolStripStatusLabel1.Text = "File is saved by name: " + sSaveFileName;
                     this.toolStripProgressBar1.Value = 100;
                 }
             }
@@ -589,15 +589,15 @@ namespace sku_to_smv
         {
             switch (e.ClickedItem.Text)
             {
-                case "Вырезать":
+                case "Cut":
                     if (richTextBox1.SelectedText != "")
                         richTextBox1.Cut();
                     break;
-                case "Копировать":
+                case "Copy":
                     if (richTextBox1.SelectionLength > 0)
                         richTextBox1.Copy();
                     break;
-                case "Вставить":
+                case "Paste":
                     if (Clipboard.GetDataObject().GetDataPresent(DataFormats.Text) == true)
                     {
                         if (richTextBox1.SelectionLength > 0)

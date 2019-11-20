@@ -654,7 +654,7 @@ namespace sku_to_smv
             resultCode = resultCode.Remove(index, "$inputDescription".Length);
             if (CreateBus)
             {
-                tmp = "-- Входные сигналы\n";
+                tmp = "-- Input signals\n";
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
                 for (int i = 0; i < Inputs.Length; i++)
@@ -664,7 +664,7 @@ namespace sku_to_smv
                     index += tmp.Length;
                 }
                 int j = 0;
-                tmp = "-- Выходные сигналы\n";
+                tmp = "-- Output signals\n";
                 resultCode = resultCode.Insert(index, tmp);
                 index += tmp.Length;
                 for (int i = 0; i < OutTable.Length; i++)

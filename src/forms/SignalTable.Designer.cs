@@ -82,7 +82,7 @@
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
             this.toolStripButton1.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton1.Text = "Задать количество шагов";
+            this.toolStripButton1.Text = "Set number of steps";
             this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
             // 
             // toolStripButton2
@@ -92,7 +92,7 @@
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
             this.toolStripButton2.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton2.Text = "Добавить шаг";
+            this.toolStripButton2.Text = "Add step";
             this.toolStripButton2.Click += new System.EventHandler(this.AddColumn);
             // 
             // toolStripButton3
@@ -102,7 +102,7 @@
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
             this.toolStripButton3.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton3.Text = "Удалить шаг";
+            this.toolStripButton3.Text = "Delete step";
             this.toolStripButton3.Visible = false;
             this.toolStripButton3.Click += new System.EventHandler(this.DeleteColumn);
             // 
@@ -118,7 +118,7 @@
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
             this.toolStripButton4.Size = new System.Drawing.Size(23, 22);
-            this.toolStripButton4.Text = "Повторять шаги";
+            this.toolStripButton4.Text = "Repeat steps";
             this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
             // toolStripLabel1
@@ -147,7 +147,7 @@
             this.startStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.startStripButton.Name = "startStripButton";
             this.startStripButton.Size = new System.Drawing.Size(23, 22);
-            this.startStripButton.Text = "Запуск симуляции";
+            this.startStripButton.Text = "Start simulation";
             this.startStripButton.Click += new System.EventHandler(this.startStripButton_Click);
             // 
             // stepStripButton
@@ -157,7 +157,7 @@
             this.stepStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stepStripButton.Name = "stepStripButton";
             this.stepStripButton.Size = new System.Drawing.Size(23, 22);
-            this.stepStripButton.Text = "Шаг с остановом";
+            this.stepStripButton.Text = "Step with wait";
             this.stepStripButton.Click += new System.EventHandler(this.stepStripButton_Click);
             // 
             // stopStripButton
@@ -168,7 +168,7 @@
             this.stopStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.stopStripButton.Name = "stopStripButton";
             this.stopStripButton.Size = new System.Drawing.Size(23, 22);
-            this.stopStripButton.Text = "Остановить симуляцию";
+            this.stopStripButton.Text = "Stop simulation";
             this.stopStripButton.Click += new System.EventHandler(this.stopStripButton_Click);
             // 
             // resetStripButton
@@ -178,7 +178,7 @@
             this.resetStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.resetStripButton.Name = "resetStripButton";
             this.resetStripButton.Size = new System.Drawing.Size(23, 22);
-            this.resetStripButton.Text = "Начать с первого шага";
+            this.resetStripButton.Text = "Begin with first step";
             this.resetStripButton.Click += new System.EventHandler(this.resetStripButton_Click);
             // 
             // SignalTable
@@ -190,7 +190,7 @@
             this.Controls.Add(this.toolStrip1);
             this.Controls.Add(this.dataGridView1);
             this.Name = "SignalTable";
-            this.Text = "Таблица сигналов";
+            this.Text = "Table of signals";
             this.Shown += new System.EventHandler(this.SignalTable_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.toolStrip1.ResumeLayout(false);
