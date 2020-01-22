@@ -3,7 +3,7 @@ bin/Debug/
 bin/Release/
 obj/**/*.*
 tmp/
-.vs/**
+.vs/
 *.txt
 *.xml
 *.vsd
