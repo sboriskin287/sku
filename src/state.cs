@@ -10,6 +10,7 @@ namespace sku_to_smv
         public int x;               //координата x
         public int y;               //координата y
         public bool Selected;       //если выбрано = true
+        public bool alreadyPaint;
         public List<Signal> inputs;
         public List<Signal> outputs;
         public State()
@@ -18,6 +19,7 @@ namespace sku_to_smv
             x = 0;
             y = 0;
             Selected = false;
+            alreadyPaint = false;
             inputs = new List<Signal>();
             outputs = new List<Signal>();
         }

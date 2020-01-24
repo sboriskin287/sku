@@ -24,7 +24,7 @@ namespace sku_to_smv
         string sOpenFileName, sOpenSaveFileName, sSaveFileName, sAutoSaveFileName;
         
         public Parser parser;
-        SympleParser sParser;
+        //SympleParser sParser;
         ToolStripControlHost scaleTrack;
         options optWindow;
         ContextMenuStrip TextContextMenu;
@@ -46,7 +46,7 @@ namespace sku_to_smv
             this.Size = new System.Drawing.Size(800, 600);
 
             parser = new Parser();
-            sParser = new SympleParser();
+            //sParser = new SympleParser();
             optWindow = new options();
             TextContextMenu = new ContextMenuStrip();
             TextContextMenu.Items.Add("Вырезать");
@@ -211,15 +211,23 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
+            Array.Resize(ref pictureBox1.rules, parser.Rules.Length);
+            pictureBox1.rules = parser.Rules;
             //pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
             pictureBox1.States = parser.states.ToArray();
             this.toolStripProgressBar1.Value = 50;
             //pictureBox1.CreateLinks(ref parser.Rules);
-            pictureBox1.createLinks(parser.signals);
+            //pictureBox1.createLinks(parser.signals);
             this.toolStripProgressBar1.Value = 75;
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }
+
+        private void RefreshScreen(Rule[] rules, Graphics g)
+        {
+            
+        }
+
         private void RefreshScreen()
         {
             pictureBox1.Refresh(); 
@@ -420,7 +428,7 @@ namespace sku_to_smv
                 this.toolStripButton6.Enabled = false;
                 this.toolStripButton7.Enabled = false;
             }
-            pictureBox1.CreateSimul(parser.Rules, parser.Outputs);
+            //pictureBox1.CreateSimul(parser.Rules, parser.Outputs);
         }
 
         private void генерироватьVHDLToolStripMenuItem_Click(object sender, EventArgs e)
@@ -455,12 +463,12 @@ namespace sku_to_smv
                     isBreak = false;
                     for (int j = 0; j < parser.Rules.Length; j++)
                     {
-                        if (parser.Rules[j].output && parser.Rules[j].Elems[2].Value == parser.LocalStates[i])
+                        /*if (parser.Rules[j].output && parser.Rules[j].Elems[2].Value == parser.LocalStates[i])
                         {
                             form3.AddState(i, parser.LocalStates[i], parser.Rules[j].Elems[0].Value);
                             isBreak = true;
                             break;
-                        }
+                        }*/
                     }
                     if (!isBreak) form3.AddState(i, parser.LocalStates[i], null);
                 }
@@ -468,7 +476,7 @@ namespace sku_to_smv
                 {
                     this.toolStripProgressBar1.Value = 50;
                     PrintText("Разбор окончен");
-                    parser.SaveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
+                    //parser.SaveToVHDL(sSaveFileName, b_CreateBus, form3.OutputSignalsCount, form3.GetTable());
                     this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
                     this.toolStripProgressBar1.Value = 100;
                 }
@@ -499,13 +507,13 @@ namespace sku_to_smv
                 TextCH = false;
                 b_Parsing = true;
                 int Index = this.richTextBox1.SelectionStart;
-                if (!sParser.b_Brackets)
-                    sParser.Start(this.richTextBox1.Text);
+                /*if (!sParser.b_Brackets)
+                    sParser.Start(this.richTextBox1.Text);*/
                 this.richTextBox1.SelectAll();
                 this.richTextBox1.ForeColor = Settings.Default.TextFieldTextColor;
                 this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
 
-                for (int i = 0; i < sParser.elements.Length; i++)
+                /*for (int i = 0; i < sParser.elements.Length; i++)
                 {
                     if (sParser.elements[i].EndIndex != 0)
                     {
@@ -528,7 +536,7 @@ namespace sku_to_smv
                         this.richTextBox1.SelectionFont = new System.Drawing.Font(Settings.Default.TextFieldTextFont, Settings.Default.TextFieldTextFont.Style);
                         sParser.b_Brackets = false;
                     }
-                }
+                }*/
                 this.richTextBox1.Select(Index, 0);
                 this.richTextBox1.ShowSelectionMargin = true;
                 b_Parsing = false;

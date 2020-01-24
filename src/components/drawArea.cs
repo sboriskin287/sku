@@ -39,6 +39,7 @@ namespace sku_to_smv
 
         public State[] States;
         public Link[] Links;
+        public Rule[] rules;
         NamedPipeServerStream pipe;
         StreamWriter sw;
         SignalTable table;
@@ -132,6 +133,7 @@ namespace sku_to_smv
             Links[0] = new Link();
 
             States = new State[0];
+            rules = new Rule[0];
 
             this.DoubleBuffered = true;
 
@@ -327,10 +329,45 @@ namespace sku_to_smv
         public override void Refresh()
         {
             base.Refresh();
-            Refresh(g);
+            RefreshArea(g);
             drawBuffer.Render();
             this.vScroll.Maximum = (int)(1000.0 * ScaleT);
             this.hScroll.Maximum = (int)(1000.0 * ScaleT);
+        }
+
+        private void RefreshArea(Graphics g)
+        {
+            g.Clear(System.Drawing.Color.White);
+            int stateRadius = Settings.Default.StateRadius;
+
+            int stateDefaultCentreX = Settings.Default.StateCentre;
+            int stateDefaultCentreY = Settings.Default.StateCentre;
+
+            int offsetStateX = Settings.Default.OffsetStateX;
+            int offsetStateY = Settings.Default.OffsetStateY;
+
+            int x = stateDefaultCentreX;
+            int y = stateDefaultCentreY;
+            int countDrawState = 0;
+            foreach (Rule rule in this.rules)
+            {
+                State startState = rule.startState;
+                State endState = rule.endState;
+                Signal signal = rule.signal;
+                State[] startAndEndStates = { startState, endState };
+                foreach (State state in startAndEndStates) {
+                    if (!state.alreadyPaint)
+                    {
+                        state.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
+                        state.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
+                        g.DrawEllipse(penSignal, state.x, state.y, stateRadius, stateRadius);
+                        state.alreadyPaint = true;
+                        countDrawState++;
+                    }
+                }
+                g.DrawLine(penInputLine, startState.x, startState.y, endState.x, endState.y);
+                g.DrawString(signal.name, new Font("Consolas", 12), brushTextColor, startState.x + (endState.x - startState.x) / 2 + 20, startState.y + (endState.y - startState.y) / 2 + 20);
+            }
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -920,7 +957,7 @@ namespace sku_to_smv
         /// Создает связи для графа
         /// </summary>
         /// <param name="Rules">Массив разобранных правил</param>
-        public void CreateLinks(ref Rule[] Rules)
+        /*public void CreateLinks(ref Rule[] Rules)
         {
             bool DoubleLink = true;
             Array.Resize(ref Links, 0);
@@ -994,7 +1031,7 @@ namespace sku_to_smv
                     }
                 }
             }
-        }
+        }*/
 
         private Link getLink(State start, State end)
         {
@@ -1009,7 +1046,7 @@ namespace sku_to_smv
             return null;
         }
 
-        public void createLinks(List<Signal> signals, List<State> states)
+        /*public void createLinks(List<Signal> signals, List<State> states)
         {
             foreach (State state in states)
             {
@@ -1049,14 +1086,14 @@ namespace sku_to_smv
                 }               
             }
             
-        }
+        }*/
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {
             this.ClickToolPanelTimer.Start();
             switch (e.Name)
             {
                 case "start":
-                    CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
+                    //CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
                     break;
                 case "run":
                     SimulStart();
@@ -1105,7 +1142,7 @@ namespace sku_to_smv
         /// ожидает подключения к именованному каналу
         /// </summary>
         /// <param name="Rules">Массив разобранных правил</param>
-        public void CreateSimul(Rule[] Rules, string[] Outputs) 
+        /*public void CreateSimul(Rule[] Rules, string[] Outputs) 
         {
             int tmp = -1;
             if (!b_SimulStarted)
@@ -1275,7 +1312,7 @@ namespace sku_to_smv
                 tools.Buttons[3].Enabled = false;
                 tools.Buttons[4].Enabled = false;
             }
-        }
+        }*/
         /// <summary>
         /// Запись в именованный канал
         /// </summary>
@@ -1583,7 +1620,7 @@ namespace sku_to_smv
         {
             if (b_SimulStarted)
             {
-                CreateSimul(null, null);
+                //CreateSimul(null, null);
             }
             Array.Resize(ref Links, 0);
             Array.Resize(ref States, 0);

@@ -7,38 +7,20 @@ namespace sku_to_smv.src
 {
     public class Signal
     {
-        public String Name
+        public String name
         {
             get;
             set;
-        }
-        public List<KeyValuePair<State, State>> states
-        {
-            get;
-            set;
-        }
-      
-
-        public Signal(String name, List<KeyValuePair<State, State>> states)
-        {
-            this.Name = name;
-            this.states = states;
-        }
-
-        public Signal(string name)
-        {
-            this.Name = name;
-            states = new List<KeyValuePair<State, State>>();
         }
 
         public Signal()
         {
-            states = new List<KeyValuePair<State, State>>();
+            name = null;
         }
 
-        public void addPair(State begin, State end)
+        public Signal(string name)
         {
-            states.Add(new KeyValuePair<State, State>(begin, end));
+            this.name = name;
         }
     }
 }

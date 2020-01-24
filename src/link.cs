@@ -8,6 +8,7 @@ namespace sku_to_smv
         public int x1, y1;          //точка начала
         public int x2, y2;          //точка конца
         public int timeX, timeY;    //Точка, в которой над линией отображается время перехода
+        public int transferX, transferY; //Точка отображения сигнала перехода
         public string StartState;   //имя начального состояния
         public string EndState;     //имя конечного состояния
         public bool Arc;            //если арка = true
@@ -42,6 +43,12 @@ namespace sku_to_smv
         {
             timeX = x1 + (x2 - x1) / 2 + 20;
             timeY = y1 + (y2 - y1) / 2 + 20;
+        }
+
+        public void setTransferDot()
+        {
+            timeX = x1 + (x2 - x1) / 2 - 20;
+            timeY = y1 + (y2 - y1) / 2 - 20;
         }
     }
 }

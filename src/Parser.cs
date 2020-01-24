@@ -80,7 +80,7 @@ namespace sku_to_smv
         {
             foreach (Signal signal in this.signals)
             {
-                if (signal.Name.Equals(name)) return signal;
+                if (signal.name.Equals(name)) return signal;
             }
             throw new Exception("State with name " + name + " not found");
         }
@@ -137,7 +137,6 @@ namespace sku_to_smv
                 STR = inputSTR.Substring(k, EndOfRules[i] - k + 1);
                 k = EndOfRules[i] + 1;
                 //Разбор правила
-                AddRule();
                 if (parce(STR) == parceResult.PARCE_ERROR)
                 {
                     return parceResult.PARCE_ERROR;
@@ -169,7 +168,7 @@ namespace sku_to_smv
         /// <param name="InputString">Строка для разбора</param>
         /// <param name="StartState">Начальное состояние парсера</param>
         /// <returns>Результат разбора типа parceResult</returns>
-        private parceResult Parse(String InputString, state StartState)
+        /*private parceResult Parse(String InputString, state StartState)
         {
             state st1 = StartState;
             int k = 0;
@@ -187,7 +186,7 @@ namespace sku_to_smv
                         else if (Regex.IsMatch(InputString[i].ToString(), "[a-z]"))
                         {
                             k = i;
-                            Rules[Rules.Length - 1].output = isOUT;
+                            //Rules[Rules.Length - 1].output = isOUT;
                             st1 = (isSKU) ? state.S1 : state.O1;
                         }
                         else st1 = state.ERR;
@@ -198,14 +197,14 @@ namespace sku_to_smv
                         {
                             isSKU = true;
                             isOUT = false;
-                            Rules[Rules.Length - 1].output = false;
+                            //Rules[Rules.Length - 1].output = false;
                             st1 = state.OPT_END;
                         }
                         else if (InputString[i] == 'o')
                         {
                             isSKU = false;
                             isOUT = true;
-                            Rules[Rules.Length - 1].output = true;
+                            //Rules[Rules.Length - 1].output = true;
                             st1 = state.OPT_END;
                         }
                         else st1 = state.ERR;
@@ -232,7 +231,7 @@ namespace sku_to_smv
                             st1 = state.O3;
                             tmp = InputString.Substring(k, i - k);
                             if (tmp.Contains("{")) tmp = tmp.Substring(0, tmp.IndexOf("{"));
-                            Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
+                            //Rules[Rules.Length - 1].AddData("State", tmp, false, isOUT);
                             k = i + 1;
                         }
                         else if (Regex.IsMatch(InputString[i].ToString(), "[a-z0-9]"))
@@ -245,7 +244,7 @@ namespace sku_to_smv
                         if (InputString[i] == '=')
                         {
                             st1 = state.O4;
-                            Rules[Rules.Length - 1].AddData("<=", "<=", false, isOUT);
+                            //Rules[Rules.Length - 1].AddData("<=", "<=", false, isOUT);
                             k = i + 1;
                         }
                         else st1 = state.ERR;
@@ -506,98 +505,98 @@ namespace sku_to_smv
                 return parceResult.PARCE_ERROR;
             }
             return parceResult.PARSE_OK;
-        }
+        }*/
 
-        private parceResult parce(String input)
+        private parceResult parce(String inputStr)
         {
-            if (input.Contains("[input]="))
+            if (inputStr.Contains("input="))
             {
-                int firstBreaket = input.IndexOf("[", 7) + 1;
-                int lastBreaket = input.LastIndexOf("]");
-                String signalStr = input.Substring(firstBreaket, lastBreaket - firstBreaket);
+                int firstBreaket = inputStr.IndexOf("[") + 1;
+                int lastBreaket = inputStr.LastIndexOf("]");
+                String signalStr = inputStr.Substring(firstBreaket, lastBreaket - firstBreaket);
                 String[] parsedSignals = signalStr.Split(',');
                 foreach (String s in parsedSignals)
                 {
-                    Signal signal = new Signal(); 
-                    signal.Name = s;
+                    Signal signal = new Signal();
+                    signal.name = s;
                     this.signals.Add(signal);
                 }
                 return parceResult.PARSE_OK;
             }
-            String pattern = "(\\w+)[(<=)|=](\\(?[\\w+\\|?]+\\)?)([&\\w+]+)";
+            String pattern = "(\\w+)=(\\(?[\\w\\|]+\\)?)((&\\w+)+)";
             String statePattern = "\\(?(\\w+)\\|?\\)?";
             String signalPattern = "&(\\w+)";
-            String str = input;
+            String str = inputStr;
             Regex reg = new Regex(pattern, RegexOptions.Compiled);
             Regex stateReg = new Regex(statePattern, RegexOptions.Compiled);
             Regex signalReg = new Regex(signalPattern, RegexOptions.Compiled);
             Match match = reg.Match(str);
+
             State endState = null;
             List<State> beginStates = new List<State>();
             List<Signal> signals = new List<Signal>();
+            List<Rule> rules = new List<Rule>();
             for (int i = 1; i < match.Groups.Count; i++)
             {
-                if (i == 1)
+                switch (i)
                 {
-                    String stateName = match.Groups[i].Value;
-                    if (isExistsState(stateName))
-                    {
-                        endState = getStateByName(stateName);
-                    }
-                    else
-                    {
-                        endState = new State();
-                        endState.Name = stateName;
-                        this.states.Add(endState);
-                    }
-                }
-                else if (i == 2)
-                {
-
-                    MatchCollection matches = stateReg.Matches(match.Groups[i].Value);
-                    foreach (Match m in matches)
-                    {
-                        for (int j = 1; j < m.Groups.Count; j++)
+                    case 1:
                         {
-                            String stateName = m.Groups[j].Value;
-                            State beginState;
+                            String stateName = match.Groups[i].Value;
                             if (isExistsState(stateName))
                             {
-                                beginState = getStateByName(stateName);                               
+                                endState = getStateByName(stateName);
                             }
                             else
                             {
-                                beginState = new State();
-                                beginState.Name = stateName;
-                                this.states.Add(beginState);
-
+                                endState = new State();
+                                endState.Name = stateName;
                             }
-                            beginStates.Add(beginState);                         
+                            break;
                         }
-                    }
-                }
-                else if (i == 3)
-                {
-                    MatchCollection matches = signalReg.Matches(match.Groups[i].Value);
-                    foreach (Match m in matches)
-                    {
-                        for (int j = 1; j < m.Groups.Count; j++)
+                    case 2:
                         {
-                            String signalName = m.Groups[j].Value;
-                            try
+                            MatchCollection matches = stateReg.Matches(match.Groups[i].Value);
+                            foreach (Match m in matches)
                             {
-                                signals.Add(getSignalByName(signalName));
+                                for (int j = 1; j < m.Groups.Count; j++)
+                                {
+                                    String stateName = m.Groups[j].Value;
+                                    State beginState;
+                                    if (isExistsState(stateName))
+                                    {
+                                        beginState = getStateByName(stateName);
+                                    }
+                                    else
+                                    {
+                                        beginState = new State();
+                                        beginState.Name = stateName;
+                                    }
+                                    beginStates.Add(beginState);
+                                }
                             }
-                            catch (Exception)
-                            {
-                                return parceResult.PARCE_ERROR;
-                            }
+                            break;
                         }
-                    }
-                }
-                else
-                {
-                    return parceResult.PARCE_ERROR;
+                    case 3:
+                        {
+                            MatchCollection matches = signalReg.Matches(match.Groups[i].Value);
+                            foreach (Match m in matches)
+                            {
+                                for (int j = 1; j < m.Groups.Count; j++)
+                                {
+                                    String signalName = m.Groups[j].Value;
+                                    try
+                                    {
+                                        signals.Add(getSignalByName(signalName));
+                                    }
+                                    catch (Exception)
+                                    {
+                                        return parceResult.PARCE_ERROR;
+                                    }
+                                }
+                            }
+                            break;
+                        }
                 }
             }
             if (endState == null)
@@ -606,20 +605,21 @@ namespace sku_to_smv
             }
             foreach (Signal signal in signals)
             {
-                endState.inputs.Add(signal);
-                foreach(State s in beginStates)
+                foreach (State state in beginStates)
                 {
-                    s.outputs.Add(signal);
-                    signal.addPair(s, endState);
+                    Rule rule = new Rule(state, endState, signal, 0);
+                    rules.Add(rule);
                 }
-            }         
+            }
+            Array.Resize(ref Rules, rules.Count);
+            this.Rules = rules.ToArray();
             return parceResult.PARSE_OK;
         }
 
         /// <summary>
         /// Функция поиска входных сигналов
         /// </summary>
-        private void SearchForInputs()
+        /*private void SearchForInputs()
         {
             bool NotInput = false;
             bool Exists = false;
@@ -657,11 +657,11 @@ namespace sku_to_smv
                     }
                 }
             }
-        }
+        }*/
         /// <summary>
         /// Функция поиска повторновходимых состояний
         /// </summary>
-        private void SearchForRecov()
+        /*private void SearchForRecov()
         {
             for (int i = 0; i < Rules.Length; i++)
             {
@@ -675,7 +675,7 @@ namespace sku_to_smv
                     }
                 }
             }
-        }
+        }*/
         /// <summary>
         /// Функция сохранения результата в SMV
         /// </summary>
@@ -767,7 +767,7 @@ namespace sku_to_smv
             sw.Write("in\r\n{\r\n");
             for (int i = 0; i < Rules.Length; i++)
             {
-                Rules[i].PrintRule(sw);
+                //Rules[i].PrintRule(sw);
                 sw.Write("\r\n");
                 sw.Flush();
             }
@@ -793,7 +793,7 @@ namespace sku_to_smv
             sw.Flush();
             sw.Close();
         }
-        public void SaveToVHDL(string Path, bool CreateBus, int OuputSigCount, OutputTableElement[] OutTable)
+        /*public void SaveToVHDL(string Path, bool CreateBus, int OuputSigCount, OutputTableElement[] OutTable)
         {
             String resultCode, tmp;
             int index;
@@ -1066,162 +1066,81 @@ namespace sku_to_smv
             sw.Flush();
             sw.Close();
         }
-    }
+    }*/
 
-    public class SympleParser
-    {
-        enum state { START, COMMENT, SIGNAL, OPT };
-
-        public SympleElement[] elements;
-        public SympleElement brackets;
-        public bool b_Brackets;
-        state CurrentState;
-        int currentElement;
-        String str;
-
-        public SympleParser()
+        public class SympleParser
         {
-            b_Brackets = false;
-            elements = new SympleElement[0];
-            CurrentState = state.START;
-            brackets = new SympleElement();
-            brackets.StartIndex = -1;
-            brackets.EndIndex = -1;
-        }
-        static public int FindBracket(String Input, int StartIndex, bool b_UpDown)
-        {
-            int counter = 0;
-            if (b_UpDown)
+            enum state { START, COMMENT, SIGNAL, OPT };
+
+            public SympleElement[] elements;
+            public SympleElement brackets;
+            public bool b_Brackets;
+            state CurrentState;
+            int currentElement;
+            String str;
+
+            public SympleParser()
             {
-                for (int i = StartIndex; i < Input.Length; i++)
+                b_Brackets = false;
+                elements = new SympleElement[0];
+                CurrentState = state.START;
+                brackets = new SympleElement();
+                brackets.StartIndex = -1;
+                brackets.EndIndex = -1;
+            }
+            static public int FindBracket(String Input, int StartIndex, bool b_UpDown)
+            {
+                int counter = 0;
+                if (b_UpDown)
                 {
-                    if (Input[i] == '(')
+                    for (int i = StartIndex; i < Input.Length; i++)
                     {
-                        counter++;
-                    }
-                    if (Input[i] == ')')
-                    {
-                        counter--;
-                    }
-                    if (counter == 0)
-                    {
-                        return i;
+                        if (Input[i] == '(')
+                        {
+                            counter++;
+                        }
+                        if (Input[i] == ')')
+                        {
+                            counter--;
+                        }
+                        if (counter == 0)
+                        {
+                            return i;
+                        }
                     }
                 }
-            }
-            else
-            {
-                for (int i = StartIndex; i > 0; i--)
+                else
                 {
-                    if (Input[i] == ')')
+                    for (int i = StartIndex; i > 0; i--)
                     {
-                        counter++;
-                    }
-                    if (Input[i] == '(')
-                    {
-                        counter--;
-                    }
-                    if (counter == 0)
-                    {
-                        return i;
+                        if (Input[i] == ')')
+                        {
+                            counter++;
+                        }
+                        if (Input[i] == '(')
+                        {
+                            counter--;
+                        }
+                        if (counter == 0)
+                        {
+                            return i;
+                        }
                     }
                 }
+                return StartIndex;
             }
-            return StartIndex;
-        }
-        public parceResult Start(String Input)
-        {
-            elements = new SympleElement[0];
-            CurrentState = state.START;
-            currentElement = -1;
-            str = Input.ToLower();
-
-            for (int i = 0; i < str.Length; i++)
+            public parceResult Start(String Input)
             {
-                switch (CurrentState)
+                elements = new SympleElement[0];
+                CurrentState = state.START;
+                currentElement = -1;
+                str = Input.ToLower();
+
+                for (int i = 0; i < str.Length; i++)
                 {
-                    case state.START:
-                        if (str[i] == '#')
-                        {
-                            Array.Resize(ref elements, elements.Length + 1);
-                            currentElement++;
-                            elements[currentElement] = new SympleElement();
-                            elements[currentElement].StartIndex = i;
-                            CurrentState = state.COMMENT;
-                        }
-                        else if (Regex.IsMatch(str[i].ToString(), "[a-z]"))
-                        {
-                            Array.Resize(ref elements, elements.Length + 1);
-                            currentElement++;
-                            elements[currentElement] = new SympleElement();
-                            elements[currentElement].StartIndex = i;
-                            CurrentState = state.SIGNAL;
-                        }
-                        else if (str[i] == '(')
-                        {
-                            Array.Resize(ref elements, elements.Length + 1);
-                            currentElement++;
-                            elements[currentElement] = new SympleElement();
-                            elements[currentElement].StartIndex = i;
-                            elements[currentElement].EndIndex = i;
-                            elements[currentElement].Style = System.Drawing.FontStyle.Bold;
-                            CurrentState = state.START;
-                        }
-                        else if (str[i] == ')')
-                        {
-                            Array.Resize(ref elements, elements.Length + 1);
-                            currentElement++;
-                            elements[currentElement] = new SympleElement();
-                            elements[currentElement].StartIndex = i;
-                            elements[currentElement].EndIndex = i;
-                            elements[currentElement].Style = System.Drawing.FontStyle.Bold;
-                            CurrentState = state.START;
-                        }
-                        else if (str[i] == '[')
-                        {
-                            Array.Resize(ref elements, elements.Length + 1);
-                            currentElement++;
-                            elements[currentElement] = new SympleElement();
-                            elements[currentElement].StartIndex = i;
-                            CurrentState = state.OPT;
-                        }
-                        break;
-                    case state.COMMENT:
-                        if (str[i] == '#')
-                        {
-                            elements[currentElement].EndIndex = i;
-                            elements[currentElement].TextColor = Settings.Default.TextFieldCommentColor;
-                            elements[currentElement].Style = 0;
-                            CurrentState = state.START;
-                        }
-                        break;
-                    case state.OPT:
-                        if (str[i] == ']')
-                        {
-                            elements[currentElement].EndIndex = i;
-                            elements[currentElement].TextColor = Settings.Default.TextFieldOptionColor;
-                            elements[currentElement].Style = 0;
-                            CurrentState = state.START;
-                        }
-                        break;
-                    case state.SIGNAL:
-                        if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            elements[currentElement].EndIndex = i - 1;
-                            if (str.Substring(elements[currentElement].StartIndex, elements[currentElement].EndIndex - elements[currentElement].StartIndex + 1) == "t+1")
-                            {
-                                elements[currentElement].TextColor = System.Drawing.Color.Red;
-                                elements[currentElement].Style = 0;
-                            }
-                            else
-                            {
-                                elements[currentElement].TextColor = Settings.Default.TextFieldSignalColor;
-                                elements[currentElement].Style = 0;
-                            }
+                    switch (CurrentState)
+                    {
+                        case state.START:
                             if (str[i] == '#')
                             {
                                 Array.Resize(ref elements, elements.Length + 1);
@@ -1230,8 +1149,15 @@ namespace sku_to_smv
                                 elements[currentElement].StartIndex = i;
                                 CurrentState = state.COMMENT;
                             }
-
-                            if (str[i] == '(')
+                            else if (Regex.IsMatch(str[i].ToString(), "[a-z]"))
+                            {
+                                Array.Resize(ref elements, elements.Length + 1);
+                                currentElement++;
+                                elements[currentElement] = new SympleElement();
+                                elements[currentElement].StartIndex = i;
+                                CurrentState = state.SIGNAL;
+                            }
+                            else if (str[i] == '(')
                             {
                                 Array.Resize(ref elements, elements.Length + 1);
                                 currentElement++;
@@ -1241,7 +1167,7 @@ namespace sku_to_smv
                                 elements[currentElement].Style = System.Drawing.FontStyle.Bold;
                                 CurrentState = state.START;
                             }
-                            if (str[i] == ')')
+                            else if (str[i] == ')')
                             {
                                 Array.Resize(ref elements, elements.Length + 1);
                                 currentElement++;
@@ -1251,14 +1177,89 @@ namespace sku_to_smv
                                 elements[currentElement].Style = System.Drawing.FontStyle.Bold;
                                 CurrentState = state.START;
                             }
+                            else if (str[i] == '[')
+                            {
+                                Array.Resize(ref elements, elements.Length + 1);
+                                currentElement++;
+                                elements[currentElement] = new SympleElement();
+                                elements[currentElement].StartIndex = i;
+                                CurrentState = state.OPT;
+                            }
+                            break;
+                        case state.COMMENT:
+                            if (str[i] == '#')
+                            {
+                                elements[currentElement].EndIndex = i;
+                                elements[currentElement].TextColor = Settings.Default.TextFieldCommentColor;
+                                elements[currentElement].Style = 0;
+                                CurrentState = state.START;
+                            }
+                            break;
+                        case state.OPT:
+                            if (str[i] == ']')
+                            {
+                                elements[currentElement].EndIndex = i;
+                                elements[currentElement].TextColor = Settings.Default.TextFieldOptionColor;
+                                elements[currentElement].Style = 0;
+                                CurrentState = state.START;
+                            }
+                            break;
+                        case state.SIGNAL:
+                            if (str[i] != ';' && str[i] != '(' && str[i] != ')' && str[i] != '&' && str[i] != '|' && str[i] != '~' && str[i] != '#' && str[i] != '=')
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                elements[currentElement].EndIndex = i - 1;
+                                if (str.Substring(elements[currentElement].StartIndex, elements[currentElement].EndIndex - elements[currentElement].StartIndex + 1) == "t+1")
+                                {
+                                    elements[currentElement].TextColor = System.Drawing.Color.Red;
+                                    elements[currentElement].Style = 0;
+                                }
+                                else
+                                {
+                                    elements[currentElement].TextColor = Settings.Default.TextFieldSignalColor;
+                                    elements[currentElement].Style = 0;
+                                }
+                                if (str[i] == '#')
+                                {
+                                    Array.Resize(ref elements, elements.Length + 1);
+                                    currentElement++;
+                                    elements[currentElement] = new SympleElement();
+                                    elements[currentElement].StartIndex = i;
+                                    CurrentState = state.COMMENT;
+                                }
 
-                            CurrentState = state.START;
-                        }
-                        break;
+                                if (str[i] == '(')
+                                {
+                                    Array.Resize(ref elements, elements.Length + 1);
+                                    currentElement++;
+                                    elements[currentElement] = new SympleElement();
+                                    elements[currentElement].StartIndex = i;
+                                    elements[currentElement].EndIndex = i;
+                                    elements[currentElement].Style = System.Drawing.FontStyle.Bold;
+                                    CurrentState = state.START;
+                                }
+                                if (str[i] == ')')
+                                {
+                                    Array.Resize(ref elements, elements.Length + 1);
+                                    currentElement++;
+                                    elements[currentElement] = new SympleElement();
+                                    elements[currentElement].StartIndex = i;
+                                    elements[currentElement].EndIndex = i;
+                                    elements[currentElement].Style = System.Drawing.FontStyle.Bold;
+                                    CurrentState = state.START;
+                                }
+
+                                CurrentState = state.START;
+                            }
+                            break;
+                    }
                 }
-            }
 
-            return parceResult.PARSE_OK;
+                return parceResult.PARSE_OK;
+            }
         }
     }
 }
