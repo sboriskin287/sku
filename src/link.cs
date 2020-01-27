@@ -86,17 +86,17 @@ namespace sku_to_smv
         public void calculateStartAndEndDots()
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
-            double cos = Math.Abs(endState.x - startState.x) /
+            double cos = Math.Abs(endState.paintDot.x - startState.paintDot.x) /
                 Math.Sqrt(
-                    Math.Pow(endState.x - startState.x, 2) +
-                    Math.Pow(endState.y - startState.y, 2));
+                    Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
+                    Math.Pow(endState.paintDot.y - startState.paintDot.y, 2));
             double sin = Math.Sqrt(1 - Math.Pow(cos, 2));
             float x = radius * (float) cos;
             float y = radius * (float) sin;
-            startDot.x = startState.x + x + radius;
-            startDot.y = startState.y - y + radius;
-            endDot.x = endState.x - x + radius;
-            endDot.y = endState.y + y + radius;
+            startDot.x = startState.paintDot.x + x + radius;
+            startDot.y = startState.paintDot.y - y + radius;
+            endDot.x = endState.paintDot.x - x + radius;
+            endDot.y = endState.paintDot.y + y + radius;
         }
     }
 }

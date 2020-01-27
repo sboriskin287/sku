@@ -358,5 +358,17 @@ namespace sku_to_smv.Properties {
                 this["OffsetStateY"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Times New Roman, 14pt")]
+        public global::System.Drawing.Font StateNameText {
+            get {
+                return ((global::System.Drawing.Font)(this["StateNameText"]));
+            }
+            set {
+                this["StateNameText"] = value;
+            }
+        }
     }
 }

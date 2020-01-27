@@ -329,6 +329,10 @@ namespace sku_to_smv
         public override void Refresh()
         {
             base.Refresh();
+            foreach (State s in States)
+            {
+                s.alreadyPaint = false;
+            }
             RefreshArea(g);
             drawBuffer.Render();
             this.vScroll.Maximum = (int)(1000.0 * ScaleT);
@@ -338,55 +342,70 @@ namespace sku_to_smv
         private void RefreshArea(Graphics g)
         {
             g.Clear(System.Drawing.Color.White);
-            int stateDiametr = Settings.Default.StateDiametr;
+            drawStates(g);
+            createLinks();
+            drawLinks(g);
+        }
 
+        private void drawStates(Graphics g)
+        {
+            int stateDiametr = Settings.Default.StateDiametr;
             int stateDefaultCentreX = Settings.Default.StateCentre;
             int stateDefaultCentreY = Settings.Default.StateCentre;
-
             int offsetStateX = Settings.Default.OffsetStateX;
             int offsetStateY = Settings.Default.OffsetStateY;
-
-            int x = stateDefaultCentreX;
-            int y = stateDefaultCentreY;
             int countDrawState = 0;
             foreach (Rule rule in this.rules)
             {
                 State startState = rule.startState;
                 State endState = rule.endState;
-                Signal signal = rule.signal;
                 State[] startAndEndStates = { startState, endState };
-                foreach (State state in startAndEndStates) {
+                foreach (State state in startAndEndStates)
+                {
                     if (!state.alreadyPaint)
                     {
-                        state.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
-                        state.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
-                        g.DrawEllipse(penSignal, state.x, state.y, stateDiametr, stateDiametr);
+                        state.paintDot.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
+                        state.paintDot.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
+                        state.setNameDot();
+                        g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
+                        g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);
                         state.alreadyPaint = true;
                         countDrawState++;
                     }
+                    addState(state);
                 }
-                Link link = getLinkByName(startState.Name + endState.Name);
+            }
+        }
+
+        private void createLinks()
+        {
+            foreach (Rule rule in rules)
+            {
+                Link link = getLinkByName(rule.startState.Name + rule.endState.Name);
                 if (link == null)
                 {
                     Array.Resize(ref Links, Links.Length + 1);
-                    link = new Link(startState, endState);
+                    link = new Link(rule.startState, rule.endState);
                     link.setName();
                     Links[Links.Length - 1] = link;
                 }
                 Array.Resize(ref link.signals, link.signals.Length + 1);
                 Array.Resize(ref link.signalDots, link.signals.Length + 1);
-                link.signals[link.signals.Length - 1] = signal;
+                link.signals[link.signals.Length - 1] = rule.signal;
                 link.calculateStartAndEndDots();
                 link.setTransferDot();
-                link.setTimeDot();     
+                link.setTimeDot();
             }
-            foreach (Link link in this.Links) 
+        }
+
+        private void drawLinks(Graphics g)
+        {
+            foreach (Link link in this.Links)
             {
                 g.DrawLine(penInputLine, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
                 for (int i = 0; i < link.signals.Length; i++)
                 {
                     g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
-
                 }
             }
         }
@@ -398,6 +417,25 @@ namespace sku_to_smv
                 if (link.name.Equals(name)) return link;
             }
             return null;
+        }
+
+        private State getStateByName(String name)
+        {
+            foreach (State state in States)
+            {
+                if (state.Name.Equals(name)) return state;
+            }
+            return null;
+        }
+
+        private void addState(State state)
+        {
+            State currentState = getStateByName(state.Name);
+            if (currentState == null)
+            {
+                Array.Resize(ref States, States.Length + 1);
+                States[States.Length - 1] = state;
+            }
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -768,8 +806,8 @@ namespace sku_to_smv
             {
                 for (int i = States.Length - 1; i >= 0; i--)
                 {
-                    x0 = (States[i].x + 30 + xT) * ScaleT;
-                    y0 = (States[i].y + 30 + yT) * ScaleT;
+                    x0 = (States[i].paintDot.x + 30 + xT) * ScaleT;
+                    y0 = (States[i].paintDot.y + 30 + yT) * ScaleT;
                     f = (float)System.Math.Pow(x0 - xkur, 2) + (float)System.Math.Pow(y0 - ykur, 2);
                     if (f <= (float)System.Math.Pow(r, 2))
                     {
@@ -860,14 +898,14 @@ namespace sku_to_smv
                 if (xM != e.X)
                 {
                     dx = (int)(((float)e.X - xM) / ScaleT);
-                    States[SelectedState].x = States[SelectedState].x + dx;
+                    States[SelectedState].paintDot.x = States[SelectedState].paintDot.x + dx;
                     UpdateLinks();
 
                 }
                 if (yM != e.Y)
                 {
                     dy = (int)(((float)e.Y - yM) / ScaleT);
-                    States[SelectedState].y = States[SelectedState].y + dy;
+                    States[SelectedState].paintDot.y = States[SelectedState].paintDot.y + dy;
                     UpdateLinks();
 
                 }
@@ -931,9 +969,9 @@ namespace sku_to_smv
             for (int i = 0; i < Inputs.Length; i++)
             {
                 States[i].Name = Inputs[i];
-                States[i].x = xs;
+                States[i].paintDot.x = xs;
                 //xs += 70;
-                States[i].y = ys;
+                States[i].paintDot.y = ys;
                 //States[i].InputSignal = true;
                 //States[i].Type = STATE_TYPE.INPUT;
                 ys += 62;
@@ -950,8 +988,8 @@ namespace sku_to_smv
             for (int i = Inputs.Length; i < States.Length; i++)
             {
                 States[i].Name = LocalStates[i - Inputs.Length];
-                States[i].x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
-                States[i].y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
+                States[i].paintDot.x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
+                States[i].paintDot.y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
                 //States[i].Type = STATE_TYPE.NONE;
 
                 ys += 70;
@@ -976,9 +1014,9 @@ namespace sku_to_smv
                 for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
                 {
                     States[i].Name = Outputs[i - (Inputs.Length + LocalStates.Length)];
-                    States[i].x = xs;
+                    States[i].paintDot.x = xs;
                     xs += 62;
-                    States[i].y = ys;
+                    States[i].paintDot.y = ys;
                    // States[i].Type = STATE_TYPE.OUTPUT;
                 }
             }
@@ -1588,8 +1626,8 @@ namespace sku_to_smv
             float tempScale;
             for (int i = 0; i < States.Length; i++ )
             {
-                if (States[i].x > maxX) maxX = States[i].x;
-                if (States[i].y > maxY) maxY = States[i].y;
+                if (States[i].paintDot.x > maxX) maxX = (int) States[i].paintDot.x;
+                if (States[i].paintDot.y > maxY) maxY = (int) States[i].paintDot.y;
             }
             Bitmap imageB = new Bitmap(maxX + 70, maxY + 70);
             Graphics graf = Graphics.FromImage(imageB);

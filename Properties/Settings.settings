@@ -86,5 +86,8 @@
     <Setting Name="OffsetStateY" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
+    <Setting Name="StateNameText" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Times New Roman, 14pt</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

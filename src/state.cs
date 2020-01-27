@@ -1,5 +1,6 @@
 ﻿using sku_to_smv.src;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace sku_to_smv
 {
@@ -7,8 +8,8 @@ namespace sku_to_smv
     public class State
     {
         public string Name;        //Имя состояния
-        public int x;               //координата x
-        public int y;               //координата y
+        public Dot paintDot;
+        public Dot nameDot;
         public bool Selected;       //если выбрано = true
         public bool alreadyPaint;
         public List<Signal> inputs;
@@ -16,12 +17,21 @@ namespace sku_to_smv
         public State()
         {
             Name = null;
-            x = 0;
-            y = 0;
+            paintDot = new Dot();
+            nameDot = new Dot();
             Selected = false;
             alreadyPaint = false;
             inputs = new List<Signal>();
             outputs = new List<Signal>();
+        }
+
+        public void setNameDot()
+        {
+            int radius = Properties.Settings.Default.StateDiametr / 2;
+            Font style = Properties.Settings.Default.StateNameText;
+            nameDot = new Dot(
+                paintDot.x + radius - style.Size,
+                paintDot.y + radius - style.Size);
         }
     }
 }
