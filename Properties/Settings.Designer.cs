@@ -313,13 +313,13 @@ namespace sku_to_smv.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("30")]
-        public int StateRadius {
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int StateDiametr {
             get {
-                return ((int)(this["StateRadius"]));
+                return ((int)(this["StateDiametr"]));
             }
             set {
-                this["StateRadius"] = value;
+                this["StateDiametr"] = value;
             }
         }
         

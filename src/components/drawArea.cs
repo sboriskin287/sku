@@ -338,7 +338,7 @@ namespace sku_to_smv
         private void RefreshArea(Graphics g)
         {
             g.Clear(System.Drawing.Color.White);
-            int stateRadius = Settings.Default.StateRadius;
+            int stateDiametr = Settings.Default.StateDiametr;
 
             int stateDefaultCentreX = Settings.Default.StateCentre;
             int stateDefaultCentreY = Settings.Default.StateCentre;
@@ -360,14 +360,44 @@ namespace sku_to_smv
                     {
                         state.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
                         state.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
-                        g.DrawEllipse(penSignal, state.x, state.y, stateRadius, stateRadius);
+                        g.DrawEllipse(penSignal, state.x, state.y, stateDiametr, stateDiametr);
                         state.alreadyPaint = true;
                         countDrawState++;
                     }
                 }
-                g.DrawLine(penInputLine, startState.x, startState.y, endState.x, endState.y);
-                g.DrawString(signal.name, new Font("Consolas", 12), brushTextColor, startState.x + (endState.x - startState.x) / 2 + 20, startState.y + (endState.y - startState.y) / 2 + 20);
+                Link link = getLinkByName(startState.Name + endState.Name);
+                if (link == null)
+                {
+                    Array.Resize(ref Links, Links.Length + 1);
+                    link = new Link(startState, endState);
+                    link.setName();
+                    Links[Links.Length - 1] = link;
+                }
+                Array.Resize(ref link.signals, link.signals.Length + 1);
+                Array.Resize(ref link.signalDots, link.signals.Length + 1);
+                link.signals[link.signals.Length - 1] = signal;
+                link.calculateStartAndEndDots();
+                link.setTransferDot();
+                link.setTimeDot();     
             }
+            foreach (Link link in this.Links) 
+            {
+                g.DrawLine(penInputLine, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
+                for (int i = 0; i < link.signals.Length; i++)
+                {
+                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
+
+                }
+            }
+        }
+
+        private Link getLinkByName(String name)
+        {
+            foreach (Link link in this.Links)
+            {
+                if (link.name.Equals(name)) return link;
+            }
+            return null;
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -382,7 +412,7 @@ namespace sku_to_smv
 
             if (Links != null)
             {
-                for (int i = 0; i < Links.Length; i++)
+                /*for (int i = 0; i < Links.Length; i++)
                 {
                     if (Links[i].FromInput == true)         //Связи от входных сигналов
                     {
@@ -525,7 +555,7 @@ namespace sku_to_smv
                             }
                         }
                     }
-                }
+                }*/
             }
             if (States != null)
             {
@@ -619,7 +649,7 @@ namespace sku_to_smv
                 {
                     if (!Links[i].Arc)
                     {
-                        if (Links[i].Selected)
+                        /*if (Links[i].Selected)
                         {
                             g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
                             "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
@@ -628,13 +658,13 @@ namespace sku_to_smv
                         else g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
                             "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
                              + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;
+                        ySS += 20;*/
                     }
                     else
                     {
-                        g.DrawString("Arc" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
+                       /* g.DrawString("Arc" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
                             "\t\tx=" + Links[i].x1.ToString() + " y=" + Links[i].y1.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;
+                        ySS += 20;*/
                     }
                 }
 
@@ -789,10 +819,10 @@ namespace sku_to_smv
                 {
                     if (!Links[i].Arc)
                     {
-                        sqrl = Math.Sqrt(Math.Pow((double)(Links[i].x2 - Links[i].x1), 2.0) + Math.Pow((double)(Links[i].y2 - Links[i].y1), 2.0));
+                        /*sqrl = Math.Sqrt(Math.Pow((double)(Links[i].x2 - Links[i].x1), 2.0) + Math.Pow((double)(Links[i].y2 - Links[i].y1), 2.0));
                         hlfl = Math.Sqrt(Math.Pow((double)(dx - Links[i].x1), 2.0) + Math.Pow((double)(dy - Links[i].y1), 2.0)) +
                             Math.Sqrt(Math.Pow((double)(dx - Links[i].x2), 2.0) + Math.Pow((double)(dy - Links[i].y2), 2.0));
-                        dl = hlfl == sqrl;
+                        dl = hlfl == sqrl;*/
                         Links[i].leight = sqrl;
                         Links[i].rst = hlfl;
                         if (hlfl - sqrl < 1)
@@ -856,9 +886,9 @@ namespace sku_to_smv
         /// </summary>
         private void UpdateLinks()
         {
-            for (int i = 0; i < Links.Length; i++ )
+            /*for (int i = 0; i < Links.Length; i++ )
             {
-                if (Links[i].StartState == States[SelectedState].Name)
+                if (Links[i].startState == States[SelectedState].Name)
                 {
                     Links[i].x1 = States[SelectedState].x + 30;
                     Links[i].y1 = States[SelectedState].y + 30;
@@ -868,7 +898,7 @@ namespace sku_to_smv
                         Links[i].y1 += 10;
                     }
                 }
-                if (Links[i].EndState == States[SelectedState].Name)
+                if (Links[i].endState == States[SelectedState].Name)
                 {
                     Links[i].x2 = States[SelectedState].x + 30;
                     Links[i].y2 = States[SelectedState].y + 30;
@@ -878,7 +908,7 @@ namespace sku_to_smv
                         Links[i].y2 += 10;
                     }
                 }
-            }
+            }*/
         }
         /// <summary>
         /// Создает состояния для графа
@@ -1037,8 +1067,8 @@ namespace sku_to_smv
         {
             foreach (Link link in Links)
             {
-                if (link.StartState == null || link.EndState == null) return null;
-                if (link.StartState.Equals(start) && link.EndState.Equals(end))
+                if (link.startState == null || link.endState == null) return null;
+                if (link.startState.Equals(start) && link.endState.Equals(end))
                 {
                     return link;
                 }

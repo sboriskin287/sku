@@ -76,6 +76,7 @@
     <Compile Include="src\components\ToolPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="src\Dot.cs" />
     <Compile Include="src\forms\options.cs">
       <SubType>Form</SubType>
     </Compile>
