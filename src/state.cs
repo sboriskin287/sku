@@ -11,7 +11,6 @@ namespace sku_to_smv
         public Dot paintDot;
         public Dot nameDot;
         public bool Selected;       //если выбрано = true
-        public bool alreadyPaint;
         public List<Signal> inputs;
         public List<Signal> outputs;
         public State()
@@ -20,9 +19,14 @@ namespace sku_to_smv
             paintDot = new Dot();
             nameDot = new Dot();
             Selected = false;
-            alreadyPaint = false;
             inputs = new List<Signal>();
             outputs = new List<Signal>();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is State state &&
+                   Name.Equals(state.Name);
         }
 
         public void setNameDot()
@@ -33,5 +37,7 @@ namespace sku_to_smv
                 paintDot.x + radius - style.Size,
                 paintDot.y + radius - style.Size);
         }
+
+
     }
 }

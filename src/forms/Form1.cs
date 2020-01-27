@@ -212,13 +212,12 @@ namespace sku_to_smv
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
             Array.Resize(ref pictureBox1.rules, parser.Rules.Length);
-            pictureBox1.rules = parser.Rules;
-            //pictureBox1.CreateStates(ref parser.LocalStates, ref parser.Inputs, ref parser.Outputs);
+            pictureBox1.rules = parser.Rules;          
             pictureBox1.States = parser.states.ToArray();
             this.toolStripProgressBar1.Value = 50;
-            //pictureBox1.CreateLinks(ref parser.Rules);
-            //pictureBox1.createLinks(parser.signals);
+            pictureBox1.createStates();
             this.toolStripProgressBar1.Value = 75;
+            pictureBox1.createLinks();
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }

@@ -328,11 +328,7 @@ namespace sku_to_smv
         }
         public override void Refresh()
         {
-            base.Refresh();
-            foreach (State s in States)
-            {
-                s.alreadyPaint = false;
-            }
+            base.Refresh();         
             RefreshArea(g);
             drawBuffer.Render();
             this.vScroll.Maximum = (int)(1000.0 * ScaleT);
@@ -342,14 +338,14 @@ namespace sku_to_smv
         private void RefreshArea(Graphics g)
         {
             g.Clear(System.Drawing.Color.White);
+            //createStates();
             drawStates(g);
-            createLinks();
+            //createLinks();
             drawLinks(g);
         }
 
-        private void drawStates(Graphics g)
+        public void createStates()
         {
-            int stateDiametr = Settings.Default.StateDiametr;
             int stateDefaultCentreX = Settings.Default.StateCentre;
             int stateDefaultCentreY = Settings.Default.StateCentre;
             int offsetStateX = Settings.Default.OffsetStateX;
@@ -362,22 +358,30 @@ namespace sku_to_smv
                 State[] startAndEndStates = { startState, endState };
                 foreach (State state in startAndEndStates)
                 {
-                    if (!state.alreadyPaint)
+                    State s = getStateByName(state.Name);
+                    if (s == null)
                     {
                         state.paintDot.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
                         state.paintDot.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
                         state.setNameDot();
-                        g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
-                        g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);
-                        state.alreadyPaint = true;
                         countDrawState++;
-                    }
-                    addState(state);
+                        addState(state);
+                    }    
                 }
             }
         }
 
-        private void createLinks()
+        private void drawStates(Graphics g)
+        {
+            int stateDiametr = Settings.Default.StateDiametr;
+            foreach (State state in States)
+            {
+                g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
+                g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);
+            }
+        }
+
+        public void createLinks()
         {
             foreach (Rule rule in rules)
             {
