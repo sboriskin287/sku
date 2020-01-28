@@ -13,6 +13,7 @@ namespace sku_to_smv
         public bool Selected;       //если выбрано = true
         public List<Signal> inputs;
         public List<Signal> outputs;
+        public List<Link> links;
         public State()
         {
             Name = null;
@@ -21,6 +22,7 @@ namespace sku_to_smv
             Selected = false;
             inputs = new List<Signal>();
             outputs = new List<Signal>();
+            links = new List<Link>();
         }
 
         public override bool Equals(object obj)

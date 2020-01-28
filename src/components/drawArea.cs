@@ -49,7 +49,7 @@ namespace sku_to_smv
 
         int xT, yT/*, dx, dy*/;
         int xs, ys, xM, yM;
-        int curX, curY;
+        float dragOffsetX, dragOffsetY;
         int InputsLeight;
         int OutputsLeight;
         bool StateSelected;
@@ -372,7 +372,7 @@ namespace sku_to_smv
             int stateDiametr = Settings.Default.StateDiametr;
             foreach (State state in States)
             {
-                Pen statePen = state.Selected ? penOutputSignal : penInputSignal;
+                Pen statePen = state.Selected ? penInputSignal : penOutputSignal;
                 g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
                 g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);             
             }
@@ -388,6 +388,8 @@ namespace sku_to_smv
                     Array.Resize(ref Links, Links.Length + 1);
                     link = new Link(rule.startState, rule.endState);
                     link.setName();
+                    link.startState.links.Add(link);
+                    link.endState.links.Add(link);
                     Links[Links.Length - 1] = link;
                 }
                 Array.Resize(ref link.signals, link.signals.Length + 1);
@@ -747,7 +749,7 @@ namespace sku_to_smv
                     }
                 }
 
-                g.DrawString("mouse x = " + curX.ToString() + "\ty = " + curY.ToString(), TextFont, System.Drawing.Brushes.Black, 0, 0);
+               // g.DrawString("mouse x = " + curX.ToString() + "\ty = " + curY.ToString(), TextFont, System.Drawing.Brushes.Black, 0, 0);
             }
         }
 
@@ -789,380 +791,49 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void drawArea_MouseDown(object sender, MouseEventArgs e)
         {
-            float r;
-            float xkur;
-            float ykur;
-            int result;
-
-            xkur = e.X;
-            ykur = e.Y;
-            r = 30 * ScaleT;
-            xM = e.X;
-            yM = e.Y;
-
-            if (e.Button == MouseButtons.Left)
+            foreach (State state in States)
             {
-//                 if (AddStateButtonSelected)
-//                 {
-//                     //Mu.WaitOne();
-//                     //States[i].Value = LocalStates[i];
-//                     Array.Resize(ref States, States.Length + 1);
-//                     States[States.Length - 1] = new State();
-//                     States[States.Length - 1].x = (int)(((float)e.X - 30 - xT) / ScaleT);
-//                     States[States.Length - 1].y = (int)(((float)e.Y - 30 - yT) / ScaleT);
-//                     //Mu.ReleaseMutex();
-//                 }
-
-                result = CheckSelectedState(xkur, ykur, r, false);
-                //CheckSelectedLink(xkur, ykur);
-            }
-            if (e.Button == MouseButtons.Right && b_SimulStarted)
-            {
-                if (CheckSelectedState(xkur, ykur, r, true) > -1)
+                if (state.Selected)
                 {
-                    contextMenu.Visible = true;
-                    contextMenu.Show(this, e.Location);
+                    dragOffsetX = e.X - state.paintDot.x;
+                    dragOffsetY = e.Y - state.paintDot.y;
                 }
             }
-            Refresh();
+        }
+
+        private void relocationStates(Dot dot)
+        {
+            foreach (State state in States)
+            {
+                if (state.Selected)
+                {
+                    state.paintDot.x = dot.x - dragOffsetX;
+                    state.paintDot.y = dot.y - dragOffsetY;
+                    state.setNameDot();
+                    foreach (Link link in state.links)
+                    {
+                        link.initializeLocation();
+                    }
+                }
+            }
         }
         private void drawArea_MouseClick(object sender, MouseEventArgs e)
         {
-            tools.CheckMouseState(e, true);
-            Refresh();
+            dragOffsetX = 0;
+            dragOffsetY = 0;
         }
-        /// <summary>
-        /// Функция проверки наведения мыши на состояние
-        /// </summary>
-        /// <param name="xkur">Координата x мыши</param>
-        /// <param name="ykur">Координата y мыши</param>
-        /// <param name="r">Радиус состояния</param>
-        /// <param name="right">Нажата ли правая кнопка мыши</param>
-        /// <returns>Номер найденого состояния</returns>
-        private int CheckSelectedState(float xkur, float ykur, float r, bool right)
-        {
-            float x0, y0;
-            float f;
-            if (States != null)
-            {
-                for (int i = States.Length - 1; i >= 0; i--)
-                {
-                    x0 = (States[i].paintDot.x + 30 + xT) * ScaleT;
-                    y0 = (States[i].paintDot.y + 30 + yT) * ScaleT;
-                    f = (float)System.Math.Pow(x0 - xkur, 2) + (float)System.Math.Pow(y0 - ykur, 2);
-                    if (f <= (float)System.Math.Pow(r, 2))
-                    {
-                        if (!right)
-                        {
-                            States[SelectedState].Selected = false;
-                            StateSelected = true;
-                            SelectedState = i;
-                            States[i].Selected = true;
-                            return i;
-                        }
-                        else
-                        {
-                            SelectedState = i;
-                            return i;
-                        }
-                    }
-                    else
-                    {
-                        if (!right)
-                        {
-                            StateSelected = false;
-                            States[i].Selected = false;
-                        }
-                    }
-                }
-            }
-            return (int)defines.NO_STATE_SELECTED;
-        }
-        /// <summary>
-        /// Функция проверки наведения мыши на линию
-        /// и отображения информации о линии
-        /// </summary>
-        /// <param name="xkur">Координата x мыши</param>
-        /// <param name="ykur">Координата y мыши</param>
-        private void CheckSelectedLink(float xkur, float ykur)
-        {
-            bool dl = false;
-            double sqrl = 0.0, hlfl = 0.0;
-            float dx, dy;
-            dx = (xkur - xT) / ScaleT;
-            dy = (ykur - yT) / ScaleT;
-            LinkSelected = false;
-            for (int i = 0; i < Links.Length; i++ )
-            {
-                if (!LinkSelected)
-                {
-                    if (!Links[i].Arc)
-                    {
-                        /*sqrl = Math.Sqrt(Math.Pow((double)(Links[i].x2 - Links[i].x1), 2.0) + Math.Pow((double)(Links[i].y2 - Links[i].y1), 2.0));
-                        hlfl = Math.Sqrt(Math.Pow((double)(dx - Links[i].x1), 2.0) + Math.Pow((double)(dy - Links[i].y1), 2.0)) +
-                            Math.Sqrt(Math.Pow((double)(dx - Links[i].x2), 2.0) + Math.Pow((double)(dy - Links[i].y2), 2.0));
-                        dl = hlfl == sqrl;*/
-                        Links[i].leight = sqrl;
-                        Links[i].rst = hlfl;
-                        if (hlfl - sqrl < 1)
-                        {
-                            Links[i].Selected = true;
-                            //this.toolTip.Show(Links[i].StartState + "->" + Links[i].EndState, this, (int)xkur, (int)ykur - 10, 3000);
-                            LinkSelected = true;
-                        }
-                        else Links[i].Selected = false;
-                    }
-                }
-                else Links[i].Selected = false;
-            }
-        }
-        /// <summary>
-        /// Обработчик движения мыши по области рисования
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+       
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
         {
+            if (e.Button.Equals(MouseButtons.Left))
+            {
+                relocationStates(new Dot(e.X, e.Y));
+            }
             setSelectedLink(new Dot(e.X, e.Y));
             setSelectedState(new Dot(e.X, e.Y));
             Refresh();
-        }
-        /// <summary>
-        /// Обновляет связи между состояниями графа
-        /// </summary>
-        private void UpdateLinks()
-        {
-            /*for (int i = 0; i < Links.Length; i++ )
-            {
-                if (Links[i].startState == States[SelectedState].Name)
-                {
-                    Links[i].x1 = States[SelectedState].x + 30;
-                    Links[i].y1 = States[SelectedState].y + 30;
-                    if (Links[i].Moved)
-                    {
-                        Links[i].x1 += 10;
-                        Links[i].y1 += 10;
-                    }
-                }
-                if (Links[i].endState == States[SelectedState].Name)
-                {
-                    Links[i].x2 = States[SelectedState].x + 30;
-                    Links[i].y2 = States[SelectedState].y + 30;
-                    if (Links[i].Moved)
-                    {
-                        Links[i].x2 += 10;
-                        Links[i].y2 += 10;
-                    }
-                }
-            }*/
-        }
-        /// <summary>
-        /// Создает состояния для графа
-        /// </summary>
-        public void CreateStates(ref string[] LocalStates, ref string[] Inputs, ref string[] Outputs)
-        {
-            int n = 0;
-            int counter = 0;
-            xs = 50;
-            ys = 40;
-            Array.Resize(ref States, 0);
-            States = new State[Inputs.Length];
-            for (int j = 0; j < States.Length; j++)
-            {
-                States[j] = new State();
-            }
-            Random rnd = new Random();
+        }     
 
-            xs = 50;
-            for (int i = 0; i < Inputs.Length; i++)
-            {
-                States[i].Name = Inputs[i];
-                States[i].paintDot.x = xs;
-                //xs += 70;
-                States[i].paintDot.y = ys;
-                //States[i].InputSignal = true;
-                //States[i].Type = STATE_TYPE.INPUT;
-                ys += 62;
-            }
-            InputsLeight = Inputs.Length;
-            Array.Resize(ref States, States.Length + LocalStates.Length);
-            for (int i = Inputs.Length; i < States.Length; i++)
-            {
-                States[i] = new State();
-            }
-            n = (int)Math.Truncate(Math.Sqrt(States.Length));
-            xs = 120;
-            ys = 62;
-            for (int i = Inputs.Length; i < States.Length; i++)
-            {
-                States[i].Name = LocalStates[i - Inputs.Length];
-                States[i].paintDot.x = /*rnd.Next(0, States.Length / 2) * 62 + xs*/xs;
-                States[i].paintDot.y = /*rnd.Next(0, Inputs.Length) * 62 + */ys/*rnd.Next(70, 300)*/;
-                //States[i].Type = STATE_TYPE.NONE;
-
-                ys += 70;
-                counter++;
-                if (counter == n)
-                {
-                    counter = 0;
-                    xs += 70;
-                    ys = 62;
-                }
-            }
-            if (Outputs != null && Outputs.Length > 0)
-            {
-                OutputsLeight = Outputs.Length;
-                Array.Resize(ref States, States.Length + Outputs.Length);
-                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
-                {
-                    States[i] = new State();
-                }
-                xs = 112;
-                ys = 10;
-                for (int i = (Inputs.Length + LocalStates.Length); i < States.Length; i++)
-                {
-                    States[i].Name = Outputs[i - (Inputs.Length + LocalStates.Length)];
-                    States[i].paintDot.x = xs;
-                    xs += 62;
-                    States[i].paintDot.y = ys;
-                   // States[i].Type = STATE_TYPE.OUTPUT;
-                }
-            }
-        }
-        /// <summary>
-        /// Создает связи для графа
-        /// </summary>
-        /// <param name="Rules">Массив разобранных правил</param>
-        /*public void CreateLinks(ref Rule[] Rules)
-        {
-            bool DoubleLink = true;
-            Array.Resize(ref Links, 0);
-            //Обходи по всем правилам
-            for (int i = 0; i < Rules.Length; i++)
-            {
-                //Обход по всем элементам правил не считая 0-го
-                for (int j = 1; j < Rules[i].Elems.Length; j++)
-                {
-                    //Если элемент состояние
-                    if (Rules[i].Elems[j].Type == "State")
-                    {
-                        //Проверка на повторы связей
-                        DoubleLink = true;
-                        for (int m = 0; m < Links.Length; m++ )
-                        {
-                            if (Links[m].EndState == Rules[i].Elems[0].Value && Links[m].StartState == Rules[i].Elems[j].Value)
-                            {
-                                DoubleLink = false;
-                            }
-                        }
-                        //Если не было повтора, то добавляем новую связь
-                        if (DoubleLink)
-                        {
-                            Array.Resize(ref Links, Links.Length + 1);
-                            Links[Links.Length - 1] = new Link();
-
-                            Links[Links.Length - 1].EndState = Rules[i].Elems[0].Value;
-                            Links[Links.Length - 1].StartState = Rules[i].Elems[j].Value;
-                            //Если переход сам в себя, то арка
-                            if (Links[Links.Length - 1].EndState == Links[Links.Length - 1].StartState)
-                            {
-                                Links[Links.Length - 1].Arc = true;
-                            }
-                            //Задаем координаты начала и конца линий
-                            for (int k = 0; k < States.Length; k++)
-                            {
-                                if (States[k].Name == Rules[i].Elems[0].Value)
-                                {
-                                    Links[Links.Length - 1].x2 = States[k].x + 30;
-                                    Links[Links.Length - 1].y2 = States[k].y + 30;
-                                }
-                                if (States[k].Name == Rules[i].Elems[j].Value)
-                                {
-                                    Links[Links.Length - 1].x1 = States[k].x + 30;
-                                    Links[Links.Length - 1].y1 = States[k].y + 30;
-                                }
-                                Links[Links.Length - 1].setTimeDot();
-                                if (Rules[i].Elems[j - 1].Type.Equals("TimeTransfer"))
-                                {
-                                    Links[Links.Length - 1].timeTransfer = float.Parse(Rules[i].Elems[j - 1].Value);
-                                }
-                            }
-                            //Если связь с локальным состоянием то черные линии
-                            //иначе синие
-                            if (Rules[i].Elems[j].Local == true)
-                                Links[Links.Length - 1].FromInput = false;
-                            else Links[Links.Length - 1].FromInput = true;
-//                             for (int m = 0; m < Links.Length-2; m++)
-//                             {
-//                                 if ((Links[m].EndState == Links[Links.Length - 2].StartState) && (Links[m].StartState == Links[Links.Length - 2].EndState))
-//                                 {
-//                                     Links[m].x1 += 10;
-//                                     Links[m].x2 += 10;
-//                                     Links[m].y1 += 10;
-//                                     Links[m].y2 += 10;
-//                                     Links[m].Moved = true;
-//                                 }
-//                             }
-                        }
-                    }
-                }
-            }
-        }*/
-
-        private Link getLink(State start, State end)
-        {
-            foreach (Link link in Links)
-            {
-                if (link.startState == null || link.endState == null) return null;
-                if (link.startState.Equals(start) && link.endState.Equals(end))
-                {
-                    return link;
-                }
-            }
-            return null;
-        }
-
-        /*public void createLinks(List<Signal> signals, List<State> states)
-        {
-            foreach (State state in states)
-            {
-                foreach (Signal signal in state.outputs)
-                {
-                    Link link = new Link();
-                    link.StartState = state.Name;
-                    //link.EndState = signal.
-                    //Array.Resize(ref Links, Links.Length + 1);
-                    //Links[Links.Length - 1] = link;
-                }
-            }
-
-
-            foreach (Signal signal in signals)
-            {
-                foreach (KeyValuePair<State, State> pair in signal.states)
-                {
-                    Link link = getLink(pair.Key, pair.Value);
-                    if (link == null)
-                    {
-                        link = new Link();
-                        link.signals.Add(signal);
-                        link.StartState = pair.Key.Name;
-                        link.EndState = pair.Value.Name;
-                        if (pair.Key.Equals(pair.Value))
-                        {
-                            link.Arc = true;
-                        }
-                        Array.Resize(ref Links, Links.Length + 1);
-                        Links[Links.Length - 1] = link;
-                    }
-                    else
-                    {
-                        link.signals.Add(signal);
-                    }                 
-                }               
-            }
-            
-        }*/
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {
             this.ClickToolPanelTimer.Start();
@@ -1212,189 +883,7 @@ namespace sku_to_smv
             if (handler != null)
                 handler(this, new EventArgs());
         }
-        /// <summary>
-        /// Создает исходники программы симуляции
-        /// компилирует их, запускает программу и 
-        /// ожидает подключения к именованному каналу
-        /// </summary>
-        /// <param name="Rules">Массив разобранных правил</param>
-        /*public void CreateSimul(Rule[] Rules, string[] Outputs) 
-        {
-            int tmp = -1;
-            if (!b_SimulStarted)
-            {
-                String resultCode;
-                int index;
-                if (pipe != null)
-                {
-                    if (pipe.IsConnected)
-                    {
-                        WritePipe(0, 0, 'e');
-                        if (pipe.IsConnected) pipe.Disconnect();
-                    }
-                    sw = null;
-                    pipe = null;
-                    GC.Collect();
-                }
-                resultCode = global::sku_to_smv.Properties.Resources.tmpl;
-                index = resultCode.IndexOf('$');
-
-
-                StringBuilder sb = new StringBuilder();
-
-                //Определяем номера состояний
-                resultCode = resultCode.Remove(index, 1);
-                for (int i = 0; i < States.Length; i++)
-                {
-                    sb.AppendLine(States[i].Name.ToUpper() + " = " + i.ToString() + ",");
-                }
-                resultCode = resultCode.Insert(index, sb.ToString());
-                sb.Clear();
-                index = resultCode.IndexOf('$');
-                resultCode = resultCode.Remove(index, 1);
-                resultCode = resultCode.Insert(index, States.Length.ToString());
-
-                index = resultCode.IndexOf('$');
-                resultCode = resultCode.Remove(index, 1);
-                resultCode = resultCode.Insert(index, States.Length.ToString());
-
-
-                index = resultCode.IndexOf('$');
-                resultCode = resultCode.Remove(index, 1);
-
-                for (int i = 0; i < Rules.Length; i++)
-                {
-                    if (!Rules[i].output)
-                    {
-                        sb.Append("if(");
-                        for (int j = 1; j < Rules[i].Elems.Length; j++)
-                        {
-
-                            if ((Rules[i].Elems[j].Type != "=") && (Rules[i].Elems[j].Type != "t+1") && (!Rules[i].Elems[j].Empty))
-                            {
-                                if (Rules[i].Elems[j].Type == "State")
-                                {
-                                    if (Rules[i].Elems[j].Inverted)
-                                    {
-                                        sb.Append(" !");
-                                    }
-                                    sb.Append("curState[(int)simulDefines." + Rules[i].Elems[j].Value.ToUpper() + "] ");
-                                }
-                                else
-                                {
-                                    if (Rules[i].Elems[j].Type == "|") sb.Append(" || ");
-                                    if (Rules[i].Elems[j].Type == "&") sb.Append(" && ");
-                                    if (Rules[i].Elems[j].Type == "(")
-                                    {
-                                        if (Rules[i].Elems[j].Inverted)
-                                        {
-                                            sb.Append(" !");
-                                        }
-                                        sb.Append("(");
-                                    }
-                                    if (Rules[i].Elems[j].Type == ")")
-                                    {
-                                        sb.Append(")");
-                                    }
-                                }
-                            }
-                        }
-                        tmp = -1;
-                        bool br = false;
-                        for (int j = 0; j < Outputs.Length; j++ )
-                        {
-                            for (int k = 0; k < Rules.Length; k++ )
-                            {
-                                if (Rules[k].Elems[0].Value == Outputs[j] && Rules[i].Elems[0].Value == Rules[k].Elems[2].Value)
-                                {
-                                    tmp = k;
-                                    br = true;
-                                    break;
-                                }
-                                else tmp = -1;
-                            }
-                            if (br) break;
-                        }
-                        sb.Append(") {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = true;");
-                        if (tmp != -1)
-                        {
-                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = true;}");
-                        }
-                        else sb.Append("}");
-                        sb.Append("\nelse {" + "newState[(int)simulDefines." + Rules[i].Elems[0].Value.ToUpper() + "] = false;");
-                        if (tmp != -1)
-                        {
-                            sb.Append("\nnewState[(int)simulDefines." + Rules[tmp].Elems[0].Value.ToUpper() + "] = false;}");
-                        }
-                        else sb.Append("}");
-                        sb.AppendLine();
-                    }
-                }
-                resultCode = resultCode.Insert(index, sb.ToString());
-
-                // Настройки компиляции
-                Dictionary<string, string> providerOptions = new Dictionary<string, string>
-         {
-           {"CompilerVersion", "v3.5"}
-         };
-                CSharpCodeProvider provider = new CSharpCodeProvider(providerOptions);
-
-                string outputAssembly = "simul.exe";
-                CompilerParameters compilerParams = new CompilerParameters { OutputAssembly = outputAssembly, GenerateExecutable = true };
-                compilerParams.ReferencedAssemblies.Add("System.Core.dll");
-
-                // Компиляция
-                CompilerResults results = provider.CompileAssemblyFromSource(compilerParams, resultCode);
-
-                FileInfo fi = new FileInfo(outputAssembly);
-                if (results.Errors.Count == 0 && fi.Exists)
-                {
-                    ProcessStartInfo psi= new ProcessStartInfo(outputAssembly);
-                    psi.WindowStyle = ProcessWindowStyle.Minimized;
-                    Process pr = Process.Start(psi);
-                    pipe = new NamedPipeServerStream("{E8B5BDF5-725C-4BF4-BCA4-2427875DF2E0}", PipeDirection.InOut);
-                    pipe.WaitForConnection();
-                    sw = new StreamWriter(pipe);
-                    sw.AutoFlush = true;
-                    b_SimulStarted = true;
-                    tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.stop_simulation);
-                    tools.Buttons[0].Text = "Остановить симуляцию";
-                    tools.Buttons[1].Enabled = true;
-                    tools.Buttons[2].Enabled = true;
-                    //tools.Buttons[3].Enabled = true;
-                    tools.Buttons[4].Enabled = true;
-                }
-            }
-            else
-            {
-                if (TableCreated)
-                {
-                    table.Close();
-                }
-                SimulStop();
-                b_SimulStarted = false;
-                if (pipe.IsConnected)
-                {
-                    WritePipe(0, 0, 'e');
-                    if (pipe.IsConnected) pipe.Disconnect();
-                }
-                sw = null;
-                pipe = null;
-                GC.Collect();
-                tools.Buttons[0].SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
-                tools.Buttons[0].Text = "Запустить симуляцию";
-                tools.Buttons[1].Enabled = false;
-                tools.Buttons[2].Enabled = false;
-                tools.Buttons[3].Enabled = false;
-                tools.Buttons[4].Enabled = false;
-            }
-        }*/
-        /// <summary>
-        /// Запись в именованный канал
-        /// </summary>
-        /// <param name="num">Номер сигнала</param>
-        /// <param name="b">Значение сигнала</param>
-        /// <param name="ch">Тип сообщения</param>
+        
         private void WritePipe(int num, int b, char ch, int step = 0)
         {
             try
@@ -1421,24 +910,7 @@ namespace sku_to_smv
             }
 
         }
-        /// <summary>
-        /// Чтение из именованного канала
-        /// </summary>
-        /// <param name="num">Номер сигнала</param>
-        /// <returns>Значение сигнала</returns>
-        private bool ReadPipe(int num)
-        {
-            if (pipe != null && pipe.IsConnected)
-            {
-                sw.WriteLine("get " + num.ToString() + " ");
-                pipe.WaitForPipeDrain();
-                return pipe.ReadByte() > 0? true : false;
-            }
-            return false;
-        }
-        /// <summary>
-        /// Записк автоматической симуляции
-        /// </summary>
+       
         public void SimulStart()
         {
             OnSimulStarted();

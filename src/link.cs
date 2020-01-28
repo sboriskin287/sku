@@ -129,5 +129,11 @@ namespace sku_to_smv
             setTransferDots();
             setTimeDot();
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Link link &&
+                   name.Equals(link.name);
+        }
     }
 }
