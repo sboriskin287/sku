@@ -403,7 +403,7 @@ namespace sku_to_smv
             foreach (Link link in Links)
             {       
                 Pen linkPen = link.Selected ? penHighlight : penInputLine;
-                g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);               
+                g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);            
                 for (int i = 0; i < link.signals.Length; i++)
                 {
                     g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
@@ -465,20 +465,28 @@ namespace sku_to_smv
                 && dot.y <= state.paintDot.y + diametr;
         }
 
-        private void setSelectedLink(Dot dot)
+        private bool setSelectedLink(Dot dot)
         {
+            bool isChanged = false;
             foreach (Link link in Links)
             {
-                link.Selected = isDotOnLink(dot, link);
+                bool isLink = isDotOnLink(dot, link);
+                isChanged = isChanged || link.Selected ^ isLink;
+                link.Selected = isLink;          
             }
+            return isChanged;
         }
 
-        private void setSelectedState(Dot dot)
+        private bool setSelectedState(Dot dot)
         {
+            bool isChanged = false;
             foreach (State state in States)
             {
-                state.Selected = isDotOnState(dot, state);
+                bool isState = isDotOnState(dot, state);
+                isChanged = isChanged || state.Selected ^ isState;
+                state.Selected = isState;
             }
+            return isChanged;
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -829,9 +837,9 @@ namespace sku_to_smv
             {
                 relocationStates(new Dot(e.X, e.Y));
             }
-            setSelectedLink(new Dot(e.X, e.Y));
-            setSelectedState(new Dot(e.X, e.Y));
-            Refresh();
+            bool isLinkChanged = setSelectedLink(new Dot(e.X, e.Y));
+            bool isStateChanged = setSelectedState(new Dot(e.X, e.Y));
+            if (isLinkChanged || isStateChanged || e.Button.Equals(MouseButtons.Left)) Refresh();
         }     
 
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
@@ -1134,7 +1142,7 @@ namespace sku_to_smv
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
-            Refresh(e.Graphics);
+            RefreshArea(e.Graphics);
         }
         private void ResetAllsignals()
         {
