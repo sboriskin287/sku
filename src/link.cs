@@ -64,7 +64,7 @@ namespace sku_to_smv
             cosx = 1;
         }
 
-        public void setTimeDot()
+        private void setTimeDot()
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
             timeDot = new Dot(
@@ -72,7 +72,7 @@ namespace sku_to_smv
                 startDot.y + (endDot.y - startDot.y) / 2 + signals.Length + 20);
         }
 
-        public void setTransferDot()
+        private void setTransferDots()
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
             for (int i = 0; i < signals.Length; i++)
@@ -88,30 +88,46 @@ namespace sku_to_smv
             this.name = startState.Name + endState.Name;
         }
 
-        public void calculateStartAndEndDots()
-        { 
-            setCosX();
-            setSinX();
-            int radius = Properties.Settings.Default.StateDiametr / 2;
-            float x = radius * (float) cosx;
-            float y = radius * (float) sinx;
-            startDot.x = startState.paintDot.x + x + radius;
-            startDot.y = startState.paintDot.y - y + radius;
-            endDot.x = endState.paintDot.x - x + radius;
-            endDot.y = endState.paintDot.y + y + radius;
-        }
-
         private void setCosX()
         {
-            cosx = (endState.paintDot.x - startState.paintDot.x) /
+            cosx = startState.paintDot.y == endState.paintDot.y
+                ? (endState.paintDot.x - startState.paintDot.x) / Math.Abs(endState.paintDot.x - startState.paintDot.x)
+                : (endState.paintDot.x - startState.paintDot.x) /
                 Math.Sqrt(
                     Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
-                    Math.Pow(endState.paintDot.y - startState.paintDot.y, 2));
+                    Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
         }
 
         private void setSinX()
         {
-            sinx = Math.Sqrt(1 - Math.Pow(cosx, 2));
+            sinx = startState.paintDot.x == endState.paintDot.x
+                ? (startState.paintDot.y - endState.paintDot.y) / Math.Abs(startState.paintDot.y - endState.paintDot.y)
+                : (startState.paintDot.y - endState.paintDot.y) /
+                Math.Sqrt(
+                    Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
+                    Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
+        }
+
+        private void calculateStartAndEndDots()
+        {            
+
+            int radius = Properties.Settings.Default.StateDiametr / 2;
+            float x = radius * (float) cosx;
+            float y = radius * (float) sinx;
+            startDot.x = startState.paintDot.x + radius + x;
+            startDot.y = startState.paintDot.y + radius - y;
+            endDot.x = endState.paintDot.x + radius - x;
+            endDot.y = endState.paintDot.y + radius + y;
+        }
+
+        public void initializeLocation()
+        {
+            signalDots = new Dot[signals.Length];
+            setCosX();
+            setSinX();
+            calculateStartAndEndDots();
+            setTransferDots();
+            setTimeDot();
         }
     }
 }

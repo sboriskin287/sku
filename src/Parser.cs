@@ -20,7 +20,7 @@ namespace sku_to_smv
         bool isSKU;
         bool isOUT;
 
-        public Rule[] Rules;           //Массив правил, строящийся при анализе
+        public List<Rule> Rules;           //Массив правил, строящийся при анализе
         public Rule[] OutputRules;     //Массив правил, строящийся при анализе
         public string[] LocalStates;   //Список локальных состояний
         public string[] Inputs;        //Список входных сигналов
@@ -32,7 +32,7 @@ namespace sku_to_smv
         public Parser()
         {
             //Инициализируем массивы
-            Rules = new Rule[0];
+            Rules = new List<Rule>();
             LocalStates = new string[0];
             Inputs = new string[0];
             Outputs = new string[0];
@@ -45,7 +45,7 @@ namespace sku_to_smv
         /// <summary>
         /// Добавляет новое правило в массив
         /// </summary>
-        private void AddRule()
+        /*private void AddRule()
         {
             Array.Resize(ref Rules, Rules.Length + 1);
             Rules[Rules.Length - 1] = new Rule();
@@ -56,7 +56,7 @@ namespace sku_to_smv
             Array.Resize(ref OutputRules, OutputRules.Length + 1);
             OutputRules[Rules.Length - 1] = new Rule();
             //RCount++;
-        }
+        }*/
 
         private bool isExistsState(String stateName)
         {
@@ -99,7 +99,7 @@ namespace sku_to_smv
             isSKU = true;
             isOUT = false;
             StringBuilder sb1 = new StringBuilder();
-            Rules = new Rule[0];
+            //Rules = new Rule[0];
             LocalStates = new string[0];
             Inputs = new string[0];
             Outputs = new string[0];
@@ -551,6 +551,7 @@ namespace sku_to_smv
                             {
                                 endState = new State();
                                 endState.Name = stateName;
+                                states.Add(endState);
                             }
                             break;
                         }
@@ -571,6 +572,7 @@ namespace sku_to_smv
                                     {
                                         beginState = new State();
                                         beginState.Name = stateName;
+                                        states.Add(beginState);
                                     }
                                     beginStates.Add(beginState);
                                 }
@@ -611,8 +613,7 @@ namespace sku_to_smv
                     rules.Add(rule);
                 }
             }
-            Array.Resize(ref Rules, rules.Count);
-            this.Rules = rules.ToArray();
+            this.Rules.AddRange(rules);
             return parceResult.PARSE_OK;
         }
 
@@ -765,7 +766,7 @@ namespace sku_to_smv
             }
             sw.Write("}\r\n");
             sw.Write("in\r\n{\r\n");
-            for (int i = 0; i < Rules.Length; i++)
+            for (int i = 0; i < Rules.Count; i++)
             {
                 //Rules[i].PrintRule(sw);
                 sw.Write("\r\n");

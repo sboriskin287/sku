@@ -211,9 +211,9 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
-            Array.Resize(ref pictureBox1.rules, parser.Rules.Length);
-            pictureBox1.rules = parser.Rules;          
-            pictureBox1.States = parser.states.ToArray();
+            Array.Resize(ref pictureBox1.rules, parser.Rules.Count);
+            pictureBox1.rules = parser.Rules.ToArray();          
+            //pictureBox1.States = parser.states.ToArray();
             this.toolStripProgressBar1.Value = 50;
             pictureBox1.createStates();
             this.toolStripProgressBar1.Value = 75;
@@ -460,7 +460,7 @@ namespace sku_to_smv
                 for (int i = 0; i < parser.LocalStates.Length; i++)
                 {
                     isBreak = false;
-                    for (int j = 0; j < parser.Rules.Length; j++)
+                    for (int j = 0; j < parser.Rules.Count; j++)
                     {
                         /*if (parser.Rules[j].output && parser.Rules[j].Elems[2].Value == parser.LocalStates[i])
                         {

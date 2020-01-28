@@ -390,22 +390,20 @@ namespace sku_to_smv
                     Links[Links.Length - 1] = link;
                 }
                 Array.Resize(ref link.signals, link.signals.Length + 1);
-                Array.Resize(ref link.signalDots, link.signals.Length + 1);
                 link.signals[link.signals.Length - 1] = rule.signal;
-                link.calculateStartAndEndDots();
-                link.setTransferDot();
-                link.setTimeDot();
+                link.initializeLocation();
             }
         }
 
         private void drawLinks(Graphics g)
-        {
-            foreach (Link link in this.Links)
-            {
-                g.DrawLine(penInputLine, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
+        {          
+            foreach (Link link in Links)
+            {       
+                Pen linkPen = link.Selected ? penHighlight : penInputLine;
+                g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);               
                 for (int i = 0; i < link.signals.Length; i++)
                 {
-                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x - (float)link.cosx, link.signalDots[i].y - (float)link.sinx);
+                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
                 }
             }
         }
@@ -435,6 +433,31 @@ namespace sku_to_smv
             {
                 Array.Resize(ref States, States.Length + 1);
                 States[States.Length - 1] = state;
+            }
+        }
+
+        private bool isDotOnLine(Dot dot, Link link)
+        {
+            float x = dot.x;;
+            float y = dot.y;
+            //Каноническое уравнение прямой на плоскости типа (x-x1)/(x2-x1) = (y-y1)/(y2-y1)
+            float result = (link.startDot.y - link.endDot.y) * x + (link.endDot.x - link.startDot.x) * y + (link.startDot.x * link.endDot.y - link.endDot.x * link.startDot.y);
+            int offset = 10;
+            float maxX = Math.Max(link.startDot.x, link.endDot.x) + offset;
+            float minX = Math.Min(link.startDot.x, link.endDot.x) - offset;
+            float maxY = Math.Max(link.startDot.y, link.endDot.y) + offset;
+            float minY = Math.Min(link.startDot.y, link.endDot.y) - offset;
+            return (result >= -2500
+                && result <= 2500
+                && x >= minX && x <= maxX
+                && y >= minY && y <= maxY);
+        }
+
+        private void setSelectedLink(Dot dot)
+        {
+            foreach (Link link in Links)
+            {
+                link.Selected = isDotOnLine(dot, link);
             }
         }
         /// <summary>
@@ -882,42 +905,8 @@ namespace sku_to_smv
         /// <param name="e"></param>
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
         {
-            int dx, dy;
-            float r;
-            String str;
-            r = 30 * ScaleT;
-            curX = e.X;
-            curY = e.Y;
-            if (MouseLastPosition != e.Location && (str = tools.CheckMouseState(e, false)) != null)
-            {
-                this.toolTip.Show(str, this, curX + 10, curY - 15, 500);
-            }
-            CheckSelectedLink(e.X, e.Y);
-            if (e.Button == MouseButtons.Left && StateSelected)
-            {
-                if (xM != e.X)
-                {
-                    dx = (int)(((float)e.X - xM) / ScaleT);
-                    States[SelectedState].paintDot.x = States[SelectedState].paintDot.x + dx;
-                    UpdateLinks();
-
-                }
-                if (yM != e.Y)
-                {
-                    dy = (int)(((float)e.Y - yM) / ScaleT);
-                    States[SelectedState].paintDot.y = States[SelectedState].paintDot.y + dy;
-                    UpdateLinks();
-
-                }
-                xM = e.X;
-                yM = e.Y;
-                
-            }
-            MouseLastPosition = e.Location;
-//             if ((e.Button == MouseButtons.Left && StateSelected) || LinkSelected)
-//             {
-                Refresh();
-            //}
+            setSelectedLink(new Dot(e.X, e.Y));
+            Refresh();
         }
         /// <summary>
         /// Обновляет связи между состояниями графа
