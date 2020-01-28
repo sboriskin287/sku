@@ -101,8 +101,8 @@ namespace sku_to_smv
         private void setSinX()
         {
             sinx = startState.paintDot.x == endState.paintDot.x
-                ? (startState.paintDot.y - endState.paintDot.y) / Math.Abs(startState.paintDot.y - endState.paintDot.y)
-                : (startState.paintDot.y - endState.paintDot.y) /
+                ? (endState.paintDot.y - startState.paintDot.y) / Math.Abs(startState.paintDot.y - endState.paintDot.y)
+                : (endState.paintDot.y - startState.paintDot.y) /
                 Math.Sqrt(
                     Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
                     Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
@@ -115,9 +115,9 @@ namespace sku_to_smv
             float x = radius * (float) cosx;
             float y = radius * (float) sinx;
             startDot.x = startState.paintDot.x + radius + x;
-            startDot.y = startState.paintDot.y + radius - y;
+            startDot.y = startState.paintDot.y + radius + y;
             endDot.x = endState.paintDot.x + radius - x;
-            endDot.y = endState.paintDot.y + radius + y;
+            endDot.y = endState.paintDot.y + radius - y;
         }
 
         public void initializeLocation()

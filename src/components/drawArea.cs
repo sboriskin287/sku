@@ -372,7 +372,8 @@ namespace sku_to_smv
             int stateDiametr = Settings.Default.StateDiametr;
             foreach (State state in States)
             {
-                g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
+                Pen statePen = state.Selected ? penOutputSignal : penInputSignal;
+                g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
                 g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);             
             }
         }
@@ -436,7 +437,7 @@ namespace sku_to_smv
             }
         }
 
-        private bool isDotOnLine(Dot dot, Link link)
+        private bool isDotOnLink(Dot dot, Link link)
         {
             float x = dot.x;;
             float y = dot.y;
@@ -453,11 +454,28 @@ namespace sku_to_smv
                 && y >= minY && y <= maxY);
         }
 
+        public bool isDotOnState(Dot dot, State state)
+        {
+            int diametr = Settings.Default.StateDiametr;
+            return dot.x >= state.paintDot.x
+                && dot.x <= state.paintDot.x + diametr
+                && dot.y >= state.paintDot.y
+                && dot.y <= state.paintDot.y + diametr;
+        }
+
         private void setSelectedLink(Dot dot)
         {
             foreach (Link link in Links)
             {
-                link.Selected = isDotOnLine(dot, link);
+                link.Selected = isDotOnLink(dot, link);
+            }
+        }
+
+        private void setSelectedState(Dot dot)
+        {
+            foreach (State state in States)
+            {
+                state.Selected = isDotOnState(dot, state);
             }
         }
         /// <summary>
@@ -906,6 +924,7 @@ namespace sku_to_smv
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
         {
             setSelectedLink(new Dot(e.X, e.Y));
+            setSelectedState(new Dot(e.X, e.Y));
             Refresh();
         }
         /// <summary>
