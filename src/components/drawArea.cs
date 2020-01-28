@@ -337,10 +337,8 @@ namespace sku_to_smv
 
         private void RefreshArea(Graphics g)
         {
-            g.Clear(System.Drawing.Color.White);
-            //createStates();
+            g.Clear(System.Drawing.Color.White);          
             drawStates(g);
-            //createLinks();
             drawLinks(g);
         }
 
@@ -350,7 +348,6 @@ namespace sku_to_smv
             int stateDefaultCentreY = Settings.Default.StateCentre;
             int offsetStateX = Settings.Default.OffsetStateX;
             int offsetStateY = Settings.Default.OffsetStateY;
-            int countDrawState = 0;
             foreach (Rule rule in this.rules)
             {
                 State startState = rule.startState;
@@ -361,10 +358,9 @@ namespace sku_to_smv
                     State s = getStateByName(state.Name);
                     if (s == null)
                     {
-                        state.paintDot.x = countDrawState % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
-                        state.paintDot.y = stateDefaultCentreY + countDrawState / 2 * offsetStateY;
+                        state.paintDot.x = States.Length % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
+                        state.paintDot.y = stateDefaultCentreY + States.Length / 2 * offsetStateY;
                         state.setNameDot();
-                        countDrawState++;
                         addState(state);
                     }    
                 }
@@ -376,8 +372,8 @@ namespace sku_to_smv
             int stateDiametr = Settings.Default.StateDiametr;
             foreach (State state in States)
             {
-                g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
-                g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);
+                g.DrawEllipse(penSignal, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
+                g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);             
             }
         }
 
@@ -409,7 +405,7 @@ namespace sku_to_smv
                 g.DrawLine(penInputLine, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
                 for (int i = 0; i < link.signals.Length; i++)
                 {
-                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
+                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x - (float)link.cosx, link.signalDots[i].y - (float)link.sinx);
                 }
             }
         }

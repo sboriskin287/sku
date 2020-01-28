@@ -349,7 +349,7 @@ namespace sku_to_smv.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        [global::System.Configuration.DefaultSettingValueAttribute("350")]
         public int OffsetStateY {
             get {
                 return ((int)(this["OffsetStateY"]));
