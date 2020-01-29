@@ -7,38 +7,28 @@ namespace sku_to_smv
     public class Link
     {
         public Dot startDot;          //точка начала
-        public Dot endDot;          //точка конца
-        public Dot[] signalDots;//Точка отображения сигнала перехода
+        public Dot endDot;          //точка конца        
         public Dot timeDot;    //Точка, в которой над линией отображается время перехода
         public State startState;   //имя начального состояния
         public State endState;     //имя конечного состояния
         public string name;
         public bool Arc;            //если арка = true
-        public bool FromInput;      //если от входного сигнала = true
         public bool Selected;
-        public bool Moved;
-        public double leight;
         public float timeTransfer; //Время перехода
         public Signal[] signals;
-        public double rst;
         public double cosx;
         public double sinx;
         public Link()
         {
             startDot = new Dot();
             endDot = new Dot();
-            signalDots = new Dot[0];
             timeDot = new Dot();
             startState = null;
             endState = null;
             name = null;
             Arc = false;
-            FromInput = false;
             Selected = false;
-            Moved = false;
-            leight = 0.0;
             timeTransfer = 0;
-            rst = 0.0;
             signals = new Signal[0];
             cosx = 1;
             sinx = 0;
@@ -49,19 +39,15 @@ namespace sku_to_smv
             this.startState = startState;
             this.endState = endState;
             startDot = new Dot();
-            endDot = new Dot();
-            signalDots = new Dot[0];
+            endDot = new Dot();       
             timeDot = new Dot();
             name = null;
             Arc = false;
-            FromInput = false;
-            Selected = false;
-            Moved = false;
-            leight = 0.0;
+            Selected = false;         
             timeTransfer = 0;
-            rst = 0.0;
             signals = new Signal[0];
             cosx = 1;
+            sinx = 0;
         }
 
         private void setTimeDot()
@@ -69,17 +55,6 @@ namespace sku_to_smv
             timeDot = new Dot(
                 startDot.x + (endDot.x - startDot.x) / 2 + signals.Length + 40,
                 startDot.y + (endDot.y - startDot.y) / 2 + signals.Length);
-        }
-
-        private void setTransferDots()
-        {
-            
-            for (int i = 0; i < signals.Length; i++)
-            {               
-                signalDots[i] = new Dot(
-                    startDot.x + (endDot.x - startDot.x) / 2 + i * 20, 
-                    startDot.y + (endDot.y - startDot.y) / 2);              
-            }
         }
 
         public void setName()
@@ -120,12 +95,10 @@ namespace sku_to_smv
         }
 
         public void calculateLocation()
-        {
-            signalDots = new Dot[signals.Length];
+        {           
             setCosX();
             setSinX();
             calculateStartAndEndDots();
-            setTransferDots();
             setTimeDot();
         }
 

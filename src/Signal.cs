@@ -25,14 +25,29 @@ namespace sku_to_smv.src
             this.name = name;
         }
 
+        private void setTransferDots()
+        {
+
+            /*for (int i = 0; i < signals.Length; i++)
+            {
+                signalDots[i] = new Dot(
+                    startDot.x + (endDot.x - startDot.x) / 2 + i * 20,
+                    startDot.y + (endDot.y - startDot.y) / 2);
+            }*/
+        }
+
         private void calculatePaintDots()
         {
             paintDots = new Dot[links.Length];
             for (int i = 0; i < links.Length; i++)
             {
+                Link l = links[i];
                 for (int j = 0; j < links[i].signals.Length; j++)
                 {
-                    if (links[i].signals[j].name.Equals(name)) paintDots[i] = links[i].signalDots[j];
+                    Signal s = l.signals[j];
+                    if (s.name.Equals(name)) paintDots[i] = new Dot(
+                    l.startDot.x + (l.endDot.x - l.startDot.x) / 2 + j * 20,
+                    l.startDot.y + (l.endDot.y - l.startDot.y) / 2);
                 }               
             }
         }
