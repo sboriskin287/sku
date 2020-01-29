@@ -113,6 +113,8 @@ namespace sku_to_smv
             OutputsLeight = 0;
 
             //AddStateButtonSelected = false;
+            dragOffsetX = 0;
+            dragOffsetY = 0;
             DrawInputs = true;
             b_SimulStarted = false;
             LinkSelected = false;
@@ -533,8 +535,8 @@ namespace sku_to_smv
             foreach (State state in States)
             {
                 bool isState = isDotOnState(dot, state);
-                isChanged = isChanged || state.Selected ^ isState;
-                state.Selected = isState;
+                isChanged = isChanged || state.Selected ^ isState;          
+                state.Selected = isState;               
             }
             return isChanged;
         }
@@ -878,7 +880,17 @@ namespace sku_to_smv
                 if (state.Selected)
                 {
                     state.paintDot.x = dot.x - dragOffsetX;
-                    state.paintDot.y = dot.y - dragOffsetY;                 
+                    state.paintDot.y = dot.y - dragOffsetY;
+                    foreach (Link l in state.links)
+                    {
+                        l.calculateLocation();
+                        if (l.lengthLink < 0)
+                        {
+                            int direction = state.Equals(l.startState) ? -1 : 1;
+                            state.paintDot.x += (float)(l.cosx * Math.Abs(l.lengthLink) * direction);
+                            state.paintDot.y += (float)(l.sinx * Math.Abs(l.lengthLink) * direction);
+                        }
+                    }
                 }
             }
         }
@@ -889,11 +901,11 @@ namespace sku_to_smv
         }
        
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
-        {
+        {         
             Dot dot = new Dot(e.X, e.Y);
             if (e.Button.Equals(MouseButtons.Left))
             {
-                relocationStates(dot);
+                relocationStates(dot);                
             }
             bool isLinkChanged = setSelectedLink(dot);
             bool isStateChanged = setSelectedState(dot);
@@ -905,7 +917,7 @@ namespace sku_to_smv
             {
                 Refresh();
             }
-        }     
+        }        
 
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {

@@ -11,6 +11,8 @@ namespace sku_to_smv
         public Dot timeDot;    //Точка, в которой над линией отображается время перехода
         public State startState;   //имя начального состояния
         public State endState;     //имя конечного состояния
+        public int lengthLink;
+        public int lengthBetweenStatesCentre;
         public string name;
         public bool Arc;            //если арка = true
         public bool Selected;
@@ -25,6 +27,8 @@ namespace sku_to_smv
             timeDot = new Dot();
             startState = null;
             endState = null;
+            lengthLink = 0;
+            lengthBetweenStatesCentre = 0;
             name = null;
             Arc = false;
             Selected = false;
@@ -39,11 +43,11 @@ namespace sku_to_smv
             this.startState = startState;
             this.endState = endState;
             startDot = new Dot();
-            endDot = new Dot();       
+            endDot = new Dot();
             timeDot = new Dot();
             name = null;
             Arc = false;
-            Selected = false;         
+            Selected = false;
             timeTransfer = 0;
             signals = new Signal[0];
             cosx = 1;
@@ -66,28 +70,31 @@ namespace sku_to_smv
         {
             cosx = startState.paintDot.y == endState.paintDot.y
                 ? (endState.paintDot.x - startState.paintDot.x) / Math.Abs(endState.paintDot.x - startState.paintDot.x)
-                : (endState.paintDot.x - startState.paintDot.x) /
-                Math.Sqrt(
-                    Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
-                    Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
+                : (endState.paintDot.x - startState.paintDot.x) / lengthBetweenStatesCentre;
         }
 
         private void setSinX()
         {
             sinx = startState.paintDot.x == endState.paintDot.x
                 ? (endState.paintDot.y - startState.paintDot.y) / Math.Abs(startState.paintDot.y - endState.paintDot.y)
-                : (endState.paintDot.y - startState.paintDot.y) /
-                Math.Sqrt(
+                : (endState.paintDot.y - startState.paintDot.y) / lengthBetweenStatesCentre;
+        }
+
+        private void calculateLength()
+        {
+            int radius = Properties.Settings.Default.StateDiametr / 2;
+            lengthBetweenStatesCentre = (int)Math.Sqrt(
                     Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
                     Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
+            lengthLink = -radius * 2 + lengthBetweenStatesCentre;
         }
 
         private void calculateStartAndEndDots()
-        {            
+        {
 
             int radius = Properties.Settings.Default.StateDiametr / 2;
-            float x = radius * (float) cosx;
-            float y = radius * (float) sinx;
+            float x = radius * (float)cosx;
+            float y = radius * (float)sinx;
             startDot.x = startState.paintDot.x + radius + x;
             startDot.y = startState.paintDot.y + radius + y;
             endDot.x = endState.paintDot.x + radius - x;
@@ -95,7 +102,8 @@ namespace sku_to_smv
         }
 
         public void calculateLocation()
-        {           
+        {
+            calculateLength();
             setCosX();
             setSinX();
             calculateStartAndEndDots();
