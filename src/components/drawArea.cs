@@ -39,6 +39,7 @@ namespace sku_to_smv
 
         public State[] States;
         public Link[] Links;
+        public Signal[] signals;
         public Rule[] rules;
         NamedPipeServerStream pipe;
         StreamWriter sw;
@@ -129,10 +130,9 @@ namespace sku_to_smv
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             this.SuspendLayout();
 
-            Links = new Link[1];
-            Links[0] = new Link();
-
+            Links = new Link[0];
             States = new State[0];
+            signals = new Signal[0];
             rules = new Rule[0];
 
             this.DoubleBuffered = true;
@@ -392,9 +392,11 @@ namespace sku_to_smv
                     link.endState.links.Add(link);
                     Links[Links.Length - 1] = link;
                 }
+                Array.Resize(ref rule.signal.links, rule.signal.links.Length + 1);
+                rule.signal.links[rule.signal.links.Length - 1] = link;
                 Array.Resize(ref link.signals, link.signals.Length + 1);
                 link.signals[link.signals.Length - 1] = rule.signal;
-                link.initializeLocation();
+                link.calculateLocation();            
             }
         }
 
@@ -406,7 +408,24 @@ namespace sku_to_smv
                 g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);            
                 for (int i = 0; i < link.signals.Length; i++)
                 {
-                    g.DrawString(link.signals[i].name, new Font("Consolas", 12), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
+                    FontStyle style = (link.signals[i].Selected) ? FontStyle.Bold : FontStyle.Regular;
+                    int textSize = (link.signals[i].Selected) ? 14 : 12;
+                    g.DrawString(link.signals[i].name, new Font("Consolas", textSize, style), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
+                }
+            }
+        }
+
+        public void createSignals()
+        {
+            foreach (Rule rule in rules)
+            {
+                Signal s = getSignalByName(rule.signal.name);
+                if (s == null)
+                {
+                    s = rule.signal;
+                    s.calculateLocation();
+                    Array.Resize(ref signals, signals.Length + 1);
+                    signals[signals.Length - 1] = s;
                 }
             }
         }
@@ -416,6 +435,15 @@ namespace sku_to_smv
             foreach (Link link in this.Links)
             {
                 if (link.name.Equals(name)) return link;
+            }
+            return null;
+        }
+
+        private Signal getSignalByName(String name)
+        {
+            foreach (Signal signal in signals)
+            {
+                if (signal.name.Equals(name)) return signal;
             }
             return null;
         }
@@ -465,6 +493,20 @@ namespace sku_to_smv
                 && dot.y <= state.paintDot.y + diametr;
         }
 
+        public bool isDotOnSignal(Dot dot, Signal signal)
+        {
+            float offset = 20;
+            bool isOnSignal = false;
+            foreach (Dot pDot in signal.paintDots)
+            {
+                isOnSignal = isOnSignal || (dot.x >= pDot.x
+                     && dot.x <= pDot.x + offset
+                     && dot.y >= pDot.y
+                     && dot.y <= pDot.y + offset);
+            }
+            return isOnSignal;
+        }
+
         private bool setSelectedLink(Dot dot)
         {
             bool isChanged = false;
@@ -487,6 +529,18 @@ namespace sku_to_smv
                 state.Selected = isState;
             }
             return isChanged;
+        }
+
+        private bool setSelectedSignal(Dot dot)
+        {
+            bool isSignalsChanged = false;
+            foreach (Signal signal in signals)
+            {
+                bool isOnSignal = isDotOnSignal(dot, signal);
+                isSignalsChanged = isSignalsChanged || signal.Selected ^ isOnSignal;
+                signal.Selected = isOnSignal;
+            }
+            return isSignalsChanged;
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -820,7 +874,11 @@ namespace sku_to_smv
                     state.setNameDot();
                     foreach (Link link in state.links)
                     {
-                        link.initializeLocation();
+                        link.calculateLocation();
+                        foreach (Signal s in link.signals)
+                        {
+                            s.calculateLocation();
+                        }
                     }
                 }
             }
@@ -833,13 +891,21 @@ namespace sku_to_smv
        
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
         {
+            Dot dot = new Dot(e.X, e.Y);
             if (e.Button.Equals(MouseButtons.Left))
             {
                 relocationStates(new Dot(e.X, e.Y));
             }
-            bool isLinkChanged = setSelectedLink(new Dot(e.X, e.Y));
-            bool isStateChanged = setSelectedState(new Dot(e.X, e.Y));
-            if (isLinkChanged || isStateChanged || e.Button.Equals(MouseButtons.Left)) Refresh();
+            bool isLinkChanged = setSelectedLink(dot);
+            bool isStateChanged = setSelectedState(dot);
+            bool isSignalChanged = setSelectedSignal(dot);
+            if (isLinkChanged
+                || isStateChanged
+                || isSignalChanged
+                || e.Button.Equals(MouseButtons.Left))
+            {
+                Refresh();
+            }
         }     
 
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)

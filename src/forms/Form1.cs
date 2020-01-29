@@ -214,10 +214,11 @@ namespace sku_to_smv
             Array.Resize(ref pictureBox1.rules, parser.Rules.Count);
             pictureBox1.rules = parser.Rules.ToArray();          
             //pictureBox1.States = parser.states.ToArray();
-            this.toolStripProgressBar1.Value = 50;
+            this.toolStripProgressBar1.Value = 50;       
             pictureBox1.createStates();
             this.toolStripProgressBar1.Value = 75;
             pictureBox1.createLinks();
+            pictureBox1.createSignals();
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }

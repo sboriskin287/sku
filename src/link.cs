@@ -66,17 +66,16 @@ namespace sku_to_smv
 
         private void setTimeDot()
         {
-            int radius = Properties.Settings.Default.StateDiametr / 2;
             timeDot = new Dot(
-                startDot.x + (endDot.x - startDot.x) / 2 + signals.Length + 20,
-                startDot.y + (endDot.y - startDot.y) / 2 + signals.Length + 20);
+                startDot.x + (endDot.x - startDot.x) / 2 + signals.Length + 40,
+                startDot.y + (endDot.y - startDot.y) / 2 + signals.Length);
         }
 
         private void setTransferDots()
         {
-            int radius = Properties.Settings.Default.StateDiametr / 2;
+            
             for (int i = 0; i < signals.Length; i++)
-            {
+            {               
                 signalDots[i] = new Dot(
                     startDot.x + (endDot.x - startDot.x) / 2 + i * 20, 
                     startDot.y + (endDot.y - startDot.y) / 2);              
@@ -120,7 +119,7 @@ namespace sku_to_smv
             endDot.y = endState.paintDot.y + radius - y;
         }
 
-        public void initializeLocation()
+        public void calculateLocation()
         {
             signalDots = new Dot[signals.Length];
             setCosX();
