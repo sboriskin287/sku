@@ -340,6 +340,7 @@ namespace sku_to_smv
             g.Clear(System.Drawing.Color.White);          
             drawStates(g);
             drawLinks(g);
+            drawSignals(g);
         }
 
         public void createStates()
@@ -360,7 +361,6 @@ namespace sku_to_smv
                     {
                         state.paintDot.x = States.Length % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
                         state.paintDot.y = stateDefaultCentreY + States.Length / 2 * offsetStateY;
-                        state.setNameDot();
                         addState(state);
                     }    
                 }
@@ -373,6 +373,7 @@ namespace sku_to_smv
             foreach (State state in States)
             {
                 Pen statePen = state.Selected ? penInputSignal : penOutputSignal;
+                state.calculateLocation();
                 g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
                 g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);             
             }
@@ -395,8 +396,7 @@ namespace sku_to_smv
                 Array.Resize(ref rule.signal.links, rule.signal.links.Length + 1);
                 rule.signal.links[rule.signal.links.Length - 1] = link;
                 Array.Resize(ref link.signals, link.signals.Length + 1);
-                link.signals[link.signals.Length - 1] = rule.signal;
-                link.calculateLocation();            
+                link.signals[link.signals.Length - 1] = rule.signal;               
             }
         }
 
@@ -405,13 +405,8 @@ namespace sku_to_smv
             foreach (Link link in Links)
             {       
                 Pen linkPen = link.Selected ? penHighlight : penInputLine;
+                link.calculateLocation();
                 g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);            
-                for (int i = 0; i < link.signals.Length; i++)
-                {
-                    FontStyle style = (link.signals[i].Selected) ? FontStyle.Bold : FontStyle.Regular;
-                    int textSize = (link.signals[i].Selected) ? 14 : 12;
-                    g.DrawString(link.signals[i].name, new Font("Consolas", textSize, style), brushTextColor, link.signalDots[i].x, link.signalDots[i].y);
-                }
             }
         }
 
@@ -423,9 +418,22 @@ namespace sku_to_smv
                 if (s == null)
                 {
                     s = rule.signal;
-                    s.calculateLocation();
                     Array.Resize(ref signals, signals.Length + 1);
                     signals[signals.Length - 1] = s;
+                }
+            }
+        }
+
+        public void drawSignals(Graphics g)
+        {
+            foreach (Signal s in signals)
+            {
+                s.calculateLocation();
+                foreach (Dot d in s.paintDots)
+                {
+                    FontStyle style = (s.Selected) ? FontStyle.Bold : FontStyle.Regular;
+                    int textSize = (s.Selected) ? 14 : 12;
+                    g.DrawString(s.name, new Font("Consolas", textSize, style), brushTextColor, d.x, d.y);
                 }
             }
         }
@@ -870,16 +878,7 @@ namespace sku_to_smv
                 if (state.Selected)
                 {
                     state.paintDot.x = dot.x - dragOffsetX;
-                    state.paintDot.y = dot.y - dragOffsetY;
-                    state.setNameDot();
-                    foreach (Link link in state.links)
-                    {
-                        link.calculateLocation();
-                        foreach (Signal s in link.signals)
-                        {
-                            s.calculateLocation();
-                        }
-                    }
+                    state.paintDot.y = dot.y - dragOffsetY;                 
                 }
             }
         }
@@ -894,7 +893,7 @@ namespace sku_to_smv
             Dot dot = new Dot(e.X, e.Y);
             if (e.Button.Equals(MouseButtons.Left))
             {
-                relocationStates(new Dot(e.X, e.Y));
+                relocationStates(dot);
             }
             bool isLinkChanged = setSelectedLink(dot);
             bool isStateChanged = setSelectedState(dot);

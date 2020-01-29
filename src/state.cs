@@ -40,6 +40,9 @@ namespace sku_to_smv
                 paintDot.y + radius - style.Size);
         }
 
-
+        public void calculateLocation()
+        {
+            setNameDot();
+        }
     }
 }
