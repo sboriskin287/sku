@@ -7,14 +7,15 @@ namespace sku_to_smv
     public class Link
     {
         public Dot startDot;          //точка начала
-        public Dot endDot;          //точка конца        
+        public Dot endDot;          //точка конца   
+        public Dot arcDot;      //Точка отрисовки арки, если это арка
         public Dot timeDot;    //Точка, в которой над линией отображается время перехода
         public State startState;   //имя начального состояния
         public State endState;     //имя конечного состояния
         public int lengthLink;
         public int lengthBetweenStatesCentre;
         public string name;
-        public bool Arc;            //если арка = true
+        public bool Arc;            //если арка = true      
         public bool Selected;
         public float timeTransfer; //Время перехода
         public Signal[] signals;
@@ -24,6 +25,7 @@ namespace sku_to_smv
         {
             startDot = new Dot();
             endDot = new Dot();
+            arcDot = new Dot();
             timeDot = new Dot();
             startState = null;
             endState = null;
@@ -90,15 +92,23 @@ namespace sku_to_smv
         }
 
         private void calculateStartAndEndDots()
-        {
-
+        {         
+            int arcOffset = 18;
             int radius = Properties.Settings.Default.StateDiametr / 2;
-            float x = radius * (float)cosx;
-            float y = radius * (float)sinx;
-            startDot.x = startState.paintDot.x + radius + x;
-            startDot.y = startState.paintDot.y + radius + y;
-            endDot.x = endState.paintDot.x + radius - x;
-            endDot.y = endState.paintDot.y + radius - y;
+            if (Arc)
+            {
+                arcDot = new Dot(
+                    startState.paintDot.x - arcOffset,
+                    startState.paintDot.y - arcOffset);
+            } else
+            {
+                float x = radius * (float)cosx;
+                float y = radius * (float)sinx;
+                startDot.x = startState.paintDot.x + radius + x;
+                startDot.y = startState.paintDot.y + radius + y;
+                endDot.x = endState.paintDot.x + radius - x;
+                endDot.y = endState.paintDot.y + radius - y;
+            }       
         }
 
         public void calculateLocation()

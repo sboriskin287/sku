@@ -34,11 +34,13 @@ namespace sku_to_smv.src
 				for (int j = 0; j < links[i].signals.Length; j++)
 				{
 					Signal s = l.signals[j];
-					if (s.name.Equals(name)) paintDots[i] = new Dot(
-					    l.startDot.x + (l.endDot.x - l.startDot.x) / 2 + j * 20,
-					    l.startDot.y + (l.endDot.y - l.startDot.y) / 2);
-				}
-			}
+                    if (s.name.Equals(name)) paintDots[i] = (l.Arc)
+                            ? l.arcDot
+                            : new Dot(
+                        l.startDot.x + (l.endDot.x - l.startDot.x) / 2 + j * 20,
+                        l.startDot.y + (l.endDot.y - l.startDot.y) / 2);
+                }
+            }
 		}
 
 		public void calculateLocation()

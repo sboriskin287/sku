@@ -391,6 +391,7 @@ namespace sku_to_smv
                     Array.Resize(ref Links, Links.Length + 1);
                     link = new Link(rule.startState, rule.endState);
                     link.setName();
+                    link.Arc = link.startState.Equals(link.endState);
                     link.startState.links.Add(link);
                     link.endState.links.Add(link);
                     Links[Links.Length - 1] = link;
@@ -403,13 +404,23 @@ namespace sku_to_smv
         }
 
         private void drawLinks(Graphics g)
-        {          
+        {
+            int arcRadius = Settings.Default.ArcCyrcleRadius;
+            int arcStartAngle = Settings.Default.ArcStartAngle;
+            int arcSweepAngle = Settings.Default.ArcSweepAngle;
             foreach (Link link in Links)
             {       
                 Pen linkPen = link.Selected ? penHighlight : penInputLine;
                 link.calculateLocation();
-                g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);            
-            }
+                if (link.Arc)
+                {  
+                    g.DrawArc(linkPen, new RectangleF(link.arcDot.x, link.arcDot.y, arcRadius, arcRadius), arcStartAngle, arcSweepAngle);
+                }
+                else
+                {
+                    g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
+                }
+            }          
         }
 
         public void createSignals()
@@ -884,7 +895,7 @@ namespace sku_to_smv
                     foreach (Link l in state.links)
                     {
                         l.calculateLocation();
-                        if (l.lengthLink < 0)
+                        if (l.lengthLink < 0 && !l.Arc)
                         {
                             int direction = state.Equals(l.startState) ? -1 : 1;
                             state.paintDot.x += (float)(l.cosx * Math.Abs(l.lengthLink) * direction);
