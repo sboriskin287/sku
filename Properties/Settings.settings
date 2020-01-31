@@ -90,7 +90,7 @@
       <Value Profile="(Default)">Times New Roman, 14pt</Value>
     </Setting>
     <Setting Name="ArcCyrcleRadius" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">40</Value>
+      <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="ArcStartAngle" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">90</Value>

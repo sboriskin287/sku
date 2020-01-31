@@ -414,7 +414,7 @@ namespace sku_to_smv
                 link.calculateLocation();
                 if (link.Arc)
                 {  
-                    g.DrawArc(linkPen, new RectangleF(link.arcDot.x, link.arcDot.y, arcRadius, arcRadius), arcStartAngle, arcSweepAngle);
+                    g.DrawArc(linkPen, new RectangleF(link.arcDot.x, link.arcDot.y, arcRadius * 2, arcRadius * 2), arcStartAngle, arcSweepAngle);
                 }
                 else
                 {
@@ -490,19 +490,32 @@ namespace sku_to_smv
 
         private bool isDotOnLink(Dot dot, Link link)
         {
-            float x = dot.x;;
+            float x = dot.x;
             float y = dot.y;
-            //Каноническое уравнение прямой на плоскости типа (x-x1)/(x2-x1) = (y-y1)/(y2-y1)
-            float result = (link.startDot.y - link.endDot.y) * x + (link.endDot.x - link.startDot.x) * y + (link.startDot.x * link.endDot.y - link.endDot.x * link.startDot.y);
-            int offset = 10;
-            float maxX = Math.Max(link.startDot.x, link.endDot.x) + offset;
-            float minX = Math.Min(link.startDot.x, link.endDot.x) - offset;
-            float maxY = Math.Max(link.startDot.y, link.endDot.y) + offset;
-            float minY = Math.Min(link.startDot.y, link.endDot.y) - offset;
-            return (result >= -2500
-                && result <= 2500
-                && x >= minX && x <= maxX
-                && y >= minY && y <= maxY);
+            if (link.Arc)
+            {
+                int arcRadius = Settings.Default.ArcCyrcleRadius;
+                Dot centreArc = new Dot(link.arcDot.x + arcRadius, link.arcDot.y + arcRadius);
+                //Уравнение окружности вида (x-x.centre)^2 + (y-y.centre)^2 = r^2, представляющей часть арки
+                int result = (int)(Math.Pow(x - centreArc.x, 2) + Math.Pow(y - centreArc.y, 2));
+                int squareRadius = (int)Math.Pow(arcRadius, 2);
+                bool dotOnPaintedArc = !(x >= centreArc.x && y >= centreArc.y); //Переменная отвечающая, что точка лежит на отрисованной части окружности - арке
+                return result >= (squareRadius - 100) && result <= (squareRadius + 100) && dotOnPaintedArc;
+            }
+            else
+            {
+                //Каноническое уравнение прямой на плоскости типа (x-x1)/(x2-x1) = (y-y1)/(y2-y1)
+                float result = (link.startDot.y - link.endDot.y) * x + (link.endDot.x - link.startDot.x) * y + (link.startDot.x * link.endDot.y - link.endDot.x * link.startDot.y);
+                int offset = 10;
+                float maxX = Math.Max(link.startDot.x, link.endDot.x) + offset;
+                float minX = Math.Min(link.startDot.x, link.endDot.x) - offset;
+                float maxY = Math.Max(link.startDot.y, link.endDot.y) + offset;
+                float minY = Math.Min(link.startDot.y, link.endDot.y) - offset;
+                return (result >= -2500
+                    && result <= 2500
+                    && x >= minX && x <= maxX
+                    && y >= minY && y <= maxY);
+            }       
         }
 
         public bool isDotOnState(Dot dot, State state)
