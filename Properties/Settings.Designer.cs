@@ -12,7 +12,7 @@ namespace sku_to_smv.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.2.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.4.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -362,12 +362,12 @@ namespace sku_to_smv.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Times New Roman, 14pt")]
-        public global::System.Drawing.Font StateNameText {
+        public global::System.Drawing.Font DefaultText {
             get {
-                return ((global::System.Drawing.Font)(this["StateNameText"]));
+                return ((global::System.Drawing.Font)(this["DefaultText"]));
             }
             set {
-                this["StateNameText"] = value;
+                this["DefaultText"] = value;
             }
         }
         
@@ -404,6 +404,138 @@ namespace sku_to_smv.Properties {
             }
             set {
                 this["ArcSweepAngle"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color ColorDefaultState {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorDefaultState"]));
+            }
+            set {
+                this["ColorDefaultState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color ColorActiveState {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorActiveState"]));
+            }
+            set {
+                this["ColorActiveState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Pink")]
+        public global::System.Drawing.Color ColorFillActiveState {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorFillActiveState"]));
+            }
+            set {
+                this["ColorFillActiveState"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color ColorDefaultTextBrush {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorDefaultTextBrush"]));
+            }
+            set {
+                this["ColorDefaultTextBrush"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color ColorDefaultLink {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorDefaultLink"]));
+            }
+            set {
+                this["ColorDefaultLink"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Blue")]
+        public global::System.Drawing.Color ColorSelectedLink {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorSelectedLink"]));
+            }
+            set {
+                this["ColorSelectedLink"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Times New Roman, 14pt")]
+        public global::System.Drawing.Font SignalDefaultFont {
+            get {
+                return ((global::System.Drawing.Font)(this["SignalDefaultFont"]));
+            }
+            set {
+                this["SignalDefaultFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Times New Roman, 15.75pt, style=Bold")]
+        public global::System.Drawing.Font SignalSelectedFont {
+            get {
+                return ((global::System.Drawing.Font)(this["SignalSelectedFont"]));
+            }
+            set {
+                this["SignalSelectedFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color SignalActiveColor {
+            get {
+                return ((global::System.Drawing.Color)(this["SignalActiveColor"]));
+            }
+            set {
+                this["SignalActiveColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Black")]
+        public global::System.Drawing.Color SignalDefaultColor {
+            get {
+                return ((global::System.Drawing.Color)(this["SignalDefaultColor"]));
+            }
+            set {
+                this["SignalDefaultColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0, 192, 0")]
+        public global::System.Drawing.Color ColorSelectedState {
+            get {
+                return ((global::System.Drawing.Color)(this["ColorSelectedState"]));
+            }
+            set {
+                this["ColorSelectedState"] = value;
             }
         }
     }

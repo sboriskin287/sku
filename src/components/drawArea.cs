@@ -16,6 +16,23 @@ namespace sku_to_smv
 {
     class drawArea : PictureBox
     {
+        //States
+        public static readonly Pen stateDefaultPen = new Pen(Settings.Default.ColorDefaultState, 2);
+        public static readonly Pen stateSelectedPen = new Pen(Settings.Default.ColorSelectedState, 3);
+        public static readonly Pen stateActivePen = new Pen(Settings.Default.ColorActiveState, 4);
+        public static readonly Pen stateActiveAndSelectedPen = new Pen(Settings.Default.ColorActiveState, 6);
+        public static readonly Brush stateActiveBrush = new SolidBrush(Settings.Default.ColorFillActiveState);
+        public static readonly Font defaultTextFont = Settings.Default.DefaultText;
+        public static readonly Brush defaultTextBrush = new SolidBrush(Settings.Default.ColorDefaultTextBrush);
+        //Links
+        public static readonly Pen linkDefaultPen = new Pen(Settings.Default.ColorDefaultLink, 2);
+        public static readonly Pen linkSelectedPen = new Pen(Settings.Default.ColorSelectedLink, 4);
+        //Signals
+        public static readonly Font signalDefaultFont = Settings.Default.SignalDefaultFont;
+        public static readonly Font signalSelectedFont = Settings.Default.SignalSelectedFont;
+        public static readonly Brush signalDefaultBrush = new SolidBrush(Settings.Default.SignalDefaultColor);
+        public static readonly Brush signalActiveBrush = new SolidBrush(Settings.Default.SignalActiveColor);
+
         HScrollBar hScroll;
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
@@ -25,18 +42,6 @@ namespace sku_to_smv
         
         ToolPanel tools;
         Graphics g;
-        Pen penHighlight;//цвет выделения
-        Pen penSignal;//цвет сигналов
-        Pen penInputSignal;//цвет сигналов
-        Pen penOutputSignal;//цвет сигналов
-        Pen penLocalLine;//цвет линии между локальными сигналами
-        Pen penLocalLineEnd;//цвет стрелки
-        Pen penInputLine;//цвет линии от входных сигналов
-        Pen penInputLineEnd;//цвет стрелки
-        Brush brushTextColor;
-        Brush brushSignalActive;//кисть для активных сигналов
-        Font TextFont;//Шрифт
-
         public State[] States;
         public Link[] Links;
         public Signal[] signals;
@@ -51,6 +56,7 @@ namespace sku_to_smv
         int xT, yT/*, dx, dy*/;
         int xs, ys, xM, yM;
         float dragOffsetX, dragOffsetY;
+        Dot paintDotSelectedState;
         int InputsLeight;
         int OutputsLeight;
         bool StateSelected;
@@ -81,12 +87,11 @@ namespace sku_to_smv
             get { return scaleT; }
             set
             {
-                scaleT = value;
-                TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * value), Settings.Default.GrafFieldTextFont.Style);
+                scaleT = value;              
             }
-        }
+        }       
 
-       public drawArea()
+        public drawArea()
         {
             InitializeArea();
         }
@@ -115,6 +120,7 @@ namespace sku_to_smv
             //AddStateButtonSelected = false;
             dragOffsetX = 0;
             dragOffsetY = 0;
+            paintDotSelectedState = new Dot();
             DrawInputs = true;
             b_SimulStarted = false;
             LinkSelected = false;
@@ -282,20 +288,6 @@ namespace sku_to_smv
         }
         public void ApplySettings()
         {
-            //Определяются цвета
-            penSignal = new System.Drawing.Pen(Settings.Default.GrafFieldLocalSignalColor, 2);
-            penInputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldInputSignalColor, 2);
-            penOutputSignal = new System.Drawing.Pen(Settings.Default.GrafFieldOutputSignalColor, 2);
-            penLocalLine = new System.Drawing.Pen(System.Drawing.Brushes.Black, 1);
-            penLocalLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.Red, 3);
-            penHighlight = new System.Drawing.Pen(Settings.Default.GrafFieldSygnalSelectionColor, 3);
-            penInputLine = new System.Drawing.Pen(System.Drawing.Brushes.DarkBlue, 1);
-            penInputLineEnd = new System.Drawing.Pen(System.Drawing.Brushes.DarkGreen, 3);
-            brushSignalActive = new System.Drawing.SolidBrush(Settings.Default.GrafFieldSignalActiveColor);
-            brushTextColor = new System.Drawing.SolidBrush(Settings.Default.GrafFieldTextColor);
-            //И шрифт
-            TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
-
             b_EnableLogging = Settings.Default.LogSimulation;
             if (b_EnableLogging)
                 tools.Buttons[6].Visible = true;
@@ -374,10 +366,15 @@ namespace sku_to_smv
             int stateDiametr = Settings.Default.StateDiametr;
             foreach (State state in States)
             {
-                Pen statePen = state.Selected ? penInputSignal : penOutputSignal;
                 state.calculateLocation();
-                g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
-                g.DrawString(state.Name, Settings.Default.StateNameText, brushTextColor, state.nameDot.x, state.nameDot.y);             
+                Pen statePen; 
+                if (!state.Active && !state.Selected) statePen = stateDefaultPen;
+                else if (!state.Active && state.Selected) statePen = stateSelectedPen;
+                else if (state.Active && !state.Selected) statePen = stateActivePen;
+                else statePen = stateActiveAndSelectedPen;
+                g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
+                if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
+                g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.x, state.nameDot.y);             
             }
         }
 
@@ -410,7 +407,7 @@ namespace sku_to_smv
             int arcSweepAngle = Settings.Default.ArcSweepAngle;
             foreach (Link link in Links)
             {       
-                Pen linkPen = link.Selected ? penHighlight : penInputLine;
+                Pen linkPen = link.Selected ? linkSelectedPen : linkDefaultPen;
                 link.calculateLocation();
                 if (link.Arc)
                 {  
@@ -444,9 +441,9 @@ namespace sku_to_smv
                 s.calculateLocation();
                 foreach (Dot d in s.paintDots)
                 {
-                    FontStyle style = (s.Selected) ? FontStyle.Bold : FontStyle.Regular;
-                    int textSize = (s.Selected) ? 14 : 12;
-                    g.DrawString(s.name, new Font("Consolas", textSize, style), brushTextColor, d.x, d.y);
+                    Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
+                    Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;                                                      
+                    g.DrawString(s.name, font, brush, d.x, d.y);
                 }
             }
         }
@@ -565,6 +562,31 @@ namespace sku_to_smv
             return isChanged;
         }
 
+        private bool setActiveState()
+        {
+            bool isChanged = false;
+            foreach (State s in States)
+            {
+                bool isNeedChangeActivity = s.Selected && paintDotSelectedState.Equals(s.paintDot);
+                isChanged = isChanged || isNeedChangeActivity;
+                if (isNeedChangeActivity) s.Active = !s.Active;
+            }
+            return isChanged;
+        }
+
+        private bool setActiveSignal()
+        {   
+            foreach (Signal s in signals)
+            {
+                if(s.Selected)
+                {
+                    s.Active = !s.Active;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool setSelectedSignal(Dot dot)
         {
             bool isSignalsChanged = false;
@@ -576,6 +598,16 @@ namespace sku_to_smv
             }
             return isSignalsChanged;
         }
+
+        private bool isElementsChanged(Dot dot)
+        {
+            bool isLinkChanged = setSelectedLink(dot);
+            bool isStateChanged = setSelectedState(dot);
+            bool isSignalChanged = setSelectedSignal(dot);
+            return isLinkChanged
+                || isStateChanged
+                || isSignalChanged;
+        }
         /// <summary>
         /// Функция обновления(рисования) объекта
         /// </summary>
@@ -583,7 +615,7 @@ namespace sku_to_smv
         {
             float gip, DeltaX, DeltaY, cosa, sina, xn, yn;
 
-            TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
+            //TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
             
             g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
 
@@ -893,6 +925,7 @@ namespace sku_to_smv
                 {
                     dragOffsetX = e.X - state.paintDot.x;
                     dragOffsetY = e.Y - state.paintDot.y;
+                    paintDotSelectedState = new Dot(state.paintDot.x, state.paintDot.y);
                 }
             }
         }
@@ -922,6 +955,12 @@ namespace sku_to_smv
         {
             dragOffsetX = 0;
             dragOffsetY = 0;
+            bool isStateChangeActivity = setActiveState();
+            bool isSignalChangeActivity = setActiveSignal();
+            if (isStateChangeActivity || isSignalChangeActivity)
+            {
+                Refresh();
+            }
         }
        
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
@@ -929,15 +968,9 @@ namespace sku_to_smv
             Dot dot = new Dot(e.X, e.Y);
             if (e.Button.Equals(MouseButtons.Left))
             {
-                relocationStates(dot);                
+                relocationStates(dot);
             }
-            bool isLinkChanged = setSelectedLink(dot);
-            bool isStateChanged = setSelectedState(dot);
-            bool isSignalChanged = setSelectedSignal(dot);
-            if (isLinkChanged
-                || isStateChanged
-                || isSignalChanged
-                || e.Button.Equals(MouseButtons.Left))
+            if (isElementsChanged(dot) || e.Button.Equals(MouseButtons.Left))
             {
                 Refresh();
             }

@@ -29,5 +29,12 @@ namespace sku_to_smv.src
             x = 0.0F;
             y = 0.0F;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Dot dot &&
+                   x == dot.x &&
+                   y == dot.y;
+        }
     }
 }

@@ -86,7 +86,7 @@
     <Setting Name="OffsetStateY" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">350</Value>
     </Setting>
-    <Setting Name="StateNameText" Type="System.Drawing.Font" Scope="User">
+    <Setting Name="DefaultText" Type="System.Drawing.Font" Scope="User">
       <Value Profile="(Default)">Times New Roman, 14pt</Value>
     </Setting>
     <Setting Name="ArcCyrcleRadius" Type="System.Int32" Scope="User">
@@ -97,6 +97,39 @@
     </Setting>
     <Setting Name="ArcSweepAngle" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">270</Value>
+    </Setting>
+    <Setting Name="ColorDefaultState" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="ColorActiveState" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="ColorFillActiveState" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Pink</Value>
+    </Setting>
+    <Setting Name="ColorDefaultTextBrush" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="ColorDefaultLink" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="ColorSelectedLink" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Blue</Value>
+    </Setting>
+    <Setting Name="SignalDefaultFont" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Times New Roman, 14pt</Value>
+    </Setting>
+    <Setting Name="SignalSelectedFont" Type="System.Drawing.Font" Scope="User">
+      <Value Profile="(Default)">Times New Roman, 15.75pt, style=Bold</Value>
+    </Setting>
+    <Setting Name="SignalActiveColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="SignalDefaultColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Black</Value>
+    </Setting>
+    <Setting Name="ColorSelectedState" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">0, 192, 0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

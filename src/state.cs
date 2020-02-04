@@ -11,6 +11,7 @@ namespace sku_to_smv
         public Dot paintDot;
         public Dot nameDot;
         public bool Selected;       //если выбрано = true
+        public bool Active;
         public List<Signal> inputs;
         public List<Signal> outputs;
         public List<Link> links;
@@ -34,7 +35,7 @@ namespace sku_to_smv
         public void setNameDot()
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
-            Font style = Properties.Settings.Default.StateNameText;
+            Font style = Properties.Settings.Default.DefaultText;
             nameDot = new Dot(
                 paintDot.x + radius - style.Size,
                 paintDot.y + radius - style.Size);

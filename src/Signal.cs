@@ -10,6 +10,7 @@ namespace sku_to_smv.src
 		public String name;
 		public Dot[] paintDots;
 		public bool Selected;
+		public bool Active;
 		public Link[] links;
 
 		public Signal()
@@ -17,6 +18,7 @@ namespace sku_to_smv.src
 			name = null;
 			paintDots = new Dot[0];
 			Selected = false;
+			Active = false;
 			links = new Link[0];
 		}
 
