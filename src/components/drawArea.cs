@@ -418,7 +418,6 @@ namespace sku_to_smv
                     g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
                     g.DrawLine(linkPen, link.endDot.x, link.endDot.y, link.arrowDots[0].x, link.arrowDots[0].y);
                     g.DrawLine(linkPen, link.endDot.x, link.endDot.y, link.arrowDots[1].x, link.arrowDots[1].y);
-
                 }
             }          
         }
