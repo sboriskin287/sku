@@ -202,6 +202,9 @@ namespace sku_to_smv
         private void CreateGraf(object sender, EventArgs e)
         {
             this.toolStripProgressBar1.Value = 0;
+            pictureBox1.canselDrawElements();
+            parser.Rules.Clear();
+            parser.signals.Clear();
             if (parser.ParseStart(this.richTextBox1.Text) == parceResult.PARCE_ERROR)
             {
                 PrintText("Ошибка разбора");
@@ -212,13 +215,13 @@ namespace sku_to_smv
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
             Array.Resize(ref pictureBox1.rules, parser.Rules.Count);
-            pictureBox1.rules = parser.Rules.ToArray();          
-            //pictureBox1.States = parser.states.ToArray();
+            pictureBox1.rules = parser.Rules.ToArray();         
             this.toolStripProgressBar1.Value = 50;       
             pictureBox1.createStates();
-            this.toolStripProgressBar1.Value = 75;
             pictureBox1.createLinks();
+            this.toolStripProgressBar1.Value = 75;            
             pictureBox1.createSignals();
+            pictureBox1.createTimeMarks();
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }

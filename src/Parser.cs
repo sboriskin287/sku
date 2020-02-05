@@ -523,14 +523,17 @@ namespace sku_to_smv
                 }
                 return parceResult.PARSE_OK;
             }
-            String pattern = "(\\w+)=(\\(?[\\w\\|]+\\)?)((&\\w+)+)";
+            String pattern = "(\\w+)=(\\(?[\\w\\|]+\\)?)([&\\w+<>]+)";
             String statePattern = "\\(?(\\w+)\\|?\\)?";
             String signalPattern = "&(\\w+)";
+            String timePattern = "<(\\w+)>";
             String str = inputStr;
             Regex reg = new Regex(pattern, RegexOptions.Compiled);
             Regex stateReg = new Regex(statePattern, RegexOptions.Compiled);
             Regex signalReg = new Regex(signalPattern, RegexOptions.Compiled);
+            Regex timeReg = new Regex(timePattern, RegexOptions.Compiled);
             Match match = reg.Match(str);
+            Time timeMark = null;
 
             State endState = null;
             List<State> beginStates = new List<State>();
@@ -557,7 +560,7 @@ namespace sku_to_smv
                         }
                     case 2:
                         {
-                            MatchCollection matches = stateReg.Matches(match.Groups[i].Value);
+                            MatchCollection matches = stateReg.Matches(match.Groups[i].Value);                          
                             foreach (Match m in matches)
                             {
                                 for (int j = 1; j < m.Groups.Count; j++)
@@ -581,7 +584,12 @@ namespace sku_to_smv
                         }
                     case 3:
                         {
-                            MatchCollection matches = signalReg.Matches(match.Groups[i].Value);
+                            Match timeMatch = timeReg.Match(match.Groups[i].Value);
+                            for (int j = 1; j < timeMatch.Groups.Count; j++)
+                            {
+                                timeMark = new Time(timeMatch.Groups[j].Value);
+                            }
+                            MatchCollection matches = signalReg.Matches(match.Groups[i].Value);                           
                             foreach (Match m in matches)
                             {
                                 for (int j = 1; j < m.Groups.Count; j++)
@@ -609,7 +617,7 @@ namespace sku_to_smv
             {
                 foreach (State state in beginStates)
                 {
-                    Rule rule = new Rule(state, endState, signal, 0);
+                    Rule rule = new Rule(state, endState, signal, timeMark);
                     rules.Add(rule);
                 }
             }

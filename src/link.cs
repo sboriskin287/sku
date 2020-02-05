@@ -8,8 +8,7 @@ namespace sku_to_smv
     {
         public Dot startDot;          //точка начала
         public Dot endDot;          //точка конца   
-        public Dot arcDot;      //Точка отрисовки арки, если это арка
-        public Dot timeDot;    //Точка, в которой над линией отображается время перехода
+        public Dot arcDot;      //Точка отрисовки арки, если это арка        
         public Dot[] arrowDots;
         public State startState;   //имя начального состояния
         public State endState;     //имя конечного состояния
@@ -18,7 +17,7 @@ namespace sku_to_smv
         public string name;
         public bool Arc;            //если арка = true      
         public bool Selected;
-        public float timeTransfer; //Время перехода
+        public Time timeMark; //Время перехода
         public Signal[] signals;
         public float cosx;
         public float sinx;
@@ -27,7 +26,6 @@ namespace sku_to_smv
             startDot = new Dot();
             endDot = new Dot();
             arcDot = new Dot();
-            timeDot = new Dot();
             arrowDots = new Dot[2];
             startState = null;
             endState = null;
@@ -36,7 +34,7 @@ namespace sku_to_smv
             name = null;
             Arc = false;
             Selected = false;
-            timeTransfer = 0;
+            timeMark = null;
             signals = new Signal[0];
             cosx = 1;
             sinx = 0;
@@ -46,14 +44,7 @@ namespace sku_to_smv
         {          
             this.startState = startState;
             this.endState = endState;     
-        }
-
-        private void setTimeDot()
-        {
-            timeDot = new Dot(
-                startDot.x + (endDot.x - startDot.x) / 2 + signals.Length + 40,
-                startDot.y + (endDot.y - startDot.y) / 2 + signals.Length);
-        }
+        } 
 
         public void setName()
         {
@@ -123,8 +114,7 @@ namespace sku_to_smv
             setCosX();
             setSinX();
             calculateStartAndEndDots();
-            caluclateArrowDots();
-            setTimeDot();
+            caluclateArrowDots();           
         }
 
         public override bool Equals(object obj)

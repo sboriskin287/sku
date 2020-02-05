@@ -9,44 +9,25 @@ namespace sku_to_smv
     //     создающегося при разборе его описания.
     public class Rule
     {
-        public State startState
-        {
-            get;
-            set;
-        }
-      
-        public State endState
-        {
-            get;
-            set;
-        }
-
-        public Signal signal
-        {
-            get;
-            set;
-        }
-
-        public double timeTransfer
-        {
-            get;
-            set;
-        }
+        public State startState;
+        public State endState;
+        public Signal signal;
+        public Time timeMark;
 
         public Rule()
         {
             startState = new State();
             endState = new State();
             signal = new Signal();
-            timeTransfer = 0;
+            timeMark = null;
         }
 
-        public Rule(State startState, State endState, Signal signal, double timeTransfer)
+        public Rule(State startState, State endState, Signal signal, Time timeMark)
         {
             this.startState = startState;
             this.endState = endState;
             this.signal = signal;
-            this.timeTransfer = timeTransfer;
+            this.timeMark = timeMark;
         }
     }
 }

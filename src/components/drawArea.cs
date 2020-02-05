@@ -45,6 +45,7 @@ namespace sku_to_smv
         public State[] States;
         public Link[] Links;
         public Signal[] signals;
+        public Time[] timeMarks;
         public Rule[] rules;
         NamedPipeServerStream pipe;
         StreamWriter sw;
@@ -141,6 +142,7 @@ namespace sku_to_smv
             Links = new Link[0];
             States = new State[0];
             signals = new Signal[0];
+            timeMarks = new Time[0];
             rules = new Rule[0];
 
             this.DoubleBuffered = true;
@@ -335,6 +337,7 @@ namespace sku_to_smv
             drawStates(g);
             drawLinks(g);
             drawSignals(g);
+            drawTimeMarks(g);
         }
 
         public void createStates()
@@ -359,6 +362,11 @@ namespace sku_to_smv
                     }    
                 }
             }
+        }
+
+        private void canselStates()
+        {
+            States = new State[0];
         }
 
         private void drawStates(Graphics g)
@@ -400,6 +408,11 @@ namespace sku_to_smv
             }
         }
 
+        private void canselLinks()
+        {
+            Links = new Link[0];
+        }
+
         private void drawLinks(Graphics g)
         {
             int arcRadius = Settings.Default.ArcCyrcleRadius;
@@ -436,6 +449,11 @@ namespace sku_to_smv
             }
         }
 
+        private void canselSignals()
+        {
+            signals = new Signal[0];
+        }
+
         public void drawSignals(Graphics g)
         {
             foreach (Signal s in signals)
@@ -446,6 +464,53 @@ namespace sku_to_smv
                     Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;                                                      
                     g.DrawString(s.name, font, brush, d.x, d.y);
+                }
+            }
+        }
+
+        public void createTimeMarks()
+        {
+            foreach (Rule r in rules)
+            {
+                if (r.timeMark == null) continue;
+                Time timeMark = getTimeMarkByName(r.timeMark.name);
+                if (timeMark == null)
+                {
+                    timeMark = r.timeMark;
+                    Array.Resize(ref timeMarks, timeMarks.Length + 1);
+                    timeMarks[timeMarks.Length - 1] = timeMark;
+                }
+                Link l = getLinkByName(r.startState.Name + r.endState.Name);
+                if (l == null) continue;
+                Array.Resize(ref timeMark.links, timeMark.links.Length + 1);
+                timeMark.links[timeMark.links.Length - 1] = l;
+            }
+        }
+
+        private void canselTimeMarks()
+        {
+            timeMarks = new Time[0];
+        }
+
+        public void canselDrawElements()
+        {
+            canselStates();
+            canselLinks();
+            canselSignals();
+            canselTimeMarks();
+            rules = new Rule[0];
+        }
+
+        public void drawTimeMarks(Graphics g)
+        {
+            foreach (Time t in timeMarks)
+            {
+                t.calculateLocation();
+                foreach (Dot d in t.paintDots)
+                {
+                    Font font = signalDefaultFont;
+                    Brush brush = signalDefaultBrush;
+                    g.DrawString(t.name, font, brush, d.x, d.y);               
                 }
             }
         }
@@ -473,6 +538,15 @@ namespace sku_to_smv
             foreach (State state in States)
             {
                 if (state.Name.Equals(name)) return state;
+            }
+            return null;
+        }
+
+        private Time getTimeMarkByName(String name)
+        {
+            foreach(Time t in timeMarks)
+            {
+                if (t.name.Equals(name)) return t;
             }
             return null;
         }
