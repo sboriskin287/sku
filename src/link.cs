@@ -10,6 +10,7 @@ namespace sku_to_smv
         public Dot endDot;          //точка конца   
         public Dot arcDot;      //Точка отрисовки арки, если это арка
         public Dot timeDot;    //Точка, в которой над линией отображается время перехода
+        public Dot[] arrowDots = { new Dot(), new Dot() };
         public State startState;   //имя начального состояния
         public State endState;     //имя конечного состояния
         public int lengthLink;
@@ -27,6 +28,7 @@ namespace sku_to_smv
             endDot = new Dot();
             arcDot = new Dot();
             timeDot = new Dot();
+            //arrowDots = { new Dot(), new Dot() };
             startState = null;
             endState = null;
             lengthLink = 0;
@@ -91,17 +93,37 @@ namespace sku_to_smv
             lengthLink = -radius * 2 + lengthBetweenStatesCentre;
         }
 
+        private void caluclateArrowDots()
+        {
+            if (Arc) return;
+            int l = 20;
+            double angle = sinx != 0
+                ? Math.Asin(Math.Abs(sinx))
+                : Math.Acos(Math.Abs(cosx));
+            if (cosx < 0 && sinx > 0) angle = Math.PI - angle;
+            else if (cosx < 0 && sinx < 0) angle = Math.PI + angle;
+            else if (cosx > 0 && sinx < 0) angle = Math.PI * 2 - angle;
+            double angle1 = Math.PI / 3 - angle;
+            double angle2 = angle - Math.PI / 6;
+            double cos1 = Math.Cos(angle1);
+            double sin1 = Math.Sin(angle1);
+            double cos2 = Math.Cos(angle2);
+            double sin2 = Math.Sin(angle2);
+            arrowDots[0] = new Dot(endDot.x - (float)(sin1 * l), endDot.y - (float)(cos1 * l));
+            arrowDots[1] = new Dot(endDot.x - (float)(cos2 * l), endDot.y - (float)(sin2 * l));
+        }
+
         private void calculateStartAndEndDots()
         {         
-            int arcOffset = 18;
-            int radius = Properties.Settings.Default.StateDiametr / 2;
             if (Arc)
             {
+                int arcOffset = 18;
                 arcDot = new Dot(
                     startState.paintDot.x - arcOffset,
                     startState.paintDot.y - arcOffset);
             } else
             {
+                int radius = Properties.Settings.Default.StateDiametr / 2;
                 float x = radius * (float)cosx;
                 float y = radius * (float)sinx;
                 startDot.x = startState.paintDot.x + radius + x;
@@ -117,6 +139,7 @@ namespace sku_to_smv
             setCosX();
             setSinX();
             calculateStartAndEndDots();
+            caluclateArrowDots();
             setTimeDot();
         }
 
