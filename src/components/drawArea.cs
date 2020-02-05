@@ -577,16 +577,15 @@ namespace sku_to_smv
         }
 
         private bool setActiveSignal()
-        {   
+        {
+            bool isChanged = false;
             foreach (Signal s in signals)
             {
-                if(s.Selected)
-                {
-                    s.Active = !s.Active;
-                    return true;
-                }
+                bool signalActivityStatus = s.Selected && !s.Active;
+                isChanged = isChanged || s.Active ^ signalActivityStatus;
+                s.Active = signalActivityStatus;
             }
-            return false;
+            return isChanged;
         }
 
         private bool setSelectedSignal(Dot dot)
