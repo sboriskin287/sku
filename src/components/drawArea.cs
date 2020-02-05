@@ -492,15 +492,6 @@ namespace sku_to_smv
             timeMarks = new Time[0];
         }
 
-        public void canselDrawElements()
-        {
-            canselStates();
-            canselLinks();
-            canselSignals();
-            canselTimeMarks();
-            rules = new Rule[0];
-        }
-
         public void drawTimeMarks(Graphics g)
         {
             foreach (Time t in timeMarks)
@@ -508,11 +499,22 @@ namespace sku_to_smv
                 t.calculateLocation();
                 foreach (Dot d in t.paintDots)
                 {
-                    Font font = signalDefaultFont;
+                    Font font = (t.selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = signalDefaultBrush;
-                    g.DrawString(t.name, font, brush, d.x, d.y);               
+                    g.DrawString(t.name, font, brush, d.x, d.y);
+                    if (t.textBoxDot != null && TextBoxRenderer.IsSupported) TextBoxRenderer.DrawTextBox(g, new Rectangle((int)t.textBoxDot.x, (int)t.textBoxDot.y, 80, 80), "aaa", font, System.Windows.Forms.VisualStyles.TextBoxState.Normal);
+
                 }
             }
+        }
+
+        public void canselDrawElements()
+        {
+            canselStates();
+            canselLinks();
+            canselSignals();
+            canselTimeMarks();
+            rules = new Rule[0];
         }
 
         private Link getLinkByName(String name)
@@ -614,6 +616,21 @@ namespace sku_to_smv
             return isOnSignal;
         }
 
+        private bool isDotOnTimeMark(Dot dot, Time tm)
+        {
+            int offset = 10 * tm.name.Length;
+            bool isOnMark = false;
+            foreach (Dot pd in tm.paintDots)
+            {
+                isOnMark = isOnMark 
+                    || dot.x >= pd.x
+                    && dot.x <= pd.x + offset
+                    && dot.y >= pd.y
+                    && dot.y <= pd.y + offset;
+            }
+            return isOnMark;
+        }
+
         private bool setSelectedLink(Dot dot)
         {
             bool isChanged = false;
@@ -650,6 +667,18 @@ namespace sku_to_smv
             return isChanged;
         }
 
+        private bool setSelectedTimeMarks(Dot dot)
+        {
+            bool isChanged = false;
+            foreach (Time tm in timeMarks)
+            {
+                bool isOnMark = isDotOnTimeMark(dot, tm);
+                isChanged = isChanged || tm.selected ^ isOnMark;
+                tm.selected = isOnMark;
+            }
+            return isChanged;
+        }
+
         private bool setActiveSignal()
         {
             bool isChanged = false;
@@ -674,14 +703,28 @@ namespace sku_to_smv
             return isSignalsChanged;
         }
 
+        private bool setValueTimeMark(Dot dot)
+        {
+            bool isChanged = false;
+            foreach (Time tm in timeMarks)
+            {
+                Dot textBoxDot = tm.selected ? dot : null;
+                isChanged = isChanged || tm.textBoxDot != textBoxDot || tm.textBoxDot != null && !tm.textBoxDot.Equals(textBoxDot);
+                tm.textBoxDot = textBoxDot;
+            }
+            return isChanged;
+        }
+
         private bool isElementsChanged(Dot dot)
         {
             bool isLinkChanged = setSelectedLink(dot);
             bool isStateChanged = setSelectedState(dot);
             bool isSignalChanged = setSelectedSignal(dot);
+            bool isTimeMarkChanged = setSelectedTimeMarks(dot);
             return isLinkChanged
                 || isStateChanged
-                || isSignalChanged;
+                || isSignalChanged
+                || isTimeMarkChanged;
         }
         /// <summary>
         /// Функция обновления(рисования) объекта
@@ -1019,8 +1062,8 @@ namespace sku_to_smv
                         if (l.lengthLink < 0 && !l.Arc)
                         {
                             int direction = state.Equals(l.startState) ? -1 : 1;
-                            state.paintDot.x += (float)(l.cosx * Math.Abs(l.lengthLink) * direction);
-                            state.paintDot.y += (float)(l.sinx * Math.Abs(l.lengthLink) * direction);
+                            state.paintDot.x += l.cosx * Math.Abs(l.lengthLink) * direction;
+                            state.paintDot.y += l.sinx * Math.Abs(l.lengthLink) * direction;
                         }
                     }
                 }
@@ -1032,10 +1075,11 @@ namespace sku_to_smv
             dragOffsetY = 0;
             bool isStateChangeActivity = setActiveState();
             bool isSignalChangeActivity = setActiveSignal();
-            if (isStateChangeActivity || isSignalChangeActivity)
+            bool isTimeMarkChanged = setValueTimeMark(new Dot(e.X, e.Y));
+            if (isStateChangeActivity || isSignalChangeActivity || isTimeMarkChanged)
             {
                 Refresh();
-            }
+            }         
         }
        
         private void drawArea_MouseMove(object sender, MouseEventArgs e)
