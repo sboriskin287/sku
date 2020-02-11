@@ -100,8 +100,7 @@ namespace sku_to_smv
             this.помощьToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(8, 2, 0, 2);
-            this.menuStrip1.Size = new System.Drawing.Size(1088, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(816, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -112,27 +111,27 @@ namespace sku_to_smv
             this.сохранитьToolStripMenuItem,
             this.выходToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
-            this.файлToolStripMenuItem.Size = new System.Drawing.Size(57, 24);
+            this.файлToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.файлToolStripMenuItem.Text = "Файл";
             // 
             // открытьToolStripMenuItem
             // 
             this.открытьToolStripMenuItem.Name = "открытьToolStripMenuItem";
-            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.открытьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.открытьToolStripMenuItem.Text = "Открыть...";
             this.открытьToolStripMenuItem.Click += new System.EventHandler(this.открытьToolStripMenuItem_Click);
             // 
             // сохранитьToolStripMenuItem
             // 
             this.сохранитьToolStripMenuItem.Name = "сохранитьToolStripMenuItem";
-            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.сохранитьToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.сохранитьToolStripMenuItem.Text = "Сохранить...";
             this.сохранитьToolStripMenuItem.Click += new System.EventHandler(this.сохранитьToolStripMenuItem_Click);
             // 
             // выходToolStripMenuItem
             // 
             this.выходToolStripMenuItem.Name = "выходToolStripMenuItem";
-            this.выходToolStripMenuItem.Size = new System.Drawing.Size(167, 26);
+            this.выходToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.выходToolStripMenuItem.Text = "Выход";
             this.выходToolStripMenuItem.Click += new System.EventHandler(this.выходToolStripMenuItem_Click);
             // 
@@ -144,48 +143,48 @@ namespace sku_to_smv
             this.генерироватьVHDLToolStripMenuItem,
             this.сохранитьКакРисунокToolStripMenuItem});
             this.правкаToolStripMenuItem.Name = "правкаToolStripMenuItem";
-            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(72, 24);
+            this.правкаToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
             this.правкаToolStripMenuItem.Text = "Правка";
             // 
             // построитьГрафToolStripMenuItem
             // 
             this.построитьГрафToolStripMenuItem.Name = "построитьГрафToolStripMenuItem";
-            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(254, 26);
+            this.построитьГрафToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.построитьГрафToolStripMenuItem.Text = "Построить граф";
             this.построитьГрафToolStripMenuItem.Click += new System.EventHandler(this.CreateGraf);
             // 
             // анализироватьToolStripMenuItem
             // 
             this.анализироватьToolStripMenuItem.Name = "анализироватьToolStripMenuItem";
-            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(254, 26);
+            this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.анализироватьToolStripMenuItem.Text = "Генерировать SMV...";
             this.анализироватьToolStripMenuItem.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // генерироватьVHDLToolStripMenuItem
             // 
             this.генерироватьVHDLToolStripMenuItem.Name = "генерироватьVHDLToolStripMenuItem";
-            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(254, 26);
+            this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.генерироватьVHDLToolStripMenuItem.Text = "Генерировать VHDL...";
             this.генерироватьVHDLToolStripMenuItem.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // сохранитьКакРисунокToolStripMenuItem
             // 
             this.сохранитьКакРисунокToolStripMenuItem.Name = "сохранитьКакРисунокToolStripMenuItem";
-            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(254, 26);
+            this.сохранитьКакРисунокToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.сохранитьКакРисунокToolStripMenuItem.Text = "Сохранить как рисунок...";
             this.сохранитьКакРисунокToolStripMenuItem.Click += new System.EventHandler(this.сохранитьКакРисунокToolStripMenuItem_Click);
             // 
             // настройкиToolStripMenuItem
             // 
             this.настройкиToolStripMenuItem.Name = "настройкиToolStripMenuItem";
-            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(96, 24);
+            this.настройкиToolStripMenuItem.Size = new System.Drawing.Size(79, 20);
             this.настройкиToolStripMenuItem.Text = "Настройки";
             this.настройкиToolStripMenuItem.Click += new System.EventHandler(this.настройкиToolStripMenuItem_Click);
             // 
             // помощьToolStripMenuItem
             // 
             this.помощьToolStripMenuItem.Name = "помощьToolStripMenuItem";
-            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(116, 24);
+            this.помощьToolStripMenuItem.Size = new System.Drawing.Size(94, 20);
             this.помощьToolStripMenuItem.Text = "О программе";
             this.помощьToolStripMenuItem.Click += new System.EventHandler(this.помощьToolStripMenuItem_Click);
             // 
@@ -199,11 +198,10 @@ namespace sku_to_smv
             this.toolStripStatusLabel3,
             this.toolStripProgressBar1,
             this.toolStripSplitButton1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 631);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 508);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 19, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.ManagerRenderMode;
-            this.statusStrip1.Size = new System.Drawing.Size(1088, 26);
+            this.statusStrip1.Size = new System.Drawing.Size(816, 26);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -231,7 +229,7 @@ namespace sku_to_smv
             // 
             this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(133, 20);
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 20);
             // 
             // toolStripSplitButton1
             // 
@@ -240,7 +238,7 @@ namespace sku_to_smv
             this.toolStripSplitButton1.Enabled = false;
             this.toolStripSplitButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripSplitButton1.Name = "toolStripSplitButton1";
-            this.toolStripSplitButton1.Size = new System.Drawing.Size(131, 24);
+            this.toolStripSplitButton1.Size = new System.Drawing.Size(106, 24);
             this.toolStripSplitButton1.Text = "Масштаб 100%";
             // 
             // toolStrip1
@@ -265,9 +263,9 @@ namespace sku_to_smv
             this.toolStripButton5,
             this.toolStripButton6,
             this.toolStripButton7});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 28);
+            this.toolStrip1.Location = new System.Drawing.Point(0, 24);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1088, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(816, 27);
             this.toolStrip1.TabIndex = 2;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -460,11 +458,10 @@ namespace sku_to_smv
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.grafPage);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 55);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(4);
+            this.tabControl1.Location = new System.Drawing.Point(0, 51);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(1088, 576);
+            this.tabControl1.Size = new System.Drawing.Size(816, 457);
             this.tabControl1.TabIndex = 3;
             this.tabControl1.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
             this.tabControl1.Selected += new System.Windows.Forms.TabControlEventHandler(this.tabControl1_Selected);
@@ -472,11 +469,10 @@ namespace sku_to_smv
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.richTextBox1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 25);
-            this.tabPage1.Margin = new System.Windows.Forms.Padding(4);
+            this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(4);
-            this.tabPage1.Size = new System.Drawing.Size(1080, 547);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage1.Size = new System.Drawing.Size(808, 431);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "СКУ";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -485,11 +481,10 @@ namespace sku_to_smv
             // 
             this.richTextBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.richTextBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.richTextBox1.Location = new System.Drawing.Point(4, 4);
-            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.richTextBox1.Location = new System.Drawing.Point(3, 3);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
-            this.richTextBox1.Size = new System.Drawing.Size(1072, 539);
+            this.richTextBox1.Size = new System.Drawing.Size(802, 425);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
             this.richTextBox1.WordWrap = false;
@@ -498,11 +493,10 @@ namespace sku_to_smv
             // grafPage
             // 
             this.grafPage.Controls.Add(this.pictureBox1);
-            this.grafPage.Location = new System.Drawing.Point(4, 25);
-            this.grafPage.Margin = new System.Windows.Forms.Padding(4);
+            this.grafPage.Location = new System.Drawing.Point(4, 22);
             this.grafPage.Name = "grafPage";
-            this.grafPage.Padding = new System.Windows.Forms.Padding(4);
-            this.grafPage.Size = new System.Drawing.Size(1080, 547);
+            this.grafPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.grafPage.Size = new System.Drawing.Size(808, 431);
             this.grafPage.TabIndex = 1;
             this.grafPage.Text = "Граф";
             this.grafPage.UseVisualStyleBackColor = true;
@@ -518,10 +512,10 @@ namespace sku_to_smv
             this.button5.FlatAppearance.BorderSize = 0;
             this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.button5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button5.Location = new System.Drawing.Point(1395, 59);
+            this.button5.Location = new System.Drawing.Point(1046, 48);
             this.button5.Margin = new System.Windows.Forms.Padding(0);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(27, 25);
+            this.button5.Size = new System.Drawing.Size(20, 20);
             this.button5.TabIndex = 1;
             this.button5.Text = "X";
             this.button5.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -537,7 +531,7 @@ namespace sku_to_smv
             // toolStripComboBox1
             // 
             this.toolStripComboBox1.Name = "toolStripComboBox1";
-            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 28);
+            this.toolStripComboBox1.Size = new System.Drawing.Size(121, 23);
             // 
             // AutosaveTimer
             // 
@@ -552,22 +546,21 @@ namespace sku_to_smv
             // 
             this.pictureBox1.b_SimulStarted = false;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(4, 4);
+            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.LogFileName = "";
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.ScaleT = 1F;
-            this.pictureBox1.Size = new System.Drawing.Size(1072, 539);
+            this.pictureBox1.Size = new System.Drawing.Size(802, 425);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1088, 657);
+            this.ClientSize = new System.Drawing.Size(816, 534);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
@@ -575,7 +568,6 @@ namespace sku_to_smv
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "SKU Modeler";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);

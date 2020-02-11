@@ -80,6 +80,7 @@ namespace sku_to_smv
         public delegate void drawAreaEventHandler(object sender, EventArgs a);
         public event drawAreaEventHandler SimulationStarted;
         public event drawAreaEventHandler SimulationStoped;
+        public RichTextBox tx;
 
         private float scaleT; 
         
@@ -109,6 +110,19 @@ namespace sku_to_smv
         /// </summary>
         private void InitializeArea()
         {
+
+            tx = new RichTextBox();
+            tx.Dock = System.Windows.Forms.DockStyle.Fill;
+            tx.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            tx.Name = "aaa";
+            //tx.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
+            tx.Size = new System.Drawing.Size(80, 20);
+            tx.TabIndex = 0;
+            tx.Text = "asa";
+            tx.Visible = false;
+            tx.Location = new Point(100, 100);
+            Controls.Add(tx);
+
             //Отображение отладочной информации на графе
             b_ShowDebugInfo = false;
             ScaleT = 1F;
@@ -501,10 +515,8 @@ namespace sku_to_smv
                 {
                     Font font = (t.selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = signalDefaultBrush;
-                    g.DrawString(t.name, font, brush, d.x, d.y);
-                    if (t.textBoxDot != null && TextBoxRenderer.IsSupported) TextBoxRenderer.DrawTextBox(g, new Rectangle((int)t.textBoxDot.x, (int)t.textBoxDot.y, 80, 80), "aaa", font, System.Windows.Forms.VisualStyles.TextBoxState.Normal);
-
-                }
+                    g.DrawString(t.name, font, brush, d.x, d.y);            
+                }              
             }
         }
 
@@ -684,9 +696,9 @@ namespace sku_to_smv
             bool isChanged = false;
             foreach (Signal s in signals)
             {
-                bool signalActivityStatus = s.Selected && !s.Active;
-                isChanged = isChanged || s.Active ^ signalActivityStatus;
-                s.Active = signalActivityStatus;
+                bool newActivityStatus = s.Selected && !s.Active || !s.Selected && s.Active;
+                isChanged = isChanged || s.Active ^ newActivityStatus;
+                s.Active = newActivityStatus;
             }
             return isChanged;
         }
@@ -709,6 +721,7 @@ namespace sku_to_smv
             foreach (Time tm in timeMarks)
             {
                 Dot textBoxDot = tm.selected ? dot : null;
+                
                 isChanged = isChanged || tm.textBoxDot != textBoxDot || tm.textBoxDot != null && !tm.textBoxDot.Equals(textBoxDot);
                 tm.textBoxDot = textBoxDot;
             }
@@ -1079,6 +1092,8 @@ namespace sku_to_smv
             if (isStateChangeActivity || isSignalChangeActivity || isTimeMarkChanged)
             {
                 Refresh();
+                    tx.Location = new Point(e.X, e.Y);
+                    //tx.Visible = true;
             }         
         }
        
