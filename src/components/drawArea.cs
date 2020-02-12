@@ -51,7 +51,7 @@ namespace sku_to_smv
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
         ToolTip toolTip;
-        Dot MouseLastPosition;
+        Point MouseLastPosition;
         System.Windows.Forms.Timer ClickToolPanelTimer;
         
         ToolPanel tools;
@@ -71,7 +71,7 @@ namespace sku_to_smv
         int xT, yT/*, dx, dy*/;
         int xs, ys, xM, yM;
         float dragOffsetX, dragOffsetY;
-        Dot paintDotSelectedState;
+        Point paintDotSelectedState;
         int InputsLeight;
         int OutputsLeight;
         bool StateSelected;
@@ -141,7 +141,7 @@ namespace sku_to_smv
             //AddStateButtonSelected = false;
             dragOffsetX = 0;
             dragOffsetY = 0;
-            paintDotSelectedState = new Dot();
+            paintDotSelectedState = Point.Empty;
             DrawInputs = true;
             b_SimulStarted = false;
             LinkSelected = false;
@@ -479,7 +479,7 @@ namespace sku_to_smv
             foreach (Signal s in signals)
             {
                 s.calculateLocation();
-                foreach (Dot d in s.paintDots)
+                foreach (Point d in s.paintDots)
                 {
                     Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;                                                      
@@ -517,7 +517,7 @@ namespace sku_to_smv
             foreach (Time t in timeMarks)
             {
                 t.calculateLocation();
-                foreach (Dot d in t.paintDots)
+                foreach (Point d in t.paintDots)
                 {
                     Font font = (t.selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = signalDefaultBrush;
@@ -588,7 +588,7 @@ namespace sku_to_smv
             if (link.Arc)
             {
                 int arcRadius = Settings.Default.ArcCyrcleRadius;
-                Dot centreArc = new Dot(link.arcDot.X + arcRadius, link.arcDot.Y + arcRadius);
+                Point centreArc = new Point(link.arcDot.X + arcRadius, link.arcDot.Y + arcRadius);
                 //Уравнение окружности вида (x-x.centre)^2 + (y-y.centre)^2 = r^2, представляющей часть арки
                 int result = (int)(Math.Pow(x - centreArc.X, 2) + Math.Pow(y - centreArc.Y, 2));
                 int squareRadius = (int)Math.Pow(arcRadius, 2);
@@ -624,7 +624,7 @@ namespace sku_to_smv
         {
             float offset = 20;
             bool isOnSignal = false;
-            foreach (Dot pDot in signal.paintDots)
+            foreach (Point pDot in signal.paintDots)
             {
                 isOnSignal = isOnSignal || (dot.X >= pDot.X
                      && dot.X <= pDot.X + offset
@@ -638,7 +638,7 @@ namespace sku_to_smv
         {
             int offset = 10 * tm.name.Length;
             bool isOnMark = false;
-            foreach (Dot pd in tm.paintDots)
+            foreach (Point pd in tm.paintDots)
             {
                 isOnMark = isOnMark 
                     || dot.X >= pd.X
@@ -834,7 +834,7 @@ namespace sku_to_smv
                 {
                     dragOffsetX = e.X - state.paintDot.X;
                     dragOffsetY = e.Y - state.paintDot.Y;
-                    paintDotSelectedState = new Dot(state.paintDot.X, state.paintDot.Y);
+                    paintDotSelectedState = new Point(state.paintDot.X, state.paintDot.Y);
                 }
             }
         }
@@ -845,8 +845,8 @@ namespace sku_to_smv
             {
                 if (state.Selected)
                 {
-                    state.paintDot.X = dot.X - dragOffsetX;
-                    state.paintDot.Y = dot.Y - dragOffsetY;
+                    state.paintDot.X = dot.X - (int)dragOffsetX;
+                    state.paintDot.Y = dot.Y - (int)dragOffsetY;
                     foreach (Link l in state.links)
                     {
                         l.calculateLocation();

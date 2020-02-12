@@ -8,8 +8,8 @@ namespace sku_to_smv
     public class State
     {
         public string Name;        //Имя состояния
-        public Dot paintDot;
-        public Dot nameDot;
+        public Point paintDot;
+        public Point nameDot;
         public bool Selected;       //если выбрано = true
         public bool Active;
         public List<Signal> inputs;
@@ -18,8 +18,8 @@ namespace sku_to_smv
         public State()
         {
             Name = null;
-            paintDot = new Dot();
-            nameDot = new Dot();
+            paintDot = Point.Empty;
+            nameDot = Point.Empty;
             Selected = false;
             inputs = new List<Signal>();
             outputs = new List<Signal>();
@@ -36,9 +36,9 @@ namespace sku_to_smv
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
             Font style = Properties.Settings.Default.DefaultText;
-            nameDot = new Dot(
-                paintDot.X + radius - style.Size,
-                paintDot.Y + radius - style.Size);
+            nameDot = new Point(
+                paintDot.X + radius - (int)style.Size,
+                paintDot.Y + radius - (int)style.Size);
         }
 
         public void calculateLocation()
