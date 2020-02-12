@@ -73,6 +73,7 @@ namespace sku_to_smv
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.grafPage = new System.Windows.Forms.TabPage();
+            this.pictureBox1 = DrawArea.getInstance();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.button5 = new System.Windows.Forms.Button();
@@ -80,7 +81,6 @@ namespace sku_to_smv
             this.toolStripComboBox1 = new System.Windows.Forms.ToolStripComboBox();
             this.AutosaveTimer = new System.Windows.Forms.Timer(this.components);
             this.AnimationTimer = new System.Windows.Forms.Timer(this.components);
-            this.pictureBox1 = new sku_to_smv.drawArea();
             this.menuStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -471,7 +471,7 @@ namespace sku_to_smv
             this.tabPage1.Controls.Add(this.richTextBox1);
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage1.Size = new System.Drawing.Size(808, 431);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "СКУ";
@@ -495,12 +495,25 @@ namespace sku_to_smv
             this.grafPage.Controls.Add(this.pictureBox1);
             this.grafPage.Location = new System.Drawing.Point(4, 22);
             this.grafPage.Name = "grafPage";
-            this.grafPage.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.grafPage.Padding = new System.Windows.Forms.Padding(3);
             this.grafPage.Size = new System.Drawing.Size(808, 431);
             this.grafPage.TabIndex = 1;
             this.grafPage.Text = "Граф";
             this.grafPage.UseVisualStyleBackColor = true;
             this.grafPage.Click += new System.EventHandler(this.tabPage2_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.b_SimulStarted = false;
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
+            this.pictureBox1.LogFileName = "";
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.ScaleT = 1F;
+            this.pictureBox1.Size = new System.Drawing.Size(802, 425);
+            this.pictureBox1.TabIndex = 0;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // openFileDialog1
             // 
@@ -541,19 +554,6 @@ namespace sku_to_smv
             // 
             this.AnimationTimer.Interval = 2000;
             this.AnimationTimer.Tick += new System.EventHandler(this.AnimationTimer_Tick);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.b_SimulStarted = false;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.LogFileName = "";
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.ScaleT = 1F;
-            this.pictureBox1.Size = new System.Drawing.Size(802, 425);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // Form1
             // 
@@ -639,7 +639,7 @@ namespace sku_to_smv
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
         private System.Windows.Forms.Timer AnimationTimer;
-        private drawArea pictureBox1;
+        private DrawArea pictureBox1;
     }
 }
 

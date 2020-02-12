@@ -423,17 +423,17 @@ namespace sku_to_smv
 
         private void startStripButton_Click(object sender, EventArgs e)
         {
-            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("run"));
+            (this.MyParent as DrawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("run"));
         }
 
         private void stepStripButton_Click(object sender, EventArgs e)
         {
-            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("step"));
+            (this.MyParent as DrawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("step"));
         }
 
         private void stopStripButton_Click(object sender, EventArgs e)
         {
-            (this.MyParent as drawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("stop"));
+            (this.MyParent as DrawArea).ToolPanelButtonClicked(sender, new ToolButtonEventArgs("stop"));
         }
 
         private void resetStripButton_Click(object sender, EventArgs e)

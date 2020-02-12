@@ -67,6 +67,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\Time.cs" />
+    <Compile Include="src\TimeTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <None Include="template\tmpl.cs" />
     <None Include="bin\Debug\template\tmpl.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -105,7 +108,7 @@
     </Compile>
     <Compile Include="src\LogWriter.cs" />
     <Compile Include="src\Settings.cs" />
-    <Compile Include="src\components\drawArea.cs">
+    <Compile Include="src\components\DrawArea.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="src\element.cs" />
@@ -130,8 +133,8 @@
     <EmbeddedResource Include="src\forms\SignalTable.resx">
       <DependentUpon>SignalTable.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="src\components\drawArea.resx">
-      <DependentUpon>drawArea.cs</DependentUpon>
+    <EmbeddedResource Include="src\components\DrawArea.resx">
+      <DependentUpon>DrawArea.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="src\forms\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

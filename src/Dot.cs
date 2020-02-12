@@ -5,14 +5,14 @@ using System.Text;
 
 namespace sku_to_smv.src
 {
-    public class Dot
+     public class Dot
     {
-        public float x
+        public float X
         {
             get;
             set;
         }
-        public float y
+        public float Y
         {
             get;
             set;
@@ -20,21 +20,21 @@ namespace sku_to_smv.src
 
         public Dot(float x, float y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public Dot()
         {
-            x = 0.0F;
-            y = 0.0F;
+            X = 0.0F;
+            Y = 0.0F;
         }
 
         public override bool Equals(object obj)
         {
             return obj is Dot dot &&
-                   x == dot.x &&
-                   y == dot.y;
+                   X == dot.X &&
+                   Y == dot.Y;
         }
     }
 }

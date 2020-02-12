@@ -14,8 +14,9 @@ using sku_to_smv.src;
 
 namespace sku_to_smv
 {
-    class drawArea : PictureBox
+    public class DrawArea : PictureBox
     {
+
         //States
         public static readonly Pen stateDefaultPen = new Pen(Settings.Default.ColorDefaultState, 2);
         public static readonly Pen stateSelectedPen = new Pen(Settings.Default.ColorSelectedState, 3);
@@ -32,12 +33,25 @@ namespace sku_to_smv
         public static readonly Font signalSelectedFont = Settings.Default.SignalSelectedFont;
         public static readonly Brush signalDefaultBrush = new SolidBrush(Settings.Default.SignalDefaultColor);
         public static readonly Brush signalActiveBrush = new SolidBrush(Settings.Default.SignalActiveColor);
+        //TimeMarks
+        public TimeTextBox timeTb;
+        private static DrawArea _instnce;
+
+
+        public static DrawArea getInstance()
+        {
+            if (_instnce == null)
+            {
+                _instnce = new DrawArea();
+            }
+            return _instnce;
+        }
 
         HScrollBar hScroll;
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
         ToolTip toolTip;
-        Point MouseLastPosition;
+        Dot MouseLastPosition;
         System.Windows.Forms.Timer ClickToolPanelTimer;
         
         ToolPanel tools;
@@ -80,7 +94,6 @@ namespace sku_to_smv
         public delegate void drawAreaEventHandler(object sender, EventArgs a);
         public event drawAreaEventHandler SimulationStarted;
         public event drawAreaEventHandler SimulationStoped;
-        public RichTextBox tx;
 
         private float scaleT; 
         
@@ -91,13 +104,13 @@ namespace sku_to_smv
             {
                 scaleT = value;              
             }
-        }       
+        }
 
-        public drawArea()
+        private DrawArea()
         {
             InitializeArea();
         }
-        ~drawArea() 
+        ~DrawArea() 
         {
             hScroll.Dispose();
             vScroll.Dispose();
@@ -110,19 +123,12 @@ namespace sku_to_smv
         /// </summary>
         private void InitializeArea()
         {
-
-            tx = new RichTextBox();
-            tx.Dock = System.Windows.Forms.DockStyle.Fill;
-            tx.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            tx.Name = "aaa";
-            //tx.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedBoth;
-            tx.Size = new System.Drawing.Size(80, 20);
-            tx.TabIndex = 0;
-            tx.Text = "asa";
-            tx.Visible = false;
-            tx.Location = new Point(100, 100);
-            Controls.Add(tx);
-
+            timeTb = new TimeTextBox(this);
+            timeTb.Size = new Size(50, 20);
+            timeTb.TabIndex = 5;
+            timeTb.Dock = DockStyle.None;
+            timeTb.Visible = false;
+            Controls.Add(timeTb);
             //Отображение отладочной информации на графе
             b_ShowDebugInfo = false;
             ScaleT = 1F;
@@ -285,9 +291,9 @@ namespace sku_to_smv
 
             ApplySettings();
 
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseClick);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.drawArea_MouseMove);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.mouseClick);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove);
             this.SizeChanged += new EventHandler(this.AreaResized);
             
             // 
@@ -347,7 +353,7 @@ namespace sku_to_smv
 
         private void RefreshArea(Graphics g)
         {
-            g.Clear(System.Drawing.Color.White);          
+            g.Clear(System.Drawing.Color.White);
             drawStates(g);
             drawLinks(g);
             drawSignals(g);
@@ -370,8 +376,8 @@ namespace sku_to_smv
                     State s = getStateByName(state.Name);
                     if (s == null)
                     {
-                        state.paintDot.x = States.Length % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
-                        state.paintDot.y = stateDefaultCentreY + States.Length / 2 * offsetStateY;
+                        state.paintDot.X = States.Length % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
+                        state.paintDot.Y = stateDefaultCentreY + States.Length / 2 * offsetStateY;
                         addState(state);
                     }    
                 }
@@ -394,9 +400,9 @@ namespace sku_to_smv
                 else if (!state.Active && state.Selected) statePen = stateSelectedPen;
                 else if (state.Active && !state.Selected) statePen = stateActivePen;
                 else statePen = stateActiveAndSelectedPen;
-                g.DrawEllipse(statePen, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);
-                if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.x, state.paintDot.y, stateDiametr, stateDiametr);             
-                g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.x, state.nameDot.y);             
+                g.DrawEllipse(statePen, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);
+                if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);             
+                g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.X, state.nameDot.Y);             
             }
         }
 
@@ -438,13 +444,13 @@ namespace sku_to_smv
                 link.calculateLocation();
                 if (link.Arc)
                 {  
-                    g.DrawArc(linkPen, new RectangleF(link.arcDot.x, link.arcDot.y, arcRadius * 2, arcRadius * 2), arcStartAngle, arcSweepAngle);
+                    g.DrawArc(linkPen, new RectangleF(link.arcDot.X, link.arcDot.Y, arcRadius * 2, arcRadius * 2), arcStartAngle, arcSweepAngle);
                 }
                 else
                 {
-                    g.DrawLine(linkPen, link.startDot.x, link.startDot.y, link.endDot.x, link.endDot.y);
-                    g.DrawLine(linkPen, link.endDot.x, link.endDot.y, link.arrowDots[0].x, link.arrowDots[0].y);
-                    g.DrawLine(linkPen, link.endDot.x, link.endDot.y, link.arrowDots[1].x, link.arrowDots[1].y);
+                    g.DrawLine(linkPen, link.startDot.X, link.startDot.Y, link.endDot.X, link.endDot.Y);
+                    g.DrawLine(linkPen, link.endDot.X, link.endDot.Y, link.arrowDots[0].X, link.arrowDots[0].Y);
+                    g.DrawLine(linkPen, link.endDot.X, link.endDot.Y, link.arrowDots[1].X, link.arrowDots[1].Y);
                 }
             }          
         }
@@ -477,7 +483,7 @@ namespace sku_to_smv
                 {
                     Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;                                                      
-                    g.DrawString(s.name, font, brush, d.x, d.y);
+                    g.DrawString(s.name, font, brush, d.X, d.Y);
                 }
             }
         }
@@ -515,8 +521,8 @@ namespace sku_to_smv
                 {
                     Font font = (t.selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = signalDefaultBrush;
-                    g.DrawString(t.name, font, brush, d.x, d.y);            
-                }              
+                    g.DrawString(t.name + "<" + t.value + ">", font, brush, d.X, d.Y);
+                }   
             }
         }
 
@@ -575,29 +581,29 @@ namespace sku_to_smv
             }
         }
 
-        private bool isDotOnLink(Dot dot, Link link)
+        private bool isDotOnLink(Point dot, Link link)
         {
-            float x = dot.x;
-            float y = dot.y;
+            float x = dot.X;
+            float y = dot.Y;
             if (link.Arc)
             {
                 int arcRadius = Settings.Default.ArcCyrcleRadius;
-                Dot centreArc = new Dot(link.arcDot.x + arcRadius, link.arcDot.y + arcRadius);
+                Dot centreArc = new Dot(link.arcDot.X + arcRadius, link.arcDot.Y + arcRadius);
                 //Уравнение окружности вида (x-x.centre)^2 + (y-y.centre)^2 = r^2, представляющей часть арки
-                int result = (int)(Math.Pow(x - centreArc.x, 2) + Math.Pow(y - centreArc.y, 2));
+                int result = (int)(Math.Pow(x - centreArc.X, 2) + Math.Pow(y - centreArc.Y, 2));
                 int squareRadius = (int)Math.Pow(arcRadius, 2);
-                bool dotOnPaintedArc = !(x >= centreArc.x && y >= centreArc.y); //Переменная отвечающая, что точка лежит на отрисованной части окружности - арке
+                bool dotOnPaintedArc = !(x >= centreArc.X && y >= centreArc.Y); //Переменная отвечающая, что точка лежит на отрисованной части окружности - арке
                 return result >= (squareRadius - 100) && result <= (squareRadius + 100) && dotOnPaintedArc;
             }
             else
             {
                 //Каноническое уравнение прямой на плоскости типа (x-x1)/(x2-x1) = (y-y1)/(y2-y1)
-                float result = (link.startDot.y - link.endDot.y) * x + (link.endDot.x - link.startDot.x) * y + (link.startDot.x * link.endDot.y - link.endDot.x * link.startDot.y);
+                float result = (link.startDot.Y - link.endDot.Y) * x + (link.endDot.X - link.startDot.X) * y + (link.startDot.X * link.endDot.Y - link.endDot.X * link.startDot.Y);
                 int offset = 10;
-                float maxX = Math.Max(link.startDot.x, link.endDot.x) + offset;
-                float minX = Math.Min(link.startDot.x, link.endDot.x) - offset;
-                float maxY = Math.Max(link.startDot.y, link.endDot.y) + offset;
-                float minY = Math.Min(link.startDot.y, link.endDot.y) - offset;
+                float maxX = Math.Max(link.startDot.X, link.endDot.X) + offset;
+                float minX = Math.Min(link.startDot.X, link.endDot.X) - offset;
+                float maxY = Math.Max(link.startDot.Y, link.endDot.Y) + offset;
+                float minY = Math.Min(link.startDot.Y, link.endDot.Y) - offset;
                 return (result >= -2500
                     && result <= 2500
                     && x >= minX && x <= maxX
@@ -605,45 +611,45 @@ namespace sku_to_smv
             }       
         }
 
-        public bool isDotOnState(Dot dot, State state)
+        public bool isDotOnState(Point dot, State state)
         {
             int diametr = Settings.Default.StateDiametr;
-            return dot.x >= state.paintDot.x
-                && dot.x <= state.paintDot.x + diametr
-                && dot.y >= state.paintDot.y
-                && dot.y <= state.paintDot.y + diametr;
+            return dot.X >= state.paintDot.X
+                && dot.X <= state.paintDot.X + diametr
+                && dot.Y >= state.paintDot.Y
+                && dot.Y <= state.paintDot.Y + diametr;
         }
 
-        public bool isDotOnSignal(Dot dot, Signal signal)
+        public bool isDotOnSignal(Point dot, Signal signal)
         {
             float offset = 20;
             bool isOnSignal = false;
             foreach (Dot pDot in signal.paintDots)
             {
-                isOnSignal = isOnSignal || (dot.x >= pDot.x
-                     && dot.x <= pDot.x + offset
-                     && dot.y >= pDot.y
-                     && dot.y <= pDot.y + offset);
+                isOnSignal = isOnSignal || (dot.X >= pDot.X
+                     && dot.X <= pDot.X + offset
+                     && dot.Y >= pDot.Y
+                     && dot.Y <= pDot.Y + offset);
             }
             return isOnSignal;
         }
 
-        private bool isDotOnTimeMark(Dot dot, Time tm)
+        private bool isDotOnTimeMark(Point dot, Time tm)
         {
             int offset = 10 * tm.name.Length;
             bool isOnMark = false;
             foreach (Dot pd in tm.paintDots)
             {
                 isOnMark = isOnMark 
-                    || dot.x >= pd.x
-                    && dot.x <= pd.x + offset
-                    && dot.y >= pd.y
-                    && dot.y <= pd.y + offset;
+                    || dot.X >= pd.X
+                    && dot.X <= pd.X + offset
+                    && dot.Y >= pd.Y
+                    && dot.Y <= pd.Y + offset;
             }
             return isOnMark;
         }
 
-        private bool setSelectedLink(Dot dot)
+        private bool setSelectedLink(Point dot)
         {
             bool isChanged = false;
             foreach (Link link in Links)
@@ -655,7 +661,7 @@ namespace sku_to_smv
             return isChanged;
         }
 
-        private bool setSelectedState(Dot dot)
+        private bool setSelectedState(Point dot)
         {
             bool isChanged = false;
             foreach (State state in States)
@@ -679,7 +685,7 @@ namespace sku_to_smv
             return isChanged;
         }
 
-        private bool setSelectedTimeMarks(Dot dot)
+        private bool setSelectedTimeMarks(Point dot)
         {
             bool isChanged = false;
             foreach (Time tm in timeMarks)
@@ -703,7 +709,7 @@ namespace sku_to_smv
             return isChanged;
         }
 
-        private bool setSelectedSignal(Dot dot)
+        private bool setSelectedSignal(Point dot)
         {
             bool isSignalsChanged = false;
             foreach (Signal signal in signals)
@@ -715,20 +721,27 @@ namespace sku_to_smv
             return isSignalsChanged;
         }
 
-        private bool setValueTimeMark(Dot dot)
+        private bool setValueTimeMark(Point dot)
         {
-            bool isChanged = false;
+            bool tbVisible = false;
+            Point tbLocation = Point.Empty;
+            Time selectedTm = null;
             foreach (Time tm in timeMarks)
             {
-                Dot textBoxDot = tm.selected ? dot : null;
-                
-                isChanged = isChanged || tm.textBoxDot != textBoxDot || tm.textBoxDot != null && !tm.textBoxDot.Equals(textBoxDot);
-                tm.textBoxDot = textBoxDot;
+                tbVisible = tbVisible || tm.selected;
+                if (tm.selected)
+                {
+                    tbLocation = new Point(dot.X, dot.Y);
+                    selectedTm = tm;
+                }
             }
-            return isChanged;
+            timeTb.Visible = tbVisible;
+            timeTb.Location = tbLocation;
+            timeTb.timeMark = selectedTm;
+            return true;
         }
 
-        private bool isElementsChanged(Dot dot)
+        private bool isElementsChanged(Point dot)
         {
             bool isLinkChanged = setSelectedLink(dot);
             bool isStateChanged = setSelectedState(dot);
@@ -744,211 +757,7 @@ namespace sku_to_smv
         /// </summary>
         private void Refresh(Graphics g)
         {
-            float gip, DeltaX, DeltaY, cosa, sina, xn, yn;
 
-            //TextFont = new System.Drawing.Font(Settings.Default.GrafFieldTextFont.Name, (Settings.Default.GrafFieldTextFont.Size * ScaleT), Settings.Default.GrafFieldTextFont.Style);
-            
-            g.Clear(System.Drawing.Color.White);            //Отчищаем буфер заливая его фоном
-
-            if (Links != null)
-            {
-                /*for (int i = 0; i < Links.Length; i++)
-                {
-                    if (Links[i].FromInput == true)         //Связи от входных сигналов
-                    {
-                        if (DrawInputs)
-                        {
-                            //рисуем связь(темно-синяя линия)
-                            if (Links[i].Selected)
-                            {
-                                g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            }
-                            g.DrawLine(penInputLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            Links[i].setTimeDot();
-                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            //вычисляем гипотенузу
-                            gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
-
-                            if (Links[i].x2 > Links[i].x1)
-                            {
-                                DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                                sina = DeltaX / gip;
-                                if (Links[i].y2 < Links[i].y1)
-                                {//1
-                                    DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                                if (Links[i].y2 > Links[i].y1)
-                                {//2
-                                    DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                            }
-                            if (Links[i].x2 < Links[i].x1)
-                            {
-                                DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                                sina = DeltaX / gip;
-                                if (Links[i].y2 < Links[i].y1)
-                                {//4
-                                    DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                                if (Links[i].y2 > Links[i].y1)
-                                {//3
-                                    DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                    cosa = DeltaY / gip;
-                                    xn = 50 * sina * ScaleT;
-                                    yn = 50 * cosa * ScaleT;
-                                    g.DrawLine(penInputLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                    Links[i].setTimeDot();
-                                    drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                                }
-                            }
-                        }
-                    }
-                    else if (Links[i].Arc == true)
-                    {
-                        g.DrawArc(penLocalLine, (Links[i].x1 - 50 + xT) * ScaleT, (Links[i].y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 0, 360);
-                        g.DrawArc(penLocalLineEnd, (Links[i].x1 - 50 + xT) * ScaleT, (Links[i].y1 - 50 + yT) * ScaleT, 50 * ScaleT, 50 * ScaleT, 300, 60);
-                    }
-                    else
-                    {
-                        //PointF[] curvePoints = {new PointF((Links[i].x2 + xT) * Scale, (Links[i].y2 + yT) * Scale), new PointF(100.0f,100.0f), new PointF(((Links[i].x2 + xT) * Scale) - xn, ((Links[i].y2 + yT) * Scale) + yn)};
-                        //g.DrawCurve(penRed, curvePoints, 1.0f);
-                        if (Links[i].Selected)
-                        {
-                            g.DrawLine(penHighlight, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                            Links[i].setTimeDot();
-                            drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                        }
-                        g.DrawLine(penLocalLine, (Links[i].x1 + xT) * ScaleT, (Links[i].y1 + yT) * ScaleT, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT);
-                        Links[i].setTimeDot();
-                        drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY); gip = (float)System.Math.Sqrt(Math.Pow((Links[i].y1 + yT) * ScaleT - (Links[i].y2 + yT) * ScaleT, 2) + Math.Pow((Links[i].x1 + xT) * ScaleT - (Links[i].x2 + xT) * ScaleT, 2));
-                        //xn = Math.Abs((Links[i].y1 + yT) * Scale-(Links[i].y2 + yT) * Scale)/gip*(gip-20);
-                        //yn = Math.Abs((Links[i].x1 + xT) * Scale-(Links[i].x2 + xT) * Scale)/gip*(gip-20);
-                        //g.DrawLine(p4,(Links[i].x1 + xT) * Scale,(Links[i].y1 + yT) * Scale,xn,yn);
-                        //g.DrawLine(p3, (Links[i].x1 + 25)*4, (Links[i].y1 + 25)*4, Links[i].x2 + 25, Links[i].y2 + 25);
-                        if (Links[i].x2 > Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//1
-                                DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//2
-                                DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
-                        }
-                        if (Links[i].x2 < Links[i].x1)
-                        {
-                            DeltaX = (Links[i].x2 - Links[i].x1) * ScaleT;
-                            sina = DeltaX / gip;
-                            if (Links[i].y2 < Links[i].y1)
-                            {//4
-                                DeltaY = (Links[i].y1 - Links[i].y2) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) + yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
-                            if (Links[i].y2 > Links[i].y1)
-                            {//3
-                                DeltaY = (Links[i].y2 - Links[i].y1) * ScaleT;
-                                cosa = DeltaY / gip;
-                                xn = 50 * sina * ScaleT;
-                                yn = 50 * cosa * ScaleT;
-                                g.DrawLine(penLocalLineEnd, (Links[i].x2 + xT) * ScaleT, (Links[i].y2 + yT) * ScaleT, ((Links[i].x2 + xT) * ScaleT) - xn, ((Links[i].y2 + yT) * ScaleT) - yn);
-                                Links[i].setTimeDot();
-                                drawTime(g, Links[i].timeTransfer, Links[i].timeX, Links[i].timeY);
-                            }
-                        }
-                    }
-                }*/
-            }
-            if (States != null)
-            {
-
-               /* for (int i = 0; i < States.Length; i++)
-                {
-                    if (States[i].InputSignal == true)
-                    {
-                        if (DrawInputs)
-                        {
-                            if (States[i].Signaled || States[i].AlSignaled)
-                            {
-                                g.FillRectangle(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            }
-                            else
-                            {
-                                g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            }
-                            if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            else g.DrawRectangle(penInputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                            g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
-                        }
-                    }
-                    else if (States[i].Type == STATE_TYPE.OUTPUT)
-                    {
-                        if (States[i].Signaled || States[i].AlSignaled)
-                        {
-                            g.FillRectangle(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        }
-                        else
-                        {
-                            g.FillRectangle(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        }
-                        if (States[i].Selected) g.DrawRectangle(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        else g.DrawRectangle(penOutputSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 10 + yT) * ScaleT);
-                    }
-                    else
-                    {
-                        if (States[i].Signaled || States[i].AlSignaled)
-                        {
-                            g.FillEllipse(brushSignalActive, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        }
-                        else
-                        {
-                            g.FillEllipse(System.Drawing.Brushes.White, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        }
-                        if (States[i].Selected) g.DrawEllipse(penHighlight, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        else g.DrawEllipse(penSignal, (States[i].x + xT) * ScaleT, (States[i].y + yT) * ScaleT, 60 * ScaleT, 60 * ScaleT);
-                        g.DrawString(States[i].Name, TextFont, brushTextColor, (States[i].x + 10 + xT) * ScaleT, (States[i].y + 15 + yT) * ScaleT);
-                    }
-                }*/
-            }
             //Отрисовка панели инструментов
             if (!b_SavingImage)
             {
@@ -978,37 +787,6 @@ namespace sku_to_smv
                 }
                 tools.UpdateControlsLocation();
                 tools.Draw(ref g); 
-            }
-            //////////////////////////////////////////////////
-            ///////////////////Для отладки//////////////////// 
-            ////////////////////////////////////////////////// 
-            if (b_ShowDebugInfo)
-            {
-                int xSS = 700, ySS = 0;
-                for (int i = 0; i < Links.Length - 1; i++)
-                {
-                    if (!Links[i].Arc)
-                    {
-                        /*if (Links[i].Selected)
-                        {
-                            g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
-                             + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Red, xSS, ySS);
-                        }
-                        else g.DrawString("Line" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx1=" + Links[i].x1.ToString() + " y1=" + Links[i].y1.ToString()
-                             + " x2=" + Links[i].x2.ToString() + " y2=" + Links[i].y2.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;*/
-                    }
-                    else
-                    {
-                       /* g.DrawString("Arc" + i.ToString() + " = " + Links[i].leight.ToString() + " : to mouse = " + Links[i].rst.ToString() +
-                            "\t\tx=" + Links[i].x1.ToString() + " y=" + Links[i].y1.ToString(), TextFont, System.Drawing.Brushes.Black, xSS, ySS);
-                        ySS += 20;*/
-                    }
-                }
-
-               // g.DrawString("mouse x = " + curX.ToString() + "\ty = " + curY.ToString(), TextFont, System.Drawing.Brushes.Black, 0, 0);
             }
         }
 
@@ -1048,58 +826,56 @@ namespace sku_to_smv
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void drawArea_MouseDown(object sender, MouseEventArgs e)
+        private void mouseDown(object sender, MouseEventArgs e)
         {
             foreach (State state in States)
             {
                 if (state.Selected)
                 {
-                    dragOffsetX = e.X - state.paintDot.x;
-                    dragOffsetY = e.Y - state.paintDot.y;
-                    paintDotSelectedState = new Dot(state.paintDot.x, state.paintDot.y);
+                    dragOffsetX = e.X - state.paintDot.X;
+                    dragOffsetY = e.Y - state.paintDot.Y;
+                    paintDotSelectedState = new Dot(state.paintDot.X, state.paintDot.Y);
                 }
             }
         }
 
-        private void relocationStates(Dot dot)
+        private void relocationStates(Point dot)
         {
             foreach (State state in States)
             {
                 if (state.Selected)
                 {
-                    state.paintDot.x = dot.x - dragOffsetX;
-                    state.paintDot.y = dot.y - dragOffsetY;
+                    state.paintDot.X = dot.X - dragOffsetX;
+                    state.paintDot.Y = dot.Y - dragOffsetY;
                     foreach (Link l in state.links)
                     {
                         l.calculateLocation();
                         if (l.lengthLink < 0 && !l.Arc)
                         {
                             int direction = state.Equals(l.startState) ? -1 : 1;
-                            state.paintDot.x += l.cosx * Math.Abs(l.lengthLink) * direction;
-                            state.paintDot.y += l.sinx * Math.Abs(l.lengthLink) * direction;
+                            state.paintDot.X += (int)(l.cosx * Math.Abs(l.lengthLink) * direction);
+                            state.paintDot.Y += (int)(l.sinx * Math.Abs(l.lengthLink) * direction);
                         }
                     }
                 }
             }
         }
-        private void drawArea_MouseClick(object sender, MouseEventArgs e)
+        private void mouseClick(object sender, MouseEventArgs e)
         {
             dragOffsetX = 0;
             dragOffsetY = 0;
             bool isStateChangeActivity = setActiveState();
             bool isSignalChangeActivity = setActiveSignal();
-            bool isTimeMarkChanged = setValueTimeMark(new Dot(e.X, e.Y));
-            if (isStateChangeActivity || isSignalChangeActivity || isTimeMarkChanged)
+            bool s = setValueTimeMark(new Point(e.X, e.Y));
+            if (isStateChangeActivity || isSignalChangeActivity || s)
             {
                 Refresh();
-                    tx.Location = new Point(e.X, e.Y);
-                    //tx.Visible = true;
             }         
         }
        
-        private void drawArea_MouseMove(object sender, MouseEventArgs e)
-        {         
-            Dot dot = new Dot(e.X, e.Y);
+        private void mouseMove(object sender, MouseEventArgs e)
+        {
+            Point dot = e.Location;
             if (e.Button.Equals(MouseButtons.Left))
             {
                 relocationStates(dot);
@@ -1382,8 +1158,8 @@ namespace sku_to_smv
             float tempScale;
             for (int i = 0; i < States.Length; i++ )
             {
-                if (States[i].paintDot.x > maxX) maxX = (int) States[i].paintDot.x;
-                if (States[i].paintDot.y > maxY) maxY = (int) States[i].paintDot.y;
+                if (States[i].paintDot.X > maxX) maxX = (int) States[i].paintDot.X;
+                if (States[i].paintDot.Y > maxY) maxY = (int) States[i].paintDot.Y;
             }
             Bitmap imageB = new Bitmap(maxX + 70, maxY + 70);
             Graphics graf = Graphics.FromImage(imageB);

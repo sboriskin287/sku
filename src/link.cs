@@ -53,24 +53,24 @@ namespace sku_to_smv
 
         private void setCosX()
         {
-            cosx = startState.paintDot.y == endState.paintDot.y
-                ? (endState.paintDot.x - startState.paintDot.x) / Math.Abs(endState.paintDot.x - startState.paintDot.x)
-                : (endState.paintDot.x - startState.paintDot.x) / lengthBetweenStatesCentre;
+            cosx = startState.paintDot.Y == endState.paintDot.Y
+                ? (endState.paintDot.X - startState.paintDot.X) / Math.Abs(endState.paintDot.X - startState.paintDot.X)
+                : (endState.paintDot.X - startState.paintDot.X) / lengthBetweenStatesCentre;
         }
 
         private void setSinX()
         {
-            sinx = startState.paintDot.x == endState.paintDot.x
-                ? (endState.paintDot.y - startState.paintDot.y) / Math.Abs(startState.paintDot.y - endState.paintDot.y)
-                : (endState.paintDot.y - startState.paintDot.y) / lengthBetweenStatesCentre;
+            sinx = startState.paintDot.X == endState.paintDot.X
+                ? (endState.paintDot.Y - startState.paintDot.Y) / Math.Abs(startState.paintDot.Y - endState.paintDot.Y)
+                : (endState.paintDot.Y - startState.paintDot.Y) / lengthBetweenStatesCentre;
         }
 
         private void calculateLength()
         {
             int radius = Properties.Settings.Default.StateDiametr / 2;
             lengthBetweenStatesCentre = (int)Math.Sqrt(
-                    Math.Pow(endState.paintDot.x - startState.paintDot.x, 2) +
-                    Math.Pow(startState.paintDot.y - endState.paintDot.y, 2));
+                    Math.Pow(endState.paintDot.X - startState.paintDot.X, 2) +
+                    Math.Pow(startState.paintDot.Y - endState.paintDot.Y, 2));
             lengthLink = -radius * 2 + lengthBetweenStatesCentre;
         }
 
@@ -84,8 +84,8 @@ namespace sku_to_smv
             float sin1 = sinx * cos30 + cosx * sin30; //sin(a+b) = sin(a)*cos(b) + cos(a)*sin(b);
             float cos2 = cosx * cos30 + sinx * sin30; //cos(a-b) = cos(a)*cos(b) + sin(a)*sin(b);
             float sin2 = sinx * cos30 - cosx * sin30; //sin(a-b) = sin(a)*cos(b) – cos(a)*sin(b);          
-            arrowDots[0] = new Dot(endDot.x - cos1 * arrowLength, endDot.y - sin1 * arrowLength);
-            arrowDots[1] = new Dot(endDot.x - cos2 * arrowLength, endDot.y - sin2 * arrowLength);
+            arrowDots[0] = new Dot(endDot.X - cos1 * arrowLength, endDot.Y - sin1 * arrowLength);
+            arrowDots[1] = new Dot(endDot.X - cos2 * arrowLength, endDot.Y - sin2 * arrowLength);
         }
 
         private void calculateStartAndEndDots()
@@ -94,17 +94,17 @@ namespace sku_to_smv
             {
                 int arcOffset = 18;
                 arcDot = new Dot(
-                    startState.paintDot.x - arcOffset,
-                    startState.paintDot.y - arcOffset);
+                    startState.paintDot.X - arcOffset,
+                    startState.paintDot.Y - arcOffset);
             } else
             {
                 int radius = Properties.Settings.Default.StateDiametr / 2;
                 float x = radius * cosx;
                 float y = radius * sinx;
-                startDot.x = startState.paintDot.x + radius + x;
-                startDot.y = startState.paintDot.y + radius + y;
-                endDot.x = endState.paintDot.x + radius - x;
-                endDot.y = endState.paintDot.y + radius - y;
+                startDot.X = startState.paintDot.X + radius + x;
+                startDot.Y = startState.paintDot.Y + radius + y;
+                endDot.X = endState.paintDot.X + radius - x;
+                endDot.Y = endState.paintDot.Y + radius - y;
             }       
         }
 

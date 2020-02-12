@@ -39,8 +39,8 @@ namespace sku_to_smv.src
                     if (s.name.Equals(name)) paintDots[i] = (l.Arc)
                             ? l.arcDot
                             : new Dot(
-                        l.startDot.x + (l.endDot.x - l.startDot.x) / 2 + j * 20,
-                        l.startDot.y + (l.endDot.y - l.startDot.y) / 2);
+                        l.startDot.X + (l.endDot.X - l.startDot.X) / 2 + j * 20,
+                        l.startDot.Y + (l.endDot.Y - l.startDot.Y) / 2);
                 }
             }
 		}

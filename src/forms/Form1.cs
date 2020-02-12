@@ -326,7 +326,7 @@ namespace sku_to_smv
 
         private void NewGraf_Click(object sender, EventArgs e)
         {
-            drawArea dwa = new drawArea();
+            DrawArea dwa = DrawArea.getInstance();
             dwa.Dock = System.Windows.Forms.DockStyle.Fill;
             dwa.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             dwa.Location = new System.Drawing.Point(3, 3);
@@ -396,7 +396,7 @@ namespace sku_to_smv
             {
                 if (this.tabControl1.TabPages[i].Name == "grafPage")
                 {
-                    (this.tabControl1.TabPages[i].Controls[0] as drawArea).ClosePipe();
+                    (this.tabControl1.TabPages[i].Controls[0] as DrawArea).ClosePipe();
                 }
             }
             if (this.WindowState != FormWindowState.Maximized)

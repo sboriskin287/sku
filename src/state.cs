@@ -37,8 +37,8 @@ namespace sku_to_smv
             int radius = Properties.Settings.Default.StateDiametr / 2;
             Font style = Properties.Settings.Default.DefaultText;
             nameDot = new Dot(
-                paintDot.x + radius - style.Size,
-                paintDot.y + radius - style.Size);
+                paintDot.X + radius - style.Size,
+                paintDot.Y + radius - style.Size);
         }
 
         public void calculateLocation()

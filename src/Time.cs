@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -9,10 +10,9 @@ namespace sku_to_smv.src
     public class Time
     {
         public String name;
-        public float value;
+        public int value;
         public Link[] links;
-        public Dot[] paintDots;       
-        public Dot textBoxDot;
+        public Dot[] paintDots;              
         public bool selected;
       
         public Time(String name)
@@ -21,7 +21,6 @@ namespace sku_to_smv.src
             value = 0;
             paintDots = new Dot[0];
             links = new Link[0];          
-            textBoxDot = null;
             selected = false;
         }
 
@@ -32,8 +31,8 @@ namespace sku_to_smv.src
             {
                 Link l = links[i];
                 paintDots[i] = new Dot(
-                    l.startDot.x + (l.endDot.x - l.startDot.x) / 2 + l.signals.Length * 20,
-                    l.startDot.y + (l.endDot.y - l.startDot.y) / 2);
+                    l.startDot.X + (l.endDot.X - l.startDot.X) / 2 + l.signals.Length * 20,
+                    l.startDot.Y + (l.endDot.Y - l.startDot.Y) / 2);
             }
         }
 
