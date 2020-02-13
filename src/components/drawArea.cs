@@ -50,8 +50,6 @@ namespace sku_to_smv
         HScrollBar hScroll;
         VScrollBar vScroll;
         ContextMenuStrip contextMenu;
-        ToolTip toolTip;
-        Point MouseLastPosition;
         System.Windows.Forms.Timer ClickToolPanelTimer;
         
         ToolPanel tools;
@@ -69,20 +67,12 @@ namespace sku_to_smv
         LogWriter log;
 
         int xT, yT/*, dx, dy*/;
-        int xs, ys, xM, yM;
         float dragOffsetX, dragOffsetY;
         Point paintDotSelectedState;
         int InputsLeight;
-        int OutputsLeight;
-        bool StateSelected;
-        bool LinkSelected;
-        //bool AddStateButtonSelected;
         bool TableCreated;
-        bool b_ShowDebugInfo;
         bool b_SavingImage;
-        int SelectedState;
         int stepNumber;
-        bool DrawInputs;
         bool b_EnableLogging;
 
         public bool b_SimulStarted { get; set; }
@@ -130,21 +120,16 @@ namespace sku_to_smv
             timeTb.Visible = false;
             Controls.Add(timeTb);
             //Отображение отладочной информации на графе
-            b_ShowDebugInfo = false;
             ScaleT = 1F;
             xT = 0;
             yT = 0;
             stepNumber = 1;
             InputsLeight = 0;
-            OutputsLeight = 0;
 
-            //AddStateButtonSelected = false;
             dragOffsetX = 0;
             dragOffsetY = 0;
             paintDotSelectedState = Point.Empty;
-            DrawInputs = true;
             b_SimulStarted = false;
-            LinkSelected = false;
             TableCreated = false;
             b_SavingImage = false;
             b_EnableLogging = true;
@@ -154,7 +139,6 @@ namespace sku_to_smv
             drawContext = new BufferedGraphicsContext();
             handler = new System.Windows.Forms.FormClosedEventHandler(this.TableClosed);
             this.components = new System.ComponentModel.Container();
-            this.toolTip = new ToolTip(components);
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             this.SuspendLayout();
@@ -295,11 +279,7 @@ namespace sku_to_smv
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove);
             this.SizeChanged += new EventHandler(this.AreaResized);
-            
-            // 
-            // Таймер, отсчитывает шаги симуляции
-            // 
-            //this.timer1.Interval = 2000;
+                  
             this.ClickToolPanelTimer = new System.Windows.Forms.Timer();
             this.ClickToolPanelTimer.Interval = 200;
             this.ClickToolPanelTimer.Tick += new System.EventHandler(this.ClickToolPanelTimer_Tick);
@@ -383,12 +363,7 @@ namespace sku_to_smv
                 }
             }
         }
-
-        private void canselStates()
-        {
-            States = new State[0];
-        }
-
+        
         private void drawStates(Graphics g)
         {
             int stateDiametr = Settings.Default.StateDiametr;
@@ -404,6 +379,11 @@ namespace sku_to_smv
                 if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);             
                 g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.X, state.nameDot.Y);             
             }
+        }
+
+        private void canselStates()
+        {
+            States = new State[0];
         }
 
         public void createLinks()
@@ -428,11 +408,6 @@ namespace sku_to_smv
             }
         }
 
-        private void canselLinks()
-        {
-            Links = new Link[0];
-        }
-
         private void drawLinks(Graphics g)
         {
             int arcRadius = Settings.Default.ArcCyrcleRadius;
@@ -454,6 +429,10 @@ namespace sku_to_smv
                 }
             }          
         }
+        private void canselLinks()
+        {
+            Links = new Link[0];
+        }
 
         public void createSignals()
         {
@@ -469,11 +448,6 @@ namespace sku_to_smv
             }
         }
 
-        private void canselSignals()
-        {
-            signals = new Signal[0];
-        }
-
         public void drawSignals(Graphics g)
         {
             foreach (Signal s in signals)
@@ -486,6 +460,11 @@ namespace sku_to_smv
                     g.DrawString(s.name, font, brush, d.X, d.Y);
                 }
             }
+        }
+
+        private void canselSignals()
+        {
+            signals = new Signal[0];
         }
 
         public void createTimeMarks()
@@ -507,11 +486,6 @@ namespace sku_to_smv
             }
         }
 
-        private void canselTimeMarks()
-        {
-            timeMarks = new Time[0];
-        }
-
         public void drawTimeMarks(Graphics g)
         {
             foreach (Time t in timeMarks)
@@ -525,14 +499,17 @@ namespace sku_to_smv
                 }   
             }
         }
+        private void canselTimeMarks()
+        {
+            timeMarks = new Time[0];
+        }
 
         public void canselDrawElements()
         {
             canselStates();
             canselLinks();
             canselSignals();
-            canselTimeMarks();
-            rules = new Rule[0];
+            canselTimeMarks();     
         }
 
         private Link getLinkByName(String name)
@@ -731,7 +708,7 @@ namespace sku_to_smv
                 tbVisible = tbVisible || tm.selected;
                 if (tm.selected)
                 {
-                    tbLocation = new Point(dot.X, dot.Y);
+                    tbLocation = dot;
                     selectedTm = tm;
                 }
             }
@@ -751,10 +728,69 @@ namespace sku_to_smv
                 || isStateChanged
                 || isSignalChanged
                 || isTimeMarkChanged;
+        }    
+
+        private void relocationStates(Point dot)
+        {
+            foreach (State state in States)
+            {
+                if (state.Selected)
+                {
+                    state.paintDot.X = dot.X - (int)dragOffsetX;
+                    state.paintDot.Y = dot.Y - (int)dragOffsetY;
+                    foreach (Link l in state.links)
+                    {
+                        l.calculateLocation();
+                        if (l.lengthLink < 0 && !l.Arc)
+                        {
+                            int direction = state.Equals(l.startState) ? -1 : 1;
+                            state.paintDot.X += (int)(l.cosx * Math.Abs(l.lengthLink) * direction);
+                            state.paintDot.Y += (int)(l.sinx * Math.Abs(l.lengthLink) * direction);
+                        }
+                    }
+                }
+            }
         }
-        /// <summary>
-        /// Функция обновления(рисования) объекта
-        /// </summary>
+
+        private void mouseMove(object sender, MouseEventArgs e)
+        {
+            Point dot = e.Location;
+            if (e.Button.Equals(MouseButtons.Left))
+            {
+                relocationStates(dot);
+            }
+            if (isElementsChanged(dot) || e.Button.Equals(MouseButtons.Left))
+            {
+                Refresh();
+            }
+        }
+
+        private void mouseDown(object sender, MouseEventArgs e)
+        {
+            foreach (State state in States)
+            {
+                if (state.Selected)
+                {
+                    dragOffsetX = e.X - state.paintDot.X;
+                    dragOffsetY = e.Y - state.paintDot.Y;
+                    paintDotSelectedState = new Point(state.paintDot.X, state.paintDot.Y);
+                }
+            }
+        }
+
+        private void mouseClick(object sender, MouseEventArgs e)
+        {
+            dragOffsetX = 0;
+            dragOffsetY = 0;
+            bool isStateChangeActivity = setActiveState();
+            bool isSignalChangeActivity = setActiveSignal();
+            bool s = setValueTimeMark(e.Location);
+            if (isStateChangeActivity || isSignalChangeActivity || s)
+            {
+                Refresh();
+            }         
+        }
+       
         private void Refresh(Graphics g)
         {
 
@@ -786,7 +822,7 @@ namespace sku_to_smv
                     }
                 }
                 tools.UpdateControlsLocation();
-                tools.Draw(ref g); 
+                tools.Draw(ref g);
             }
         }
 
@@ -821,70 +857,6 @@ namespace sku_to_smv
             yT = -vScroll.Value;
             Refresh();
         }
-        /// <summary>
-        /// Обработчик клика мышкой по области рисования
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void mouseDown(object sender, MouseEventArgs e)
-        {
-            foreach (State state in States)
-            {
-                if (state.Selected)
-                {
-                    dragOffsetX = e.X - state.paintDot.X;
-                    dragOffsetY = e.Y - state.paintDot.Y;
-                    paintDotSelectedState = new Point(state.paintDot.X, state.paintDot.Y);
-                }
-            }
-        }
-
-        private void relocationStates(Point dot)
-        {
-            foreach (State state in States)
-            {
-                if (state.Selected)
-                {
-                    state.paintDot.X = dot.X - (int)dragOffsetX;
-                    state.paintDot.Y = dot.Y - (int)dragOffsetY;
-                    foreach (Link l in state.links)
-                    {
-                        l.calculateLocation();
-                        if (l.lengthLink < 0 && !l.Arc)
-                        {
-                            int direction = state.Equals(l.startState) ? -1 : 1;
-                            state.paintDot.X += (int)(l.cosx * Math.Abs(l.lengthLink) * direction);
-                            state.paintDot.Y += (int)(l.sinx * Math.Abs(l.lengthLink) * direction);
-                        }
-                    }
-                }
-            }
-        }
-        private void mouseClick(object sender, MouseEventArgs e)
-        {
-            dragOffsetX = 0;
-            dragOffsetY = 0;
-            bool isStateChangeActivity = setActiveState();
-            bool isSignalChangeActivity = setActiveSignal();
-            bool s = setValueTimeMark(new Point(e.X, e.Y));
-            if (isStateChangeActivity || isSignalChangeActivity || s)
-            {
-                Refresh();
-            }         
-        }
-       
-        private void mouseMove(object sender, MouseEventArgs e)
-        {
-            Point dot = e.Location;
-            if (e.Button.Equals(MouseButtons.Left))
-            {
-                relocationStates(dot);
-            }
-            if (isElementsChanged(dot) || e.Button.Equals(MouseButtons.Left))
-            {
-                Refresh();
-            }
-        }        
 
         public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
         {

@@ -29,8 +29,14 @@ namespace sku_to_smv.src
 
         protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            e.Handled = !Char.IsDigit(e.KeyChar);
+            e.Handled = !char.IsDigit(e.KeyChar);
             base.OnKeyPress(e);
+        }
+
+        protected override void OnVisibleChanged(EventArgs e)
+        {
+            base.OnVisibleChanged(e);
+            Text = string.Empty;
         }
     }
 }
