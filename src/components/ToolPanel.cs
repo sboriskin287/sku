@@ -9,112 +9,137 @@ using sku_to_smv.Properties;
 
 namespace sku_to_smv
 {
-    enum MouseState { NONE, CLICK, HOVER};
-    enum Alignment{TOP, BOTTOM, LEFT, RIGHT};
-    class ToolPanel: Control
+    enum MouseState { NONE, CLICK, HOVER };
+    enum Alignment { TOP, BOTTOM, LEFT, RIGHT };
+    class ToolPanel : Control
     {
-        private int xLoc, yLoc;
-        new public Point Location { set; get; }
-        public Size size { set; get; }
-        new public Color BackColor { set; get; }
-        public Orientation PanelOrientation { set; get; }
-        public Alignment PanelAlignment{ set; get; }
-        public Collection<ToolButton> Buttons;
+        public Orientation PanelOrientation;
+        public Alignment PanelAlignment;
+        public Collection<Button> Buttons;
+        //public DrawArea area;
+        public static readonly Brush ToolPanelBrush = new SolidBrush(SystemColors.Control);
+        private static ToolPanel _instance;
+
+        public static ToolPanel getInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = new ToolPanel();
+            }
+            return _instance;
+        }
 
         public delegate void cToolButtonEventHandler(object sender, ToolButtonEventArgs a);
         public event cToolButtonEventHandler ButtonClicked;
 
-        public ToolPanel()
+        private ToolPanel()
         {
-            xLoc = 5;
-            yLoc = 5;
-            PanelOrientation = Orientation.Vertical;
-            PanelAlignment = Alignment.LEFT;
-            Buttons = new Collection<ToolButton>();
-            Location = new Point(0, 0);
-            size = new Size(40, 40);
-            BackColor = System.Drawing.SystemColors.Control;
+            Buttons = new Collection<Button>();
+            Location = new Point(50, 0);
+            Size = new Size(40, 500);
+
+            Button startButtnon = new Button();
+            //startButtnon.InactiveImage = Resources.create_simulation;
+            startButtnon.Image = Resources.create_simulation;
+            startButtnon.Name = "start";
+            startButtnon.Text = "Запустить симуляцию";
+            startButtnon.Location = Point.Empty;
+            //CalculateLocation(ref startButtnon);
+            Buttons.Add(startButtnon);
+
+            Button runButton = new Button();
+            //runButton.SetInactiveImage(Resources.play_grey);
+            runButton.Image = Resources.play;
+            runButton.Name = "run";
+            runButton.Text = "Запуск симуляции";
+            CalculateLocation(ref runButton);
+            Buttons.Add(runButton);
+
+            Button stepButton = new Button();
+            //stepButton.SetInactiveImage(Resources.step_grey);
+            stepButton.Image = Resources.step;
+            stepButton.Name = "step";
+            stepButton.Text = "Шаг с остановом";
+            CalculateLocation(ref stepButton);
+            Buttons.Add(stepButton);
+
+            Button stopSimulation = new Button();
+            //stopSimulation.SetInactiveImage(Resources.stop_grey);
+            stopSimulation.Image = Resources.stop;
+            stopSimulation.Name = "stop";
+            stopSimulation.Text = "Остановить симуляцию";
+            CalculateLocation(ref stopSimulation);
+            Buttons.Add(stopSimulation);
+
+            Button signalsTable = new Button();
+            //signalsTable.SetInactiveImage(Resources.table_grey);
+            signalsTable.Image = Resources.table;
+            signalsTable.Name = "table";
+            signalsTable.Text = "Таблица сигналов";
+            CalculateLocation(ref signalsTable);
+            Buttons.Add(signalsTable);
+
+            Button canselSignals = new Button();
+            //canselSignals.SetInactiveImage(Resources.table_grey);
+            canselSignals.Image = Resources.reset_all;
+            canselSignals.Name = "reset";
+            canselSignals.Text = "Сбросить все сигналы";
+            CalculateLocation(ref canselSignals);
+            Buttons.Add(canselSignals);
+
+            Button showLog = new Button();
+            //showLog.SetInactiveImage(Resources.table_grey);
+            showLog.Image = Resources.show_log;
+            showLog.Name = "showlog";
+            showLog.Text = "Показать лог-файл";
+            CalculateLocation(ref showLog);
+            Buttons.Add(showLog);
+
+            Controls.AddRange(Buttons.ToArray());
         }
-        private void OnButtonClicked(String Name)
+        public void CalculateLocation(ref Button button)
         {
-            cToolButtonEventHandler handler = ButtonClicked;
-            if (handler != null)
-                handler(this, new ToolButtonEventArgs(Name));
-        }
-        public void AddControl(ref ToolButton button)
-        {
-            if (PanelOrientation == Orientation.Vertical)
+            int x = Location.X + 3;
+            int y = Location.Y + 3;
+            if (PanelOrientation.Equals(Orientation.Vertical))
             {
-                button.Location = new Point(this.Location.X + 5, this.Location.Y + yLoc);
-                yLoc = yLoc + button.size.Height + 5;
-            }
+                y += (button.Size.Height + 5) * Buttons.Count;
+            } 
             else
             {
-                button.Location = new Point(this.Location.X + xLoc, this.Location.Y + 5);
-                xLoc = xLoc + button.size.Width + 5;
+                x += (button.Size.Width + 5) * Buttons.Count;
             }
-            Buttons.Add(button);
+            button.Location = new Point(x, y);
         }
-        public void UpdateControlsLocation()
+        /*public void UpdateControlsLocation()
         {
-            xLoc = yLoc = 5;
             switch (Settings.Default.ToolsPanelLocation)
             {
-                case 0: PanelOrientation = Orientation.Vertical;
+                case 0:
+                    PanelOrientation = Orientation.Vertical;
                     PanelAlignment = Alignment.LEFT;
                     break;
-                case 1: PanelOrientation = Orientation.Horizontal;
+                case 1:
+                    PanelOrientation = Orientation.Horizontal;
                     PanelAlignment = Alignment.TOP;
                     break;
-                case 2: PanelOrientation = Orientation.Vertical;
+                case 2:
+                    PanelOrientation = Orientation.Vertical;
                     PanelAlignment = Alignment.RIGHT;
                     break;
-                case 3: PanelOrientation = Orientation.Horizontal;
+                case 3:
+                    PanelOrientation = Orientation.Horizontal;
                     PanelAlignment = Alignment.BOTTOM;
                     break;
             }
-            for (int i = 0; i < Buttons.Count; i++ )
-            {
-                if (PanelOrientation == Orientation.Vertical)
-                {
-                    Buttons[i].Location = new Point(this.Location.X + 5, this.Location.Y + yLoc);
-                    yLoc = yLoc + Buttons[i].size.Height + 5;
-                }
-                else
-                {
-                    Buttons[i].Location = new Point(this.Location.X + xLoc, this.Location.Y + 5);
-                    xLoc = xLoc + Buttons[i].size.Width + 5;
-                }
-            }
-        }
-        public void Draw(ref Graphics g)
+        }*/       
+
+        private void DrawButtons(Graphics g)
         {
-            g.FillRectangle(new SolidBrush(BackColor), new Rectangle(Location, size));
-            for (int i = 0; i < Buttons.Count; i++ )
+            foreach (ToolButton b in Buttons)
             {
-                Buttons[i].Draw(ref g);
+                b.Draw(ref g);
             }
-        }
-        public String CheckMouseState(MouseEventArgs e, bool EventEnable)
-        {
-            int index = -1;
-//             if (e.X > Location.X && e.X < Location.X + size.Width && e.Y > Location.Y && e.Y < Location.Y + size.Height)
-//             {
-                for (int i = 0; i < Buttons.Count; i++)
-                {
-                    switch (Buttons[i].CheckMouseState(e))
-                    {
-                        case MouseState.NONE: break;
-                        case MouseState.HOVER: index = i; 
-                            break;
-                        case MouseState.CLICK: index = i; 
-                            if (EventEnable) OnButtonClicked(Buttons[i].Name);
-                            break;
-                    }
-                }
-           /* }*/
-                if (index != -1) return Buttons[index].Text;
-                else return null;
         }
     }
 
@@ -128,10 +153,10 @@ namespace sku_to_smv
         public string Name
         {
             get { return ButtonName; }
-        } 
+        }
     }
-    
-    class ToolButton
+
+    class ToolButton : Button
     {
         Bitmap image;
         Bitmap imageInactive;
@@ -142,7 +167,7 @@ namespace sku_to_smv
         public bool Enabled { set; get; }
         public bool Visible { set; get; }
         public Point Location { set; get; }
-        public Size size { set; get; }
+        public Size Size { set; get; }
         public Color BackColor { set; get; }
         public String Name { set; get; }
         public String Text { set; get; }
@@ -155,7 +180,7 @@ namespace sku_to_smv
             frame_hover = null;
             frame_click = null;
             Location = new Point(0, 0);
-            size = new Size(30, 30);
+            Size = new Size(30, 30);
             BackColor = System.Drawing.SystemColors.Control;
             Name = "Button";
             Text = "toolButton";
@@ -163,13 +188,16 @@ namespace sku_to_smv
             Visible = true;
             ms = MouseState.NONE;
             BackColor = Color.FromArgb(0, 0, 0, 0);
+            SetFrame(Resources.frame);
+            SetFrameHover(Resources.frame_hover);
+            SetFrameClick(Resources.frame_click);
         }
 
         public void Draw(ref Graphics g)
         {
             if (Visible)
             {
-                g.FillRectangle(new SolidBrush(BackColor), new Rectangle(Location, size));
+                g.FillRectangle(new SolidBrush(BackColor), new Rectangle(Location, Size));
                 if (Enabled)
                 {
                     if (image != null)
@@ -178,15 +206,15 @@ namespace sku_to_smv
                     {
                         case MouseState.NONE:
                             if (frame != null)
-                                g.DrawImage(frame, new Rectangle(Location, size));
+                                g.DrawImage(frame, new Rectangle(Location, Size));
                             break;
                         case MouseState.HOVER:
                             if (frame_hover != null)
-                                g.DrawImage(frame_hover, new Rectangle(Location, size));
+                                g.DrawImage(frame_hover, new Rectangle(Location, Size));
                             break;
                         case MouseState.CLICK:
                             if (frame_click != null)
-                                g.DrawImage(frame_click, new Rectangle(Location, size));
+                                g.DrawImage(frame_click, new Rectangle(Location, Size));
                             break;
                     }
                 }
@@ -195,7 +223,7 @@ namespace sku_to_smv
                     if (imageInactive != null)
                         g.DrawImage(imageInactive, new Rectangle(new Point(Location.X + 4, Location.Y + 4), new Size(22, 22)));
                     if (frame != null)
-                        g.DrawImage(frame, new Rectangle(Location, size));
+                        g.DrawImage(frame, new Rectangle(Location, Size));
                 }
             }
         }
@@ -287,7 +315,7 @@ namespace sku_to_smv
         public MouseState CheckMouseState(MouseEventArgs e)
         {
             if (e != null)
-                if ((e.X > Location.X && e.X < Location.X + size.Width && e.Y > Location.Y && e.Y < Location.Y + size.Height) && Visible)
+                if ((e.X > Location.X && e.X < Location.X + Size.Width && e.Y > Location.Y && e.Y < Location.Y + Size.Height) && Visible)
                 {
                     if (e.Button == MouseButtons.Left && Enabled)
                     {

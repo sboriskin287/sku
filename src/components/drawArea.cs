@@ -151,81 +151,13 @@ namespace sku_to_smv
 
             this.DoubleBuffered = true;
 
-            tools = new ToolPanel();
-            tools.BackColor = Color.FromArgb(120, 145, 217, 255);
+            tools = ToolPanel.getInstance();
+            tools.BackColor = Color.Pink;
             tools.ButtonClicked += this.ToolPanelButtonClicked;
             tools.PanelOrientation = Orientation.Vertical;
             tools.PanelAlignment = Alignment.RIGHT;
 
-            ToolButton tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.create_simulation);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.create_simulation);
-            tButton.Name = "start";
-            tButton.Text = "Запустить симуляцию";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.play_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.play);
-            tButton.Name = "run";
-            tButton.Text = "Запуск симуляции";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.step_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.step);
-            tButton.Name = "step";
-            tButton.Text = "Шаг с остановом";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.stop_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.stop);
-            tButton.Name = "stop";
-            tButton.Text = "Остановить симуляцию";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.table);
-            tButton.Name = "table";
-            tButton.Text = "Таблица сигналов";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.reset_all);
-            tButton.Name = "reset";
-            tButton.Text = "Сбросить все сигналы";
-            tools.AddControl(ref tButton);
-
-            tButton = new ToolButton();
-            tButton.SetFrame(global::sku_to_smv.Properties.Resources.frame);
-            tButton.SetFrameHover(global::sku_to_smv.Properties.Resources.frame_hover);
-            tButton.SetFrameClick(global::sku_to_smv.Properties.Resources.frame_click);
-            //tButton.SetInactiveImage(global::sku_to_smv.Properties.Resources.table_grey);
-            tButton.SetImage(global::sku_to_smv.Properties.Resources.show_log);
-            tButton.Name = "showlog";
-            tButton.Text = "Показать лог-файл";
-            tools.AddControl(ref tButton);
+            
 
             tools.Buttons[1].Enabled = false;
             tools.Buttons[2].Enabled = false;
@@ -243,6 +175,7 @@ namespace sku_to_smv
 
             this.Controls.Add(hScroll);
             this.Controls.Add(vScroll);
+            Controls.Add(tools);
 
             hScroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -273,12 +206,12 @@ namespace sku_to_smv
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
             g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
 
-            ApplySettings();
+            //ApplySettings();
 
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.mouseClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove);
-            this.SizeChanged += new EventHandler(this.AreaResized);
+            //this.SizeChanged += new EventHandler(this.AreaResized);
                   
             this.ClickToolPanelTimer = new System.Windows.Forms.Timer();
             this.ClickToolPanelTimer.Interval = 200;
@@ -338,6 +271,7 @@ namespace sku_to_smv
             drawLinks(g);
             drawSignals(g);
             drawTimeMarks(g);
+            //PaintToolPanel(g);
         }
 
         public void createStates()
@@ -791,7 +725,7 @@ namespace sku_to_smv
             }         
         }
        
-        private void Refresh(Graphics g)
+        private void PaintToolPanel(Graphics g)
         {
 
             //Отрисовка панели инструментов
@@ -800,29 +734,29 @@ namespace sku_to_smv
                 if (tools.PanelOrientation == Orientation.Vertical)
                     if (tools.PanelAlignment == Alignment.LEFT)
                     {
-                        tools.size = new Size(40, this.Size.Height);
+                        tools.Size = new Size(40, this.Size.Height);
                         tools.Location = new Point(0, 0);
                     }
                     else
                     {
-                        tools.size = new Size(40, this.Size.Height);
+                        tools.Size = new Size(40, this.Size.Height);
                         tools.Location = new Point(this.Size.Width - 40 - vScroll.Size.Width, 0);
                     }
                 else
                 {
                     if (tools.PanelAlignment == Alignment.TOP)
                     {
-                        tools.size = new Size(this.Size.Width, 40);
+                        tools.Size = new Size(this.Size.Width, 40);
                         tools.Location = new Point(0, 0);
                     }
                     else
                     {
-                        tools.size = new Size(this.Size.Width, 40);
+                        tools.Size = new Size(this.Size.Width, 40);
                         tools.Location = new Point(0, this.Size.Height - 40 - hScroll.Size.Height);
                     }
                 }
-                tools.UpdateControlsLocation();
-                tools.Draw(ref g);
+                //tools.UpdateControlsLocation();
+                //tools.Draw(g);
             }
         }
 
@@ -1145,7 +1079,7 @@ namespace sku_to_smv
             yT = 0;
             ScaleT = 1F;
             b_SavingImage = true;
-            Refresh(graf);
+            //Refresh(graf);
             b_SavingImage = false;
             xT = tempX;
             yT = tempY;
@@ -1197,11 +1131,6 @@ namespace sku_to_smv
             Array.Resize(ref Links, 0);
             Array.Resize(ref States, 0);
             GC.Collect();
-        }
-
-        private void drawTime(Graphics g, float time, float x, float y)
-        {
-            if (time != 0) g.DrawString(time.ToString(), new Font("TimesNewRoman", 20), Brushes.Black, x, y);
         }
     } 
 }
