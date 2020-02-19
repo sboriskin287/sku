@@ -35,19 +35,21 @@ namespace sku_to_smv
         private ToolPanel()
         {
             Buttons = new Collection<Button>();
-            Location = new Point(50, 0);
-            Size = new Size(40, 500);
+            PanelOrientation = Orientation.Vertical;
+            Location = new Point(0, 0);
+            Size = new Size(41, 500);
 
-            Button startButtnon = new Button();
+            Button startButtnon = new ToolButton();
             //startButtnon.InactiveImage = Resources.create_simulation;
-            startButtnon.Image = Resources.create_simulation;
+            startButtnon.Image = Resources.play;
             startButtnon.Name = "start";
             startButtnon.Text = "Запустить симуляцию";
-            startButtnon.Location = Point.Empty;
-            //CalculateLocation(ref startButtnon);
+            //startButtnon.Location = Point.Empty;
+            startButtnon.Click += new EventHandler(onClickSimulStart);
+            CalculateLocation(ref startButtnon);
             Buttons.Add(startButtnon);
 
-            Button runButton = new Button();
+            Button runButton = new ToolButton();
             //runButton.SetInactiveImage(Resources.play_grey);
             runButton.Image = Resources.play;
             runButton.Name = "run";
@@ -55,7 +57,7 @@ namespace sku_to_smv
             CalculateLocation(ref runButton);
             Buttons.Add(runButton);
 
-            Button stepButton = new Button();
+            Button stepButton = new ToolButton();
             //stepButton.SetInactiveImage(Resources.step_grey);
             stepButton.Image = Resources.step;
             stepButton.Name = "step";
@@ -63,7 +65,7 @@ namespace sku_to_smv
             CalculateLocation(ref stepButton);
             Buttons.Add(stepButton);
 
-            Button stopSimulation = new Button();
+            Button stopSimulation = new ToolButton();
             //stopSimulation.SetInactiveImage(Resources.stop_grey);
             stopSimulation.Image = Resources.stop;
             stopSimulation.Name = "stop";
@@ -71,7 +73,7 @@ namespace sku_to_smv
             CalculateLocation(ref stopSimulation);
             Buttons.Add(stopSimulation);
 
-            Button signalsTable = new Button();
+            Button signalsTable = new ToolButton();
             //signalsTable.SetInactiveImage(Resources.table_grey);
             signalsTable.Image = Resources.table;
             signalsTable.Name = "table";
@@ -79,7 +81,7 @@ namespace sku_to_smv
             CalculateLocation(ref signalsTable);
             Buttons.Add(signalsTable);
 
-            Button canselSignals = new Button();
+            Button canselSignals = new ToolButton();
             //canselSignals.SetInactiveImage(Resources.table_grey);
             canselSignals.Image = Resources.reset_all;
             canselSignals.Name = "reset";
@@ -87,20 +89,19 @@ namespace sku_to_smv
             CalculateLocation(ref canselSignals);
             Buttons.Add(canselSignals);
 
-            Button showLog = new Button();
+            Button showLog = new ToolButton();
             //showLog.SetInactiveImage(Resources.table_grey);
             showLog.Image = Resources.show_log;
             showLog.Name = "showlog";
             showLog.Text = "Показать лог-файл";
             CalculateLocation(ref showLog);
             Buttons.Add(showLog);
-
             Controls.AddRange(Buttons.ToArray());
         }
         public void CalculateLocation(ref Button button)
         {
-            int x = Location.X + 3;
-            int y = Location.Y + 3;
+            int x = 3;
+            int y = 3;
             if (PanelOrientation.Equals(Orientation.Vertical))
             {
                 y += (button.Size.Height + 5) * Buttons.Count;
@@ -133,15 +134,15 @@ namespace sku_to_smv
                     break;
             }
         }*/       
-
-        private void DrawButtons(Graphics g)
+      
+        private void onClickSimulStart(object sender, EventArgs e)
         {
-            foreach (ToolButton b in Buttons)
-            {
-                b.Draw(ref g);
-            }
+            DrawArea area = DrawArea.getInstance();
+            area.SimulStarted = true;
+            Buttons[1].Enabled = true;
         }
     }
+
 
     public class ToolButtonEventArgs : EventArgs
     {
@@ -164,13 +165,6 @@ namespace sku_to_smv
         Bitmap frame_hover;
         Bitmap frame_click;
         MouseState ms;
-        public bool Enabled { set; get; }
-        public bool Visible { set; get; }
-        public Point Location { set; get; }
-        public Size Size { set; get; }
-        public Color BackColor { set; get; }
-        public String Name { set; get; }
-        public String Text { set; get; }
 
         public ToolButton()
         {
@@ -179,9 +173,9 @@ namespace sku_to_smv
             frame = null;
             frame_hover = null;
             frame_click = null;
-            Location = new Point(0, 0);
-            Size = new Size(30, 30);
-            BackColor = System.Drawing.SystemColors.Control;
+            Location = Point.Empty;
+            Size = new Size(35, 35);
+            BackColor = SystemColors.Control;
             Name = "Button";
             Text = "toolButton";
             Enabled = true;
@@ -193,16 +187,18 @@ namespace sku_to_smv
             SetFrameClick(Resources.frame_click);
         }
 
-        public void Draw(ref Graphics g)
+        public void Draw(Graphics g)
         {
+            g.Clear(Color.White);
             if (Visible)
             {
-                g.FillRectangle(new SolidBrush(BackColor), new Rectangle(Location, Size));
-                if (Enabled)
+                //g.FillRectangle(new SolidBrush(BackColor), new Rectangle(Location, Size));
+                if (true)
                 {
-                    if (image != null)
-                        g.DrawImage(image, new Rectangle(new Point(Location.X + 4, Location.Y + 4), new Size(22, 22)));
-                    switch (ms)
+                    if (Image != null)
+                        
+                        g.DrawImage(Image, new Rectangle(new Point(Location.X + 4, Location.Y + 4), new Size(22, 22)));
+                    /*switch (ms)
                     {
                         case MouseState.NONE:
                             if (frame != null)
@@ -216,14 +212,14 @@ namespace sku_to_smv
                             if (frame_click != null)
                                 g.DrawImage(frame_click, new Rectangle(Location, Size));
                             break;
-                    }
+                    }*/
                 }
                 else
                 {
-                    if (imageInactive != null)
+                    /*if (imageInactive != null)
                         g.DrawImage(imageInactive, new Rectangle(new Point(Location.X + 4, Location.Y + 4), new Size(22, 22)));
                     if (frame != null)
-                        g.DrawImage(frame, new Rectangle(Location, Size));
+                        g.DrawImage(frame, new Rectangle(Location, Size));*/
                 }
             }
         }

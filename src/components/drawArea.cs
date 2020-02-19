@@ -75,7 +75,7 @@ namespace sku_to_smv
         int stepNumber;
         bool b_EnableLogging;
 
-        public bool b_SimulStarted { get; set; }
+        public bool SimulStarted { get; set; }
         public String LogFileName { get; set; }
         private System.Windows.Forms.Timer timer1;
         private System.ComponentModel.IContainer components;
@@ -129,7 +129,7 @@ namespace sku_to_smv
             dragOffsetX = 0;
             dragOffsetY = 0;
             paintDotSelectedState = Point.Empty;
-            b_SimulStarted = false;
+            SimulStarted = false;
             TableCreated = false;
             b_SavingImage = false;
             b_EnableLogging = true;
@@ -591,9 +591,21 @@ namespace sku_to_smv
             {
                 bool isNeedChangeActivity = s.Selected && paintDotSelectedState.Equals(s.paintDot);
                 isChanged = isChanged || isNeedChangeActivity;
-                if (isNeedChangeActivity) s.Active = !s.Active;
+                if (isNeedChangeActivity)
+                {
+                    s.Active = !s.Active;
+                    canselStates(s);
+                }
             }
             return isChanged;
+        }
+
+        private void canselStates(State state)
+        {
+            foreach (State s in States)
+            {
+                s.Active = s.Equals(state) && s.Active;
+            }
         }
 
         private bool setSelectedTimeMarks(Point dot)
@@ -716,13 +728,10 @@ namespace sku_to_smv
         {
             dragOffsetX = 0;
             dragOffsetY = 0;
-            bool isStateChangeActivity = setActiveState();
+            bool isStateChangeActivity = !SimulStarted ? setActiveState() : false;
             bool isSignalChangeActivity = setActiveSignal();
             bool s = setValueTimeMark(e.Location);
-            if (isStateChangeActivity || isSignalChangeActivity || s)
-            {
-                Refresh();
-            }         
+            if (isStateChangeActivity || isSignalChangeActivity || s) Refresh(); 
         }
        
         private void PaintToolPanel(Graphics g)
@@ -1124,7 +1133,7 @@ namespace sku_to_smv
         }
         public void ClearArea()
         {
-            if (b_SimulStarted)
+            if (SimulStarted)
             {
                 //CreateSimul(null, null);
             }

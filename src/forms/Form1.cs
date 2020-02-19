@@ -413,7 +413,7 @@ namespace sku_to_smv
 
         private void toolStripButton10_Click(object sender, EventArgs e)
         {
-            if (!pictureBox1.b_SimulStarted)
+            if (!pictureBox1.SimulStarted)
             {
                 this.toolStripButton10.Image = global::sku_to_smv.Properties.Resources.stop_simulation;
                 this.toolStripButton10.Text = "Остановить симуляцию";

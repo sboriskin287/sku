@@ -504,7 +504,7 @@ namespace sku_to_smv
             // 
             // pictureBox1
             // 
-            this.pictureBox1.b_SimulStarted = false;
+            this.pictureBox1.SimulStarted = false;
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.LogFileName = "";
