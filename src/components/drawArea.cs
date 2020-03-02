@@ -161,8 +161,8 @@ namespace sku_to_smv
 
             tools.Buttons[1].Enabled = false;
             tools.Buttons[2].Enabled = false;
-            tools.Buttons[3].Enabled = false;
-            tools.Buttons[4].Enabled = false;
+            //tools.Buttons[3].Enabled = false;
+            //tools.Buttons[4].Enabled = false;
 
             hScroll = new HScrollBar();
             vScroll = new VScrollBar();
@@ -224,9 +224,9 @@ namespace sku_to_smv
         public void ApplySettings()
         {
             b_EnableLogging = Settings.Default.LogSimulation;
-            if (b_EnableLogging)
+            /*if (b_EnableLogging)
                 tools.Buttons[6].Visible = true;
-            else tools.Buttons[6].Visible = false;
+            else tools.Buttons[6].Visible = false;*/
 
             if (timer1.Enabled)
             {
@@ -446,7 +446,7 @@ namespace sku_to_smv
             canselTimeMarks();     
         }
 
-        private Link getLinkByName(String name)
+        public Link getLinkByName(String name)
         {
             foreach (Link link in this.Links)
             {
@@ -480,6 +480,27 @@ namespace sku_to_smv
                 if (t.name.Equals(name)) return t;
             }
             return null;
+        }
+
+        public State getActiveState()
+        {
+            foreach (State s in States)
+            {
+                if (s.Active) return s;
+            }
+            return null;
+        }
+
+        public List<Rule> getRulesWithActiveState()
+        {
+            List<Rule> activeRules = new List<Rule>();
+            State activeState = getActiveState();
+            foreach(Rule r in rules)
+            {
+                if (r.startState.Equals(activeState)) 
+                    activeRules.Add(r);
+            }
+            return activeRules;
         }
 
         private void addState(State state)

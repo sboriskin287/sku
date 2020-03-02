@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\MessageDIalog.cs" />
     <Compile Include="src\Time.cs" />
     <Compile Include="src\TimeTextBox.cs">
       <SubType>Component</SubType>

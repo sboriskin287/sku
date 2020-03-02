@@ -6,6 +6,7 @@ using System.Text;
 using System.Drawing;
 using System.Windows.Forms;
 using sku_to_smv.Properties;
+using sku_to_smv.src;
 
 namespace sku_to_smv
 {
@@ -49,13 +50,13 @@ namespace sku_to_smv
             CalculateLocation(ref startButtnon);
             Buttons.Add(startButtnon);
 
-            Button runButton = new ToolButton();
+            /*Button runButton = new ToolButton();
             //runButton.SetInactiveImage(Resources.play_grey);
             runButton.Image = Resources.play;
             runButton.Name = "run";
             runButton.Text = "Запуск симуляции";
             CalculateLocation(ref runButton);
-            Buttons.Add(runButton);
+            Buttons.Add(runButton);*/
 
             Button stepButton = new ToolButton();
             //stepButton.SetInactiveImage(Resources.step_grey);
@@ -63,6 +64,7 @@ namespace sku_to_smv
             stepButton.Name = "step";
             stepButton.Text = "Шаг с остановом";
             CalculateLocation(ref stepButton);
+            stepButton.Click += new EventHandler(onClickStep);
             Buttons.Add(stepButton);
 
             Button stopSimulation = new ToolButton();
@@ -71,9 +73,10 @@ namespace sku_to_smv
             stopSimulation.Name = "stop";
             stopSimulation.Text = "Остановить симуляцию";
             CalculateLocation(ref stopSimulation);
+            stopSimulation.Click += onClickStop;
             Buttons.Add(stopSimulation);
 
-            Button signalsTable = new ToolButton();
+            /*Button signalsTable = new ToolButton();
             //signalsTable.SetInactiveImage(Resources.table_grey);
             signalsTable.Image = Resources.table;
             signalsTable.Name = "table";
@@ -95,7 +98,7 @@ namespace sku_to_smv
             showLog.Name = "showlog";
             showLog.Text = "Показать лог-файл";
             CalculateLocation(ref showLog);
-            Buttons.Add(showLog);
+            Buttons.Add(showLog);*/
             Controls.AddRange(Buttons.ToArray());
         }
         public void CalculateLocation(ref Button button)
@@ -138,8 +141,50 @@ namespace sku_to_smv
         private void onClickSimulStart(object sender, EventArgs e)
         {
             DrawArea area = DrawArea.getInstance();
+            State activeState = area.getActiveState();
+            if (activeState == null)
+            {
+                MessageDialog.activeStateIsNull();
+                return;
+            }
             area.SimulStarted = true;
+            Buttons[0].Enabled = false;
             Buttons[1].Enabled = true;
+            Buttons[2].Enabled = true;
+        }
+
+        private void onClickStep(object sender, EventArgs e)
+        {
+            DrawArea area = DrawArea.getInstance();
+            State activeState = area.getActiveState();
+            if (activeState == null) return;
+            List<Rule> activeRules = area.getRulesWithActiveState();
+            bool anythingTransfered = false;
+            foreach (Rule r in activeRules)
+            {
+                Link l = area.getLinkByName(r.startState.Name + r.endState.Name);
+                bool linkActive = l != null;
+                if (linkActive)
+                {
+                    foreach (Signal s in l.signals)
+                    {
+                        linkActive = linkActive && s.Active;
+                    }
+                }
+                r.endState.Active = linkActive;
+                anythingTransfered = anythingTransfered || linkActive;
+            }
+            activeState.Active = !anythingTransfered;
+            area.Refresh();
+        }
+
+        private void onClickStop(object sender, EventArgs e)
+        {
+            DrawArea area = DrawArea.getInstance();
+            area.SimulStarted = false;
+            Buttons[0].Enabled = true;
+            Buttons[1].Enabled = false;
+            Buttons[2].Enabled = false;
         }
     }
 
