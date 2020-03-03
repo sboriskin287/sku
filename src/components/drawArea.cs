@@ -25,6 +25,14 @@ namespace sku_to_smv
         public static readonly Brush stateActiveBrush = new SolidBrush(Settings.Default.ColorFillActiveState);
         public static readonly Font defaultTextFont = Settings.Default.DefaultText;
         public static readonly Brush defaultTextBrush = new SolidBrush(Settings.Default.ColorDefaultTextBrush);
+
+        public static readonly int StateCentre = Settings.Default.StateCentre;
+        public static readonly int OffsetX = Settings.Default.OffsetStateX;
+        public static readonly int OffsetY = Settings.Default.OffsetStateY;
+        public static readonly int ArcCyrcleRadius = Settings.Default.ArcCyrcleRadius;
+        public static readonly int ArcStartAngle = Settings.Default.ArcStartAngle;
+        public static readonly int ArcSweepAngle = Settings.Default.ArcSweepAngle;
+        public static readonly int StateDiametr = Settings.Default.StateDiametr;
         //Links
         public static readonly Pen linkDefaultPen = new Pen(Settings.Default.ColorDefaultLink, 2);
         public static readonly Pen linkSelectedPen = new Pen(Settings.Default.ColorSelectedLink, 4);
@@ -47,240 +55,68 @@ namespace sku_to_smv
             return _instnce;
         }
 
-        HScrollBar hScroll;
-        VScrollBar vScroll;
-        ContextMenuStrip contextMenu;
-        System.Windows.Forms.Timer ClickToolPanelTimer;
-        
-        ToolPanel tools;
-        Graphics g;
         public State[] States;
         public Link[] Links;
-        public Signal[] signals;
-        public Time[] timeMarks;
-        public Rule[] rules;
-        NamedPipeServerStream pipe;
-        StreamWriter sw;
-        SignalTable table;
-        BufferedGraphicsContext drawContext;
-        BufferedGraphics drawBuffer;
-        LogWriter log;
-
-        int xT, yT/*, dx, dy*/;
-        float dragOffsetX, dragOffsetY;
-        Point paintDotSelectedState;
-        int InputsLeight;
-        bool TableCreated;
-        bool b_SavingImage;
-        int stepNumber;
-        bool b_EnableLogging;
-
-        public bool SimulStarted { get; set; }
-        public String LogFileName { get; set; }
-        private System.Windows.Forms.Timer timer1;
-        private System.ComponentModel.IContainer components;
-        FormClosedEventHandler handler;
-
-        public delegate void drawAreaEventHandler(object sender, EventArgs a);
-        public event drawAreaEventHandler SimulationStarted;
-        public event drawAreaEventHandler SimulationStoped;
-
-        private float scaleT; 
-        
-        public float ScaleT
-        {
-            get { return scaleT; }
-            set
-            {
-                scaleT = value;              
-            }
-        }
+        public Signal[] Signals;
+        public Time[] TimeMarks;
+        public Rule[] Rules;       
+        private float DragOffsetX, DragOffsetY;
+        private Point PaintDotSelectedState;
+        public bool SimulStarted;
+        ToolPanel Tools;
 
         private DrawArea()
         {
             InitializeArea();
         }
-        ~DrawArea() 
+        ~DrawArea()
         {
-            hScroll.Dispose();
-            vScroll.Dispose();
-            g.Dispose();
             Array.Clear(States, 0, States.Length);
             Array.Clear(Links, 0, Links.Length);
+            Array.Clear(Signals, 0, Links.Length);
+
         }
-        /// <summary>
-        /// Функция инициализации области рисования
-        /// </summary>
         private void InitializeArea()
         {
-            timeTb = new TimeTextBox(this);
-            timeTb.Size = new Size(50, 20);
-            timeTb.TabIndex = 5;
-            timeTb.Dock = DockStyle.None;
-            timeTb.Visible = false;
+            timeTb = TimeTextBox.getInstance(this);
             Controls.Add(timeTb);
-            //Отображение отладочной информации на графе
-            ScaleT = 1F;
-            xT = 0;
-            yT = 0;
-            stepNumber = 1;
-            InputsLeight = 0;
-
-            dragOffsetX = 0;
-            dragOffsetY = 0;
-            paintDotSelectedState = Point.Empty;
+            DragOffsetX = 0;
+            DragOffsetY = 0;
+            PaintDotSelectedState = Point.Empty;
             SimulStarted = false;
-            TableCreated = false;
-            b_SavingImage = false;
-            b_EnableLogging = true;
-            LogFileName = "";
-
-            log = new LogWriter();
-            drawContext = new BufferedGraphicsContext();
-            handler = new System.Windows.Forms.FormClosedEventHandler(this.TableClosed);
-            this.components = new System.ComponentModel.Container();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
             this.SuspendLayout();
-
             Links = new Link[0];
             States = new State[0];
-            signals = new Signal[0];
-            timeMarks = new Time[0];
-            rules = new Rule[0];
-
+            Signals = new Signal[0];
+            TimeMarks = new Time[0];
+            Rules = new Rule[0];
             this.DoubleBuffered = true;
-
-            tools = ToolPanel.getInstance();
-            tools.BackColor = Color.Pink;
-            tools.ButtonClicked += this.ToolPanelButtonClicked;
-            tools.PanelOrientation = Orientation.Vertical;
-            tools.PanelAlignment = Alignment.RIGHT;
-
-            
-
-            tools.Buttons[1].Enabled = false;
-            tools.Buttons[2].Enabled = false;
-            //tools.Buttons[3].Enabled = false;
-            //tools.Buttons[4].Enabled = false;
-
-            hScroll = new HScrollBar();
-            vScroll = new VScrollBar();
-            contextMenu = new ContextMenuStrip(components);
-            contextMenu.Visible = false;
-            contextMenu.Items.Add("Установить 1");
-            contextMenu.Items.Add("Всегда 1");
-            contextMenu.Items.Add("Установить 0");
-            contextMenu.ItemClicked += new ToolStripItemClickedEventHandler(this.contextMenuClick);
-
-            this.Controls.Add(hScroll);
-            this.Controls.Add(vScroll);
-            Controls.Add(tools);
-
-            hScroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            hScroll.LargeChange = 50;
-            hScroll.Location = new System.Drawing.Point(0, this.Height - 20);
-            hScroll.Maximum = 1000;
-            hScroll.Name = "hScroll";
-            hScroll.Size = new System.Drawing.Size(this.Width - 20, 20);
-            hScroll.TabIndex = 2;
-            hScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.hScroll_Scroll);
-
-            vScroll.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            vScroll.LargeChange = 50;
-            vScroll.Location = new System.Drawing.Point(this.Width - 20, 0);
-            vScroll.Maximum = 1000;
-            vScroll.Name = "vScroll";
-            vScroll.Size = new System.Drawing.Size(20, this.Height);
-            vScroll.TabIndex = 1;
-            vScroll.Scroll += new System.Windows.Forms.ScrollEventHandler(this.vScroll_Scroll);
-
-
-
-            //графический буфер
-            drawBuffer = drawContext.Allocate(this.CreateGraphics(), this.ClientRectangle);
-            g = drawBuffer.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
-
-            //ApplySettings();
-
-            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.mouseClick);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.mouseDown);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.mouseMove);
-            //this.SizeChanged += new EventHandler(this.AreaResized);
-                  
-            this.ClickToolPanelTimer = new System.Windows.Forms.Timer();
-            this.ClickToolPanelTimer.Interval = 200;
-            this.ClickToolPanelTimer.Tick += new System.EventHandler(this.ClickToolPanelTimer_Tick);
-
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            Tools = ToolPanel.getInstance();
+            Controls.Add(Tools);          
+            this.MouseClick += new MouseEventHandler(this.mouseClick);
+            this.MouseDown += new MouseEventHandler(this.mouseDown);
+            this.MouseMove += new MouseEventHandler(this.mouseMove);
             ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
             this.ResumeLayout(false);
-        }
-        public void ApplySettings()
-        {
-            b_EnableLogging = Settings.Default.LogSimulation;
-            /*if (b_EnableLogging)
-                tools.Buttons[6].Visible = true;
-            else tools.Buttons[6].Visible = false;*/
-
-            if (timer1.Enabled)
-            {
-                timer1.Stop();
-                timer1.Interval = int.Parse(Settings.Default.SimulationPeriod);
-                timer1.Start();
-            }
-            else timer1.Interval = int.Parse(Settings.Default.SimulationPeriod);
-
-            Refresh();
-        }
-        /// <summary>
-        /// Закрывает именованный канал
-        /// </summary>
-        public void ClosePipe()
-        {
-            if (pipe != null)
-            {
-                if (pipe.IsConnected)
-                {
-                    WritePipe(0, 0, 'e');
-                    if (pipe.IsConnected) pipe.Disconnect();
-                }
-                sw = null;
-                pipe = null;
-                GC.Collect();
-            }
-        }
-        public override void Refresh()
-        {
-            base.Refresh();         
-            RefreshArea(g);
-            drawBuffer.Render();
-            this.vScroll.Maximum = (int)(1000.0 * ScaleT);
-            this.hScroll.Maximum = (int)(1000.0 * ScaleT);
-        }
+        }  
 
         private void RefreshArea(Graphics g)
         {
-            g.Clear(System.Drawing.Color.White);
+            g.Clear(Color.White);
             drawStates(g);
             drawLinks(g);
             drawSignals(g);
             drawTimeMarks(g);
-            //PaintToolPanel(g);
         }
 
         public void createStates()
         {
-            int stateDefaultCentreX = Settings.Default.StateCentre;
-            int stateDefaultCentreY = Settings.Default.StateCentre;
-            int offsetStateX = Settings.Default.OffsetStateX;
-            int offsetStateY = Settings.Default.OffsetStateY;
-            foreach (Rule rule in this.rules)
+            int stateDefaultCentreX = StateCentre;
+            int stateDefaultCentreY = StateCentre;
+            int offsetStateX = OffsetX;
+            int offsetStateY = OffsetY;
+            foreach (Rule rule in this.Rules)
             {
                 State startState = rule.startState;
                 State endState = rule.endState;
@@ -300,7 +136,7 @@ namespace sku_to_smv
         
         private void drawStates(Graphics g)
         {
-            int stateDiametr = Settings.Default.StateDiametr;
+            int stateDiametr = StateDiametr;
             foreach (State state in States)
             {
                 state.calculateLocation();
@@ -322,7 +158,7 @@ namespace sku_to_smv
 
         public void createLinks()
         {
-            foreach (Rule rule in rules)
+            foreach (Rule rule in Rules)
             {
                 Link link = getLinkByName(rule.startState.Name + rule.endState.Name);
                 if (link == null)
@@ -344,9 +180,9 @@ namespace sku_to_smv
 
         private void drawLinks(Graphics g)
         {
-            int arcRadius = Settings.Default.ArcCyrcleRadius;
-            int arcStartAngle = Settings.Default.ArcStartAngle;
-            int arcSweepAngle = Settings.Default.ArcSweepAngle;
+            int arcRadius = ArcCyrcleRadius;
+            int arcStartAngle = ArcStartAngle;
+            int arcSweepAngle = ArcSweepAngle;
             foreach (Link link in Links)
             {       
                 Pen linkPen = link.Selected ? linkSelectedPen : linkDefaultPen;
@@ -370,21 +206,21 @@ namespace sku_to_smv
 
         public void createSignals()
         {
-            foreach (Rule rule in rules)
+            foreach (Rule rule in Rules)
             {
                 Signal s = getSignalByName(rule.signal.name);
                 if (s == null)
                 {
                     s = rule.signal;
-                    Array.Resize(ref signals, signals.Length + 1);
-                    signals[signals.Length - 1] = s;
+                    Array.Resize(ref Signals, Signals.Length + 1);
+                    Signals[Signals.Length - 1] = s;
                 }
             }
         }
 
         public void drawSignals(Graphics g)
         {
-            foreach (Signal s in signals)
+            foreach (Signal s in Signals)
             {
                 s.calculateLocation();
                 foreach (Point d in s.paintDots)
@@ -398,20 +234,20 @@ namespace sku_to_smv
 
         private void canselSignals()
         {
-            signals = new Signal[0];
+            Signals = new Signal[0];
         }
 
         public void createTimeMarks()
         {
-            foreach (Rule r in rules)
+            foreach (Rule r in Rules)
             {
                 if (r.timeMark == null) continue;
                 Time timeMark = getTimeMarkByName(r.timeMark.name);
                 if (timeMark == null)
                 {
                     timeMark = r.timeMark;
-                    Array.Resize(ref timeMarks, timeMarks.Length + 1);
-                    timeMarks[timeMarks.Length - 1] = timeMark;
+                    Array.Resize(ref TimeMarks, TimeMarks.Length + 1);
+                    TimeMarks[TimeMarks.Length - 1] = timeMark;
                 }
                 Link l = getLinkByName(r.startState.Name + r.endState.Name);
                 if (l == null) continue;
@@ -422,7 +258,7 @@ namespace sku_to_smv
 
         public void drawTimeMarks(Graphics g)
         {
-            foreach (Time t in timeMarks)
+            foreach (Time t in TimeMarks)
             {
                 t.calculateLocation();
                 foreach (Point d in t.paintDots)
@@ -435,7 +271,7 @@ namespace sku_to_smv
         }
         private void canselTimeMarks()
         {
-            timeMarks = new Time[0];
+            TimeMarks = new Time[0];
         }
 
         public void canselDrawElements()
@@ -457,7 +293,7 @@ namespace sku_to_smv
 
         private Signal getSignalByName(String name)
         {
-            foreach (Signal signal in signals)
+            foreach (Signal signal in Signals)
             {
                 if (signal.name.Equals(name)) return signal;
             }
@@ -475,7 +311,7 @@ namespace sku_to_smv
 
         private Time getTimeMarkByName(String name)
         {
-            foreach(Time t in timeMarks)
+            foreach(Time t in TimeMarks)
             {
                 if (t.name.Equals(name)) return t;
             }
@@ -495,7 +331,7 @@ namespace sku_to_smv
         {
             List<Rule> activeRules = new List<Rule>();
             State activeState = getActiveState();
-            foreach(Rule r in rules)
+            foreach(Rule r in Rules)
             {
                 if (r.startState.Equals(activeState)) 
                     activeRules.Add(r);
@@ -519,7 +355,7 @@ namespace sku_to_smv
             float y = dot.Y;
             if (link.Arc)
             {
-                int arcRadius = Settings.Default.ArcCyrcleRadius;
+                int arcRadius = ArcCyrcleRadius;
                 Point centreArc = new Point(link.arcDot.X + arcRadius, link.arcDot.Y + arcRadius);
                 //Уравнение окружности вида (x-x.centre)^2 + (y-y.centre)^2 = r^2, представляющей часть арки
                 int result = (int)(Math.Pow(x - centreArc.X, 2) + Math.Pow(y - centreArc.Y, 2));
@@ -545,7 +381,7 @@ namespace sku_to_smv
 
         public bool isDotOnState(Point dot, State state)
         {
-            int diametr = Settings.Default.StateDiametr;
+            int diametr = StateDiametr;
             return dot.X >= state.paintDot.X
                 && dot.X <= state.paintDot.X + diametr
                 && dot.Y >= state.paintDot.Y
@@ -610,7 +446,7 @@ namespace sku_to_smv
             bool isChanged = false;
             foreach (State s in States)
             {
-                bool isNeedChangeActivity = s.Selected && paintDotSelectedState.Equals(s.paintDot);
+                bool isNeedChangeActivity = s.Selected && PaintDotSelectedState.Equals(s.paintDot);
                 isChanged = isChanged || isNeedChangeActivity;
                 if (isNeedChangeActivity)
                 {
@@ -632,7 +468,7 @@ namespace sku_to_smv
         private bool setSelectedTimeMarks(Point dot)
         {
             bool isChanged = false;
-            foreach (Time tm in timeMarks)
+            foreach (Time tm in TimeMarks)
             {
                 bool isOnMark = isDotOnTimeMark(dot, tm);
                 isChanged = isChanged || tm.selected ^ isOnMark;
@@ -644,7 +480,7 @@ namespace sku_to_smv
         private bool setActiveSignal()
         {
             bool isChanged = false;
-            foreach (Signal s in signals)
+            foreach (Signal s in Signals)
             {
                 bool newActivityStatus = s.Selected && !s.Active || !s.Selected && s.Active;
                 isChanged = isChanged || s.Active ^ newActivityStatus;
@@ -656,7 +492,7 @@ namespace sku_to_smv
         private bool setSelectedSignal(Point dot)
         {
             bool isSignalsChanged = false;
-            foreach (Signal signal in signals)
+            foreach (Signal signal in Signals)
             {
                 bool isOnSignal = isDotOnSignal(dot, signal);
                 isSignalsChanged = isSignalsChanged || signal.Selected ^ isOnSignal;
@@ -670,7 +506,7 @@ namespace sku_to_smv
             bool tbVisible = false;
             Point tbLocation = Point.Empty;
             Time selectedTm = null;
-            foreach (Time tm in timeMarks)
+            foreach (Time tm in TimeMarks)
             {
                 tbVisible = tbVisible || tm.selected;
                 if (tm.selected)
@@ -703,8 +539,8 @@ namespace sku_to_smv
             {
                 if (state.Selected)
                 {
-                    state.paintDot.X = dot.X - (int)dragOffsetX;
-                    state.paintDot.Y = dot.Y - (int)dragOffsetY;
+                    state.paintDot.X = dot.X - (int)DragOffsetX;
+                    state.paintDot.Y = dot.Y - (int)DragOffsetY;
                     foreach (Link l in state.links)
                     {
                         l.calculateLocation();
@@ -738,384 +574,23 @@ namespace sku_to_smv
             {
                 if (state.Selected)
                 {
-                    dragOffsetX = e.X - state.paintDot.X;
-                    dragOffsetY = e.Y - state.paintDot.Y;
-                    paintDotSelectedState = new Point(state.paintDot.X, state.paintDot.Y);
+                    DragOffsetX = e.X - state.paintDot.X;
+                    DragOffsetY = e.Y - state.paintDot.Y;
+                    PaintDotSelectedState = new Point(state.paintDot.X, state.paintDot.Y);
                 }
             }
         }
 
         private void mouseClick(object sender, MouseEventArgs e)
         {
-            dragOffsetX = 0;
-            dragOffsetY = 0;
+            DragOffsetX = 0;
+            DragOffsetY = 0;
             bool isStateChangeActivity = !SimulStarted ? setActiveState() : false;
             bool isSignalChangeActivity = setActiveSignal();
             bool s = setValueTimeMark(e.Location);
             if (isStateChangeActivity || isSignalChangeActivity || s) Refresh(); 
         }
-       
-        private void PaintToolPanel(Graphics g)
-        {
-
-            //Отрисовка панели инструментов
-            if (!b_SavingImage)
-            {
-                if (tools.PanelOrientation == Orientation.Vertical)
-                    if (tools.PanelAlignment == Alignment.LEFT)
-                    {
-                        tools.Size = new Size(40, this.Size.Height);
-                        tools.Location = new Point(0, 0);
-                    }
-                    else
-                    {
-                        tools.Size = new Size(40, this.Size.Height);
-                        tools.Location = new Point(this.Size.Width - 40 - vScroll.Size.Width, 0);
-                    }
-                else
-                {
-                    if (tools.PanelAlignment == Alignment.TOP)
-                    {
-                        tools.Size = new Size(this.Size.Width, 40);
-                        tools.Location = new Point(0, 0);
-                    }
-                    else
-                    {
-                        tools.Size = new Size(this.Size.Width, 40);
-                        tools.Location = new Point(0, this.Size.Height - 40 - hScroll.Size.Height);
-                    }
-                }
-                //tools.UpdateControlsLocation();
-                //tools.Draw(g);
-            }
-        }
-
-        private void AreaResized(object sender, EventArgs e)
-        {
-            g.Dispose();
-            drawBuffer.Dispose();
-            drawBuffer = drawContext.Allocate(this.CreateGraphics(), this.ClientRectangle);
-            g = drawBuffer.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
-            Refresh();
-        }
-        /// <summary>
-        /// Обработчик горизонтального скролинга
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void hScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            xT = -hScroll.Value;
-            Refresh();
-        }
-        /// <summary>
-        /// Обработчик вертикального скролинга
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void vScroll_Scroll(object sender, ScrollEventArgs e)
-        {
-            yT = -vScroll.Value;
-            Refresh();
-        }
-
-        public void ToolPanelButtonClicked(object sender, ToolButtonEventArgs e)
-        {
-            this.ClickToolPanelTimer.Start();
-            switch (e.Name)
-            {
-                case "start":
-                    //CreateSimul((this.Parent.Parent.Parent as Form1).parser.Rules, (this.Parent.Parent.Parent as Form1).parser.Outputs);
-                    break;
-                case "run":
-                    SimulStart();
-                    break;
-                case "step":
-                    SimulStep(true);
-                    break;
-                case "stop":
-                    SimulStop();
-                    break;
-                case "table":
-                    CreateTable();
-                    break;
-                case "reset":
-                    ResetAllsignals();
-                    break;
-                case "showlog":
-                    ShowLog();
-                    break;
-            }
-
-        }
-        private void ClickToolPanelTimer_Tick(object sender, EventArgs e)
-        {
-            this.OnMouseClick(null);
-            this.ClickToolPanelTimer.Stop();
-            this.Refresh();
-        }
-
-        private void OnSimulStarted()
-        {
-            drawAreaEventHandler handler = SimulationStarted;
-            if (handler != null)
-                handler(this, new EventArgs());
-        }
-
-        private void OnSimiulStoped()
-        {
-            drawAreaEventHandler handler = SimulationStoped;
-            if (handler != null)
-                handler(this, new EventArgs());
-        }
-        
-        private void WritePipe(int num, int b, char ch, int step = 0)
-        {
-            try
-            {
-                if (pipe != null && pipe.IsConnected)
-                {
-                    if (ch == 's')
-                    {
-                        sw.WriteLine("set " + num.ToString() + " " + b.ToString());
-                    }
-                    if (ch == 't')
-                    {
-                        sw.WriteLine("step " + step);
-                    }
-                    if (ch == 'e')
-                    {
-                        sw.WriteLine("exit");
-                    }
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine("ERROR: {0}", e.Message);
-            }
-
-        }
-       
-        public void SimulStart()
-        {
-            OnSimulStarted();
-            if (b_EnableLogging)
-            {
-                log.LogFormat = Settings.Default.LogFormat;
-                if (LogFileName.Length > 0)
-                {
-                    log.FileName = LogFileName;
-                }
-                else log.FileName = "log_" + States.GetHashCode().ToString();
-                log.StartLog(true, false, null);
-            }
-
-            tools.Buttons[1].Enabled = false;
-            tools.Buttons[2].Enabled = false;
-            tools.Buttons[3].Enabled = true;
-
-            if (table != null)
-            {
-                table.UpdateSimControls(new bool[] {true, false, true});
-                table.ResetSteps();
-                if (TableCreated)
-                {
-                    for (int i = 0; i < InputsLeight; i++)
-                    {
-                        switch (table.GetElementByNumber(i))
-                        {
-                           /* case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
-                                break;
-                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                                break;*/
-                            case returnResults.rUNDEF: break;
-                        }
-                    }
-                }
-                //Refresh();
-            }
-            for (int i = 0; i < States.Length; i++ )
-            {
-                log.StartLog(false, false, States[i].Name);
-            }
-            log.StartLog(false, true, null);
-            this.timer1.Start();
-        }
-        /// <summary>
-        /// Останов автоматической симуляции
-        /// </summary>
-        public void SimulStop()
-        {
-            if (b_EnableLogging && this.timer1.Enabled)
-                log.EndLog();
-            if (table != null)
-                table.UpdateSimControls(new bool[] { true, true, false });
-            this.timer1.Stop();
-            OnSimiulStoped();
-            tools.Buttons[1].Enabled = true;
-            tools.Buttons[2].Enabled = true;
-            tools.Buttons[3].Enabled = false;
-        }
-        /// <summary>
-        /// Шаг симуляции
-        /// </summary>
-        public void SimulStep(bool b_Manual = false)
-        {
-            if (b_Manual)
-            {
-                if (TableCreated)
-                {
-                    for (int i = 0; i < InputsLeight; i++)
-                    {
-                        switch (table.GetElementByNumber(i))
-                        {
-                            /*case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
-                                break;
-                            case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                                break;*/
-                            case returnResults.rUNDEF: break;
-                        }
-                    }
-                }
-                Refresh();
-                System.Threading.Thread.Sleep(500);
-            }
-            bool StepStart = true;
-
-            for (int i = 0; i < States.Length; i++)
-            {
-                if (b_EnableLogging /*&& States[i].InputSignal == true*/)
-                {
-                    //log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, States[i].Type == STATE_TYPE.INPUT, States[i].Type == STATE_TYPE.OUTPUT, StepStart);
-                    StepStart = false;
-                }
-               // WritePipe(i, Convert.ToInt16((States[i].Signaled || States[i].AlSignaled)), 's');
-            }
-            WritePipe(0, 0, 't', stepNumber);
-            stepNumber++;
-            //StepStart = true;
-            for (int i = 0; i < States.Length; i++)
-            {
-                    //States[i].Signaled = ReadPipe(i);
-//                 if (b_EnableLogging && States[i].InputSignal != true)
-//                 {
-//                     log.AddToLog(States[i].Name, States[i].Signaled || States[i].AlSignaled, false, StepStart);
-//                     StepStart = false;
-//                 }
-            }
-            if (TableCreated)
-            {
-                table.NextStep();
-            }
-            if (TableCreated)
-            {
-                for (int i = 0; i < InputsLeight; i++)
-                {
-                    switch (table.GetElementByNumber(i))
-                    {
-                       /* case returnResults.rFALSE: States[i].Signaled = States[i].Signaled || false;
-                            break;
-                        case returnResults.rTRUE: States[i].Signaled = States[i].Signaled || true;
-                            break;*/
-                        case returnResults.rUNDEF: break;
-                    }
-                }
-            }
-            Refresh();
-        }
-        /// <summary>
-        /// Обработчик такта таймера
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            SimulStep();
-        }
-        /// <summary>
-        /// Обработчик клика по выпадающему меню
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void contextMenuClick(object sender, ToolStripItemClickedEventArgs  e)
-        {
-            switch (e.ClickedItem.Text)
-            {
-                /*case "Установить 1": States[SelectedState].Signaled = true; 
-                    break;
-                case "Всегда 1": States[SelectedState].AlSignaled = true;
-                    break;
-                case "Установить 0": States[SelectedState].Signaled = false;
-                    States[SelectedState].AlSignaled = false; 
-                    break;*/
-            }
-            Refresh();
-        }
-        /// <summary>
-        /// Создает таблицу сигналов и отображает ее
-        /// </summary>
-        public void CreateTable()
-        {
-            if (InputsLeight != 0 && !TableCreated)
-            {
-                if (table != null)
-                {
-                    this.table.FormClosed -= handler;
-                }
-                table = null;
-                GC.Collect();
-                table = new SignalTable(InputsLeight, this);
-                this.table.FormClosed += handler;
-                for (int i = 0; i < InputsLeight; i++)
-                {
-                   // table.AddElement(i, States[i].Name, States[i].Signaled, States[i].InputSignal);
-                }
-                table.ShowT();
-                TableCreated = true;
-            }
-        }
-        /// <summary>
-        /// Обработчик закрытия таблицы сигналов
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TableClosed(object sender, FormClosedEventArgs e)
-        {
-            TableCreated = false;
-        }
-        public void SaveImage(String Path)
-        {
-            int maxX = 0;
-            int maxY = 0;
-            int tempX, tempY;
-            float tempScale;
-            for (int i = 0; i < States.Length; i++ )
-            {
-                if (States[i].paintDot.X > maxX) maxX = (int) States[i].paintDot.X;
-                if (States[i].paintDot.Y > maxY) maxY = (int) States[i].paintDot.Y;
-            }
-            Bitmap imageB = new Bitmap(maxX + 70, maxY + 70);
-            Graphics graf = Graphics.FromImage(imageB);
-            graf.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;//Включаем сглаживание графических объектов
-            graf.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;//Включаем сглаживание шрифтов
-            graf.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
-            tempX = xT;
-            tempY = yT;
-            tempScale = ScaleT;
-            xT = 0;
-            yT = 0;
-            ScaleT = 1F;
-            b_SavingImage = true;
-            //Refresh(graf);
-            b_SavingImage = false;
-            xT = tempX;
-            yT = tempY;
-            ScaleT = tempScale;
-            imageB.Save(Path);
-        }
+ 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -1124,43 +599,6 @@ namespace sku_to_smv
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
             RefreshArea(e.Graphics);
         }
-        private void ResetAllsignals()
-        {
-            for (int i = 0; i < States.Length; i++ )
-            {
-              //  States[i].Signaled = false;
-                //States[i].AlSignaled = false;
-            }
-        }
-
-        private void ShowLog()
-        {
-            Process pr;
-            ProcessStartInfo prInf = new ProcessStartInfo();
-            prInf.FileName = log.SavedFileName;
-            if(log.FileName != null && log.FileName.Length > 0)
-                pr = Process.Start(prInf);
-            //prInf.Arguments = log.FileName;
-            /*if ((prInf.Arguments = log.FileName) == null)
-            {
-                if (LogFileName.Length > 0)
-                {
-                    prInf.Arguments = LogFileName + ".log";
-                }
-                else prInf.Arguments = "log" + States.GetHashCode().ToString() + ".log";
-            }
-            prInf.FileName = "notepad.exe";
-            Process pr = Process.Start(prInf);*/
-        }
-        public void ClearArea()
-        {
-            if (SimulStarted)
-            {
-                //CreateSimul(null, null);
-            }
-            Array.Resize(ref Links, 0);
-            Array.Resize(ref States, 0);
-            GC.Collect();
-        }
+        
     } 
 }

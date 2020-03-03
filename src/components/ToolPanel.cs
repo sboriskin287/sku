@@ -39,6 +39,9 @@ namespace sku_to_smv
             PanelOrientation = Orientation.Vertical;
             Location = new Point(0, 0);
             Size = new Size(41, 500);
+            BackColor = Color.Pink;
+            PanelOrientation = Orientation.Vertical;
+            PanelAlignment = Alignment.RIGHT;
 
             Button startButtnon = new ToolButton();
             //startButtnon.InactiveImage = Resources.create_simulation;
@@ -64,6 +67,7 @@ namespace sku_to_smv
             stepButton.Name = "step";
             stepButton.Text = "Шаг с остановом";
             CalculateLocation(ref stepButton);
+            stepButton.Enabled = false;
             stepButton.Click += new EventHandler(onClickStep);
             Buttons.Add(stepButton);
 
@@ -73,6 +77,7 @@ namespace sku_to_smv
             stopSimulation.Name = "stop";
             stopSimulation.Text = "Остановить симуляцию";
             CalculateLocation(ref stopSimulation);
+            stopSimulation.Enabled = false;
             stopSimulation.Click += onClickStop;
             Buttons.Add(stopSimulation);
 
@@ -160,21 +165,21 @@ namespace sku_to_smv
             if (activeState == null) return;
             List<Rule> activeRules = area.getRulesWithActiveState();
             bool anythingTransfered = false;
+            bool transferedArc = false;
             foreach (Rule r in activeRules)
             {
                 Link l = area.getLinkByName(r.startState.Name + r.endState.Name);
-                bool linkActive = l != null;
-                if (linkActive)
+                if (l == null) return;
+                bool linkActive = true;
+                foreach (Signal s in l.signals)
                 {
-                    foreach (Signal s in l.signals)
-                    {
-                        linkActive = linkActive && s.Active;
-                    }
+                    linkActive = linkActive && s.Active;
                 }
                 r.endState.Active = linkActive;
+                transferedArc = l.Arc && linkActive;
                 anythingTransfered = anythingTransfered || linkActive;
             }
-            activeState.Active = !anythingTransfered;
+            activeState.Active = !anythingTransfered || transferedArc;
             area.Refresh();
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -8,12 +9,26 @@ namespace sku_to_smv.src
 {
     public class TimeTextBox : TextBox
     {
+        private static TimeTextBox _instance;
+
         public Time timeMark;
         public DrawArea area;
 
-        public TimeTextBox(DrawArea area)
+        public static TimeTextBox getInstance(DrawArea area)
+        {
+            if (_instance == null)
+            {
+                _instance = new TimeTextBox(area);
+            }
+            return _instance;
+        }
+        private TimeTextBox(DrawArea area)
         {
             this.area = area;
+            Size = new Size(50, 20);
+            TabIndex = 5;
+            Dock = DockStyle.None;
+            Visible = false;
         }
 
         protected override void OnLostFocus(EventArgs e)

@@ -55,9 +55,6 @@ namespace sku_to_smv
             this.richTextBox1.ContextMenuStrip = TextContextMenu;
             TextContextMenu.ItemClicked += new ToolStripItemClickedEventHandler(TextContextMenu_Click);
 
-            this.pictureBox1.SimulationStarted += this.SimulStarted;
-            this.pictureBox1.SimulationStoped += this.SimulStoped;
-
             Saved = true;
             TextCH = false;
             Inv = false;
@@ -113,8 +110,7 @@ namespace sku_to_smv
                 b_FileLoad = true;
                 //TextCH = false;
                 sOpenSaveFileName = sOpenSaveFileName.Remove(sOpenSaveFileName.Length - 4);
-                pictureBox1.ClearArea();
-                pictureBox1.LogFileName = sOpenSaveFileName;
+                
                 Analysed = false;
             }
             
@@ -214,8 +210,8 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 25;
             PrintText("Разбор окончен");
             this.tabControl1.SelectedIndex = 1;
-            Array.Resize(ref pictureBox1.rules, parser.Rules.Count);
-            pictureBox1.rules = parser.Rules.ToArray();         
+            Array.Resize(ref pictureBox1.Rules, parser.Rules.Count);
+            pictureBox1.Rules = parser.Rules.ToArray();         
             this.toolStripProgressBar1.Value = 50;       
             pictureBox1.createStates();
             pictureBox1.createLinks();
@@ -243,7 +239,6 @@ namespace sku_to_smv
 
         private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            pictureBox1.ScaleT = (float)((TrackBar)scaleTrack.Control).Value / 100;
             this.toolStripSplitButton1.Text = "Масштаб " + ((TrackBar)scaleTrack.Control).Value.ToString() + "%";
             RefreshScreen();
         }
@@ -257,7 +252,6 @@ namespace sku_to_smv
             {
                 this.toolStripProgressBar1.Value = 0;
                 sSaveFileName = saveFileDialog1.FileName;
-                this.pictureBox1.SaveImage(sSaveFileName);
                 this.toolStripStatusLabel1.Text = "Файл сохранен под именем: " + sSaveFileName;
                 this.toolStripProgressBar1.Value = 100;
             }
@@ -361,17 +355,14 @@ namespace sku_to_smv
 
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStart();
         }
 
         private void toolStripButton5_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStep();
         }
 
         private void toolStripButton6_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.SimulStop();
         }
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -396,7 +387,6 @@ namespace sku_to_smv
             {
                 if (this.tabControl1.TabPages[i].Name == "grafPage")
                 {
-                    (this.tabControl1.TabPages[i].Controls[0] as DrawArea).ClosePipe();
                 }
             }
             if (this.WindowState != FormWindowState.Maximized)
@@ -408,7 +398,6 @@ namespace sku_to_smv
 
         private void toolStripButton7_Click(object sender, EventArgs e)
         {
-            this.pictureBox1.CreateTable();
         }
 
         private void toolStripButton10_Click(object sender, EventArgs e)
@@ -590,7 +579,6 @@ namespace sku_to_smv
                 this.richTextBox1.SelectionColor = Settings.Default.TextFieldTextColor;
                 this.richTextBox1.Select(Index, 0);
             }
-            pictureBox1.ApplySettings();
             //int Index = this.richTextBox1.SelectionStart;
             this.richTextBox1.Font = Settings.Default.TextFieldTextFont;
 //             this.richTextBox1.SelectAll();
