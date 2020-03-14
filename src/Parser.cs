@@ -523,9 +523,9 @@ namespace sku_to_smv
                 }
                 return parceResult.PARSE_OK;
             }
-            String pattern = "(\\w+)=(\\(?[\\w\\|]+\\)?)([&\\w+<>]+)";
+            String pattern = "(\\w+)=(\\(?[\\w\\|]+\\)?)([&!?\\w+<>]+)";
             String statePattern = "\\(?(\\w+)\\|?\\)?";
-            String signalPattern = "&(\\w+)";
+            String signalPattern = "&(!?\\w+)";
             String timePattern = "<(\\w+)>";
             String str = inputStr;
             Regex reg = new Regex(pattern, RegexOptions.Compiled);
@@ -539,6 +539,7 @@ namespace sku_to_smv
             List<State> beginStates = new List<State>();
             List<Signal> signals = new List<Signal>();
             List<Rule> rules = new List<Rule>();
+            List<Signal> inventeredSignals = new List<Signal>();
             for (int i = 1; i < match.Groups.Count; i++)
             {
                 switch (i)
@@ -596,7 +597,12 @@ namespace sku_to_smv
                                 {
                                     String signalName = m.Groups[j].Value;
                                     try
-                                    {
+                                    {  
+                                        if (signalName.Contains("!"))
+                                        {
+                                            signalName = signalName.Substring(1, signalName.Length - 1);
+                                            inventeredSignals.Add(getSignalByName(signalName));
+                                        }
                                         signals.Add(getSignalByName(signalName));
                                     }
                                     catch (Exception)
@@ -617,7 +623,7 @@ namespace sku_to_smv
             {
                 foreach (State state in beginStates)
                 {
-                    Rule rule = new Rule(state, endState, signal, timeMark);
+                    Rule rule = new Rule(state, endState, signal, timeMark, inventeredSignals.Contains(signal));
                     rules.Add(rule);
                 }
             }

@@ -170,11 +170,7 @@ namespace sku_to_smv
             {
                 Link l = area.getLinkByName(r.startState.Name + r.endState.Name);
                 if (l == null) return;
-                bool linkActive = true;
-                foreach (Signal s in l.signals)
-                {
-                    linkActive = linkActive && s.Active;
-                }
+                bool linkActive = l.linkActive();
                 r.endState.Active = linkActive;
                 transferedArc = l.Arc && linkActive;
                 anythingTransfered = anythingTransfered || linkActive;

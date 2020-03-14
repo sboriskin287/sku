@@ -20,6 +20,7 @@ namespace sku_to_smv
         public bool Selected;
         public Time timeMark; //Время перехода
         public Signal[] signals;
+        public Signal[] inventeredSignals;
         public float cosx;
         public float sinx;
         public Link()
@@ -37,6 +38,7 @@ namespace sku_to_smv
             Selected = false;
             timeMark = null;
             signals = new Signal[0];
+            inventeredSignals = new Signal[0];
             cosx = 1;
             sinx = 0;
         }
@@ -116,6 +118,16 @@ namespace sku_to_smv
             setSinX();
             calculateStartAndEndDots();
             caluclateArrowDots();           
+        }
+
+        public bool linkActive()
+        {
+            bool isActive = signals.Length > 0;
+            foreach (Signal s in signals)
+            {
+                isActive = isActive && s.Active;
+            }
+            return isActive;
         }
 
         public override bool Equals(object obj)
