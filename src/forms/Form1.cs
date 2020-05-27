@@ -683,7 +683,7 @@ namespace sku_to_smv
 
         private void помощьToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Разработал Кутузов Владимир\nПГУ 2013", Assembly.GetExecutingAssembly().GetName().Name + " " + Assembly.GetExecutingAssembly().GetName().Version.ToString()
+            MessageBox.Show("Разработал Борискин Вячеслав\nПГУ 2020", Assembly.GetExecutingAssembly().GetName().Name + " " + Assembly.GetExecutingAssembly().GetName().Version.ToString()
                 , MessageBoxButtons.OK, MessageBoxIcon.Asterisk, MessageBoxDefaultButton.Button1);
         }
         //Поиск парных скобок

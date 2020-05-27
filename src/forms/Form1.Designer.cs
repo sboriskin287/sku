@@ -73,7 +73,6 @@ namespace sku_to_smv
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.grafPage = new System.Windows.Forms.TabPage();
-            this.pictureBox1 = DrawArea.getInstance();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.button5 = new System.Windows.Forms.Button();
@@ -86,8 +85,6 @@ namespace sku_to_smv
             this.toolStrip1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            this.grafPage.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -158,6 +155,7 @@ namespace sku_to_smv
             this.анализироватьToolStripMenuItem.Name = "анализироватьToolStripMenuItem";
             this.анализироватьToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.анализироватьToolStripMenuItem.Text = "Генерировать SMV...";
+            this.анализироватьToolStripMenuItem.Visible = false;
             this.анализироватьToolStripMenuItem.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // генерироватьVHDLToolStripMenuItem
@@ -165,6 +163,7 @@ namespace sku_to_smv
             this.генерироватьVHDLToolStripMenuItem.Name = "генерироватьVHDLToolStripMenuItem";
             this.генерироватьVHDLToolStripMenuItem.Size = new System.Drawing.Size(211, 22);
             this.генерироватьVHDLToolStripMenuItem.Text = "Генерировать VHDL...";
+            this.генерироватьVHDLToolStripMenuItem.Visible = false;
             this.генерироватьVHDLToolStripMenuItem.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // сохранитьКакРисунокToolStripMenuItem
@@ -337,6 +336,7 @@ namespace sku_to_smv
             this.toolStripButton8.Name = "toolStripButton8";
             this.toolStripButton8.Size = new System.Drawing.Size(24, 24);
             this.toolStripButton8.Text = "Генерировать SMV...";
+            this.toolStripButton8.Visible = false;
             this.toolStripButton8.Click += new System.EventHandler(this.анализироватьToolStripMenuItem_Click);
             // 
             // toolStripButton9
@@ -347,6 +347,7 @@ namespace sku_to_smv
             this.toolStripButton9.Name = "toolStripButton9";
             this.toolStripButton9.Size = new System.Drawing.Size(24, 24);
             this.toolStripButton9.Text = "Генерировать VHDL...";
+            this.toolStripButton9.Visible = false;
             this.toolStripButton9.Click += new System.EventHandler(this.генерироватьVHDLToolStripMenuItem_Click);
             // 
             // NewGraf
@@ -492,7 +493,6 @@ namespace sku_to_smv
             // 
             // grafPage
             // 
-            this.grafPage.Controls.Add(this.pictureBox1);
             this.grafPage.Location = new System.Drawing.Point(4, 22);
             this.grafPage.Name = "grafPage";
             this.grafPage.Padding = new System.Windows.Forms.Padding(3);
@@ -501,17 +501,6 @@ namespace sku_to_smv
             this.grafPage.Text = "Граф";
             this.grafPage.UseVisualStyleBackColor = true;
             this.grafPage.Click += new System.EventHandler(this.tabPage2_Click);
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.SimulStarted = false;
-            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(802, 425);
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // openFileDialog1
             // 
@@ -579,8 +568,6 @@ namespace sku_to_smv
             this.toolStrip1.PerformLayout();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.grafPage.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
