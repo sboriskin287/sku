@@ -171,6 +171,11 @@ namespace sku_to_smv
                     link.endState.links.Add(link);
                     Links[Links.Length - 1] = link;
                 }
+                if (rule.SignalInventered)
+                {
+                    Array.Resize(ref link.inventeredSignals, link.inventeredSignals.Length + 1);
+                    link.inventeredSignals[link.inventeredSignals.Length - 1] = rule.signal;
+                }
                 Array.Resize(ref rule.signal.links, rule.signal.links.Length + 1);
                 rule.signal.links[rule.signal.links.Length - 1] = link;
                 Array.Resize(ref link.signals, link.signals.Length + 1);
@@ -226,8 +231,9 @@ namespace sku_to_smv
                 foreach (Point d in s.paintDots)
                 {
                     Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
-                    Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;                                                      
-                    g.DrawString(s.name, font, brush, d.X, d.Y);
+                    Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;
+                    String printedName = (s.inventeredPoint.Contains(d)) ? "!" + s.name : s.name;
+                    g.DrawString(printedName, font, brush, d.X, d.Y);
                 }
             }
         }

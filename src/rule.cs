@@ -13,6 +13,7 @@ namespace sku_to_smv
         public State endState;
         public Signal signal;
         public Time timeMark;
+        public bool SignalInventered;
 
         public Rule()
         {
@@ -20,14 +21,16 @@ namespace sku_to_smv
             endState = new State();
             signal = new Signal();
             timeMark = null;
+            SignalInventered = false;
         }
 
-        public Rule(State startState, State endState, Signal signal, Time timeMark)
+        public Rule(State startState, State endState, Signal signal, Time timeMark, bool InventeredSignal)
         {
             this.startState = startState;
             this.endState = endState;
             this.signal = signal;
             this.timeMark = timeMark;
+            this.SignalInventered = InventeredSignal;
         }
     }
 }

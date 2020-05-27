@@ -10,6 +10,8 @@ namespace sku_to_smv.src
 	{
 		public String name;
 		public Point[] paintDots;
+		public List<Point> inventeredPoint;
+		public Signal InventeredSignal;
 		public bool Selected;
 		public bool Active;
 		public Link[] links;
@@ -18,6 +20,8 @@ namespace sku_to_smv.src
 		{
 			name = null;
 			paintDots = new Point[0];
+			inventeredPoint = new List<Point>();
+			InventeredSignal = null;
 			Selected = false;
 			Active = false;
 			links = new Link[0];
@@ -37,11 +41,19 @@ namespace sku_to_smv.src
 				for (int j = 0; j < links[i].signals.Length; j++)
 				{
 					Signal s = l.signals[j];
-                    if (s.name.Equals(name)) paintDots[i] = (l.Arc)
-                            ? l.arcDot
-                            : new Point(
+					if (s.name.Equals(name))
+					{
+						Point p = (l.Arc)
+							? l.arcDot
+							: new Point(
 						l.startDot.X + (l.endDot.X - l.startDot.X) / 2 + j * 20,
 						l.startDot.Y + (l.endDot.Y - l.startDot.Y) / 2);
+						if (l.inventeredSignals.Contains(this))
+						{
+							inventeredPoint.Add(p);
+						}
+						paintDots[i] = p;
+					}
                 }
             }
 		}
