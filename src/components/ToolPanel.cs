@@ -34,7 +34,7 @@ namespace sku_to_smv
 
         public delegate void cToolButtonEventHandler(object sender, ToolButtonEventArgs a);
         public event cToolButtonEventHandler ButtonClicked;
-        private delegate void Run();
+        private delegate void Run(DrawArea area);
         private Run run_del;
         DrawArea area;
 
@@ -162,34 +162,25 @@ namespace sku_to_smv
             Buttons[0].Enabled = false;
             Buttons[1].Enabled = true;
             Buttons[2].Enabled = true;
-            Thread t = new Thread(new ThreadStart(this.run));
-            t.Start();
+            Thread t = new Thread(new ParameterizedThreadStart(this.run));
+            t.Start(area);
         }
 
-        private void updateArea()
+        private void run(Object ar)
         {
-            while (area.SimulStarted)
-            {
-                area.Refresh();
-                Thread.Sleep(1000);
-            }
-        }
-
-        private void run()
-        {
+            DrawArea area = (DrawArea)ar;
             while (area.SimulStarted)
             {
                 step();
+                if (area.InvokeRequired)
+                {
+                    area.Invoke(run_del, new object[] { area });
+                } else
+                {
+                    area.Refresh();
+                }
                 Thread.Sleep(1000);
             }
-        }
-
-        private void start()
-        {
-            area.Invoke(run_del);
-            run_del = new Run(updateArea);
-            area.Invoke(run_del);
-
         }
 
         private void onClickStep(object sender, EventArgs e)
