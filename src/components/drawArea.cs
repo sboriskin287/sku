@@ -59,11 +59,10 @@ namespace sku_to_smv
         public Link[] Links;
         public Signal[] Signals;
         public Time[] TimeMarks;
-        public Rule[] Rules;       
+        public Rule[] Rules;
         private float DragOffsetX, DragOffsetY;
         private Point PaintDotSelectedState;
         public bool SimulStarted;
-        ToolPanel Tools;
 
         private DrawArea()
         {
@@ -92,14 +91,12 @@ namespace sku_to_smv
             TimeMarks = new Time[0];
             Rules = new Rule[0];
             this.DoubleBuffered = true;
-            Tools = ToolPanel.getInstance();
-            Controls.Add(Tools);          
             this.MouseClick += new MouseEventHandler(this.mouseClick);
             this.MouseDown += new MouseEventHandler(this.mouseDown);
             this.MouseMove += new MouseEventHandler(this.mouseMove);
             ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
             this.ResumeLayout(false);
-        }  
+        }
 
         private void RefreshArea(Graphics g)
         {
@@ -129,25 +126,25 @@ namespace sku_to_smv
                         state.paintDot.X = States.Length % 2 == 0 ? stateDefaultCentreX : stateDefaultCentreX + offsetStateX;
                         state.paintDot.Y = stateDefaultCentreY + States.Length / 2 * offsetStateY;
                         addState(state);
-                    }    
+                    }
                 }
             }
         }
-        
+
         private void drawStates(Graphics g)
         {
             int stateDiametr = StateDiametr;
             foreach (State state in States)
             {
                 state.calculateLocation();
-                Pen statePen; 
+                Pen statePen;
                 if (!state.Active && !state.Selected) statePen = stateDefaultPen;
                 else if (!state.Active && state.Selected) statePen = stateSelectedPen;
                 else if (state.Active && !state.Selected) statePen = stateActivePen;
                 else statePen = stateActiveAndSelectedPen;
                 g.DrawEllipse(statePen, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);
-                if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);             
-                g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.X, state.nameDot.Y);             
+                if (state.Active) g.FillEllipse(stateActiveBrush, state.paintDot.X, state.paintDot.Y, stateDiametr, stateDiametr);
+                g.DrawString(state.Name, defaultTextFont, defaultTextBrush, state.nameDot.X, state.nameDot.Y);
             }
         }
 
@@ -176,10 +173,14 @@ namespace sku_to_smv
                     Array.Resize(ref link.inventeredSignals, link.inventeredSignals.Length + 1);
                     link.inventeredSignals[link.inventeredSignals.Length - 1] = rule.signal;
                 }
-                Array.Resize(ref rule.signal.links, rule.signal.links.Length + 1);
-                rule.signal.links[rule.signal.links.Length - 1] = link;
-                Array.Resize(ref link.signals, link.signals.Length + 1);
-                link.signals[link.signals.Length - 1] = rule.signal;               
+                if (rule.signal != null)
+                {
+                    Array.Resize(ref rule.signal.links, rule.signal.links.Length + 1);
+                    rule.signal.links[rule.signal.links.Length - 1] = link;
+                    Array.Resize(ref link.signals, link.signals.Length + 1);
+                    link.signals[link.signals.Length - 1] = rule.signal;
+                }
+                link.timeMark = rule.timeMark;
             }
         }
 
@@ -189,11 +190,11 @@ namespace sku_to_smv
             int arcStartAngle = ArcStartAngle;
             int arcSweepAngle = ArcSweepAngle;
             foreach (Link link in Links)
-            {       
+            {
                 Pen linkPen = link.Selected ? linkSelectedPen : linkDefaultPen;
                 link.calculateLocation();
                 if (link.Arc)
-                {  
+                {
                     g.DrawArc(linkPen, new RectangleF(link.arcDot.X, link.arcDot.Y, arcRadius * 2, arcRadius * 2), arcStartAngle, arcSweepAngle);
                 }
                 else
@@ -202,7 +203,7 @@ namespace sku_to_smv
                     g.DrawLine(linkPen, link.endDot.X, link.endDot.Y, link.arrowDots[0].X, link.arrowDots[0].Y);
                     g.DrawLine(linkPen, link.endDot.X, link.endDot.Y, link.arrowDots[1].X, link.arrowDots[1].Y);
                 }
-            }          
+            }
         }
         private void canselLinks()
         {
@@ -231,7 +232,8 @@ namespace sku_to_smv
                 foreach (Point d in s.paintDots)
                 {
                     Font font = (s.Selected) ? signalSelectedFont : signalDefaultFont;
-                    Brush brush = (s.Active) ? signalActiveBrush: signalDefaultBrush;
+                    bool isActive = s.isInvert(d) ? !s.Active : s.Active;
+                    Brush brush = (isActive) ? signalActiveBrush : signalDefaultBrush;
                     String printedName = (s.inventeredPoint.Contains(d)) ? "!" + s.name : s.name;
                     g.DrawString(printedName, font, brush, d.X, d.Y);
                 }
@@ -272,7 +274,7 @@ namespace sku_to_smv
                     Font font = (t.selected) ? signalSelectedFont : signalDefaultFont;
                     Brush brush = signalDefaultBrush;
                     g.DrawString(t.name + "<" + t.value + ">", font, brush, d.X, d.Y);
-                }   
+                }
             }
         }
         private void canselTimeMarks()
@@ -285,7 +287,7 @@ namespace sku_to_smv
             canselStates();
             canselLinks();
             canselSignals();
-            canselTimeMarks();     
+            canselTimeMarks();
         }
 
         public Link getLinkByName(String name)
@@ -317,7 +319,7 @@ namespace sku_to_smv
 
         private Time getTimeMarkByName(String name)
         {
-            foreach(Time t in TimeMarks)
+            foreach (Time t in TimeMarks)
             {
                 if (t.name.Equals(name)) return t;
             }
@@ -337,9 +339,9 @@ namespace sku_to_smv
         {
             List<Rule> activeRules = new List<Rule>();
             State activeState = getActiveState();
-            foreach(Rule r in Rules)
+            foreach (Rule r in Rules)
             {
-                if (r.startState.Equals(activeState)) 
+                if (r.startState.Equals(activeState))
                     activeRules.Add(r);
             }
             return activeRules;
@@ -382,7 +384,7 @@ namespace sku_to_smv
                     && result <= 2500
                     && x >= minX && x <= maxX
                     && y >= minY && y <= maxY);
-            }       
+            }
         }
 
         public bool isDotOnState(Point dot, State state)
@@ -414,7 +416,7 @@ namespace sku_to_smv
             bool isOnMark = false;
             foreach (Point pd in tm.paintDots)
             {
-                isOnMark = isOnMark 
+                isOnMark = isOnMark
                     || dot.X >= pd.X
                     && dot.X <= pd.X + offset
                     && dot.Y >= pd.Y
@@ -430,7 +432,7 @@ namespace sku_to_smv
             {
                 bool isLink = isDotOnLink(dot, link);
                 isChanged = isChanged || link.Selected ^ isLink;
-                link.Selected = isLink;          
+                link.Selected = isLink;
             }
             return isChanged;
         }
@@ -441,8 +443,8 @@ namespace sku_to_smv
             foreach (State state in States)
             {
                 bool isState = isDotOnState(dot, state);
-                isChanged = isChanged || state.Selected ^ isState;          
-                state.Selected = isState;               
+                isChanged = isChanged || state.Selected ^ isState;
+                state.Selected = isState;
             }
             return isChanged;
         }
@@ -537,7 +539,7 @@ namespace sku_to_smv
                 || isStateChanged
                 || isSignalChanged
                 || isTimeMarkChanged;
-        }    
+        }
 
         private void relocationStates(Point dot)
         {
@@ -594,9 +596,9 @@ namespace sku_to_smv
             bool isStateChangeActivity = !SimulStarted ? setActiveState() : false;
             bool isSignalChangeActivity = setActiveSignal();
             bool s = setValueTimeMark(e.Location);
-            if (isStateChangeActivity || isSignalChangeActivity || s) Refresh(); 
+            if (isStateChangeActivity || isSignalChangeActivity || s) Refresh();
         }
- 
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -605,6 +607,27 @@ namespace sku_to_smv
             e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;//Включаем интерполяцию
             RefreshArea(e.Graphics);
         }
-        
+
+
+        public void re()
+        {
+            Refresh();
+        }
+
+        public Parser Parser
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public Form1 Form1
+        {
+            get => default;
+            set
+            {
+            }
+        }
     } 
 }

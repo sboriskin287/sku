@@ -218,6 +218,7 @@ namespace sku_to_smv
             this.toolStripProgressBar1.Value = 75;            
             pictureBox1.createSignals();
             pictureBox1.createTimeMarks();
+            pictureBox1.Controls.Add(ToolPanel.getInstance());
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }

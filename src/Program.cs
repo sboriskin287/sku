@@ -5,6 +5,7 @@ namespace sku_to_smv
 {
     static class Program
     {
+
         /// <summary>
         /// Главная точка входа для приложения.
         /// </summary>

@@ -619,14 +619,26 @@ namespace sku_to_smv
             {
                 return parceResult.PARCE_ERROR;
             }
-            foreach (Signal signal in signals)
+            if (signals.Count != 0)
+            {
+                foreach (Signal signal in signals)
+                {
+                    foreach (State state in beginStates)
+                    {
+                        Rule rule = new Rule(state, endState, signal, timeMark, inventeredSignals.Contains(signal));
+                        rules.Add(rule);
+                    }
+                }
+            }
+            else
             {
                 foreach (State state in beginStates)
                 {
-                    Rule rule = new Rule(state, endState, signal, timeMark, inventeredSignals.Contains(signal));
+                    Rule rule = new Rule(state, endState, null, timeMark, false);
                     rules.Add(rule);
                 }
             }
+          
             this.Rules.AddRange(rules);
             return parceResult.PARSE_OK;
         }

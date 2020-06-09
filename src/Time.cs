@@ -7,21 +7,37 @@ using System.Windows.Forms;
 
 namespace sku_to_smv.src
 {
-    public class Time
+    public class Time : Rule
     {
         public String name;
         public int value;
         public Link[] links;
-        public Point[] paintDots;              
+        public Point[] paintDots;
         public bool selected;
-      
+
         public Time(String name)
-        { 
+        {
             this.name = name;
             value = 0;
             paintDots = new Point[0];
-            links = new Link[0];          
+            links = new Link[0];
             selected = false;
+        }
+
+        public TimeTextBox TimeTextBox
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public DrawArea DrawArea
+        {
+            get => default;
+            set
+            {
+            }
         }
 
         private void calculatePainDots()

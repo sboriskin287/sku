@@ -7,6 +7,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using sku_to_smv.Properties;
 using sku_to_smv.src;
+using System.Threading;
+using System.Timers;
 
 namespace sku_to_smv
 {
@@ -32,9 +34,13 @@ namespace sku_to_smv
 
         public delegate void cToolButtonEventHandler(object sender, ToolButtonEventArgs a);
         public event cToolButtonEventHandler ButtonClicked;
+        private delegate void Run();
+        private Run run_del;
+        DrawArea area;
 
         private ToolPanel()
         {
+            run_del = new Run(run);
             Buttons = new Collection<Button>();
             PanelOrientation = Orientation.Vertical;
             Location = new Point(0, 0);
@@ -42,6 +48,7 @@ namespace sku_to_smv
             BackColor = Color.Pink;
             PanelOrientation = Orientation.Vertical;
             PanelAlignment = Alignment.RIGHT;
+            area = DrawArea.getInstance();
 
             Button startButtnon = new ToolButton();
             //startButtnon.InactiveImage = Resources.create_simulation;
@@ -145,7 +152,6 @@ namespace sku_to_smv
       
         private void onClickSimulStart(object sender, EventArgs e)
         {
-            DrawArea area = DrawArea.getInstance();
             State activeState = area.getActiveState();
             if (activeState == null)
             {
@@ -156,32 +162,63 @@ namespace sku_to_smv
             Buttons[0].Enabled = false;
             Buttons[1].Enabled = true;
             Buttons[2].Enabled = true;
+            Thread t = new Thread(new ThreadStart(this.run));
+            t.Start();
+        }
+
+        private void updateArea()
+        {
+            while (area.SimulStarted)
+            {
+                area.Refresh();
+                Thread.Sleep(1000);
+            }
+        }
+
+        private void run()
+        {
+            while (area.SimulStarted)
+            {
+                step();
+                Thread.Sleep(1000);
+            }
+        }
+
+        private void start()
+        {
+            area.Invoke(run_del);
+            run_del = new Run(updateArea);
+            area.Invoke(run_del);
+
         }
 
         private void onClickStep(object sender, EventArgs e)
         {
-            DrawArea area = DrawArea.getInstance();
+            step();
+        }
+
+        private void step()
+        {
             State activeState = area.getActiveState();
             if (activeState == null) return;
             List<Rule> activeRules = area.getRulesWithActiveState();
-            bool anythingTransfered = false;
-            bool transferedArc = false;
+            activeRules.Sort();
+            bool transfered = false;
             foreach (Rule r in activeRules)
             {
                 Link l = area.getLinkByName(r.startState.Name + r.endState.Name);
                 if (l == null) return;
+                if (l.timeMark != null) Thread.Sleep(l.timeMark.value);
                 bool linkActive = l.linkActive();
+                transfered = transfered || !l.Arc && linkActive;
                 r.endState.Active = linkActive;
-                transferedArc = l.Arc && linkActive;
-                anythingTransfered = anythingTransfered || linkActive;
+                r.startState.Active = !linkActive;             
             }
-            activeState.Active = !anythingTransfered || transferedArc;
-            area.Refresh();
+            activeState.Active = !transfered;
         }
 
         private void onClickStop(object sender, EventArgs e)
         {
-            DrawArea area = DrawArea.getInstance();
             area.SimulStarted = false;
             Buttons[0].Enabled = true;
             Buttons[1].Enabled = false;
@@ -231,6 +268,14 @@ namespace sku_to_smv
             SetFrame(Resources.frame);
             SetFrameHover(Resources.frame_hover);
             SetFrameClick(Resources.frame_click);
+        }
+
+        public Form1 Form1
+        {
+            get => default;
+            set
+            {
+            }
         }
 
         public void Draw(Graphics g)

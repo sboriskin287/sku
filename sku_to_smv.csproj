@@ -71,6 +71,7 @@
     <Compile Include="src\TimeTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
+    <None Include="ClassDiagram1.cd" />
     <None Include="template\tmpl.cs" />
     <None Include="bin\Debug\template\tmpl.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

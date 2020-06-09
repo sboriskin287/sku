@@ -13,7 +13,6 @@ namespace sku_to_smv
         public bool Selected;       //если выбрано = true
         public bool Active;
         public List<Signal> inputs;
-        public List<Signal> outputs;
         public List<Link> links;
         public State()
         {
@@ -22,8 +21,31 @@ namespace sku_to_smv
             nameDot = Point.Empty;
             Selected = false;
             inputs = new List<Signal>();
-            outputs = new List<Signal>();
             links = new List<Link>();
+        }
+
+        public Rule Rule
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public Link Link
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public DrawArea DrawArea
+        {
+            get => default;
+            set
+            {
+            }
         }
 
         public override bool Equals(object obj)

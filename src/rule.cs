@@ -7,7 +7,7 @@ namespace sku_to_smv
     // Summary:
     //     Описывает элемент списка правил автомата 
     //     создающегося при разборе его описания.
-    public class Rule
+    public class Rule : IComparable
     {
         public State startState;
         public State endState;
@@ -31,6 +31,20 @@ namespace sku_to_smv
             this.signal = signal;
             this.timeMark = timeMark;
             this.SignalInventered = InventeredSignal;
+        }
+
+        public DrawArea DrawArea
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public int CompareTo(object obj)
+        {
+            Rule rule = (Rule)obj;
+            return (rule.startState.Name.Equals(endState.Name)) ? -1 : 1;
         }
     }
 }

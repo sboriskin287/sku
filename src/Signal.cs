@@ -11,7 +11,6 @@ namespace sku_to_smv.src
 		public String name;
 		public Point[] paintDots;
 		public List<Point> inventeredPoint;
-		public Signal InventeredSignal;
 		public bool Selected;
 		public bool Active;
 		public Link[] links;
@@ -21,7 +20,6 @@ namespace sku_to_smv.src
 			name = null;
 			paintDots = new Point[0];
 			inventeredPoint = new List<Point>();
-			InventeredSignal = null;
 			Selected = false;
 			Active = false;
 			links = new Link[0];
@@ -32,7 +30,31 @@ namespace sku_to_smv.src
 			this.name = name;
 		}
 
-		private void calculatePaintDots()
+        public Rule Rule
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public State State
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public DrawArea DrawArea
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        private void calculatePaintDots()
 		{
 			paintDots = new Point[links.Length];
 			for (int i = 0; i < links.Length; i++)
@@ -56,6 +78,15 @@ namespace sku_to_smv.src
 					}
                 }
             }
+		}
+
+		public bool isInvert(Point p)
+		{
+			foreach (Point d in inventeredPoint)
+			{
+				if (d.Equals(p)) return true;
+			}
+			return false;
 		}
 
 		public void calculateLocation()

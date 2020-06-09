@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace sku_to_smv
 {
-    public class Link
+    public class Link : State
     {
         public Point startDot;          //точка начала
         public Point endDot;          //точка конца   
@@ -44,10 +44,34 @@ namespace sku_to_smv
         }
 
         public Link(State startState, State endState) : this()
-        {          
+        {
             this.startState = startState;
-            this.endState = endState;     
-        } 
+            this.endState = endState;
+        }
+
+        public Time Time
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public State State
+        {
+            get => default;
+            set
+            {
+            }
+        }
+
+        public DrawArea DrawArea
+        {
+            get => default;
+            set
+            {
+            }
+        }
 
         public void setName()
         {
@@ -92,14 +116,15 @@ namespace sku_to_smv
         }
 
         private void calculateStartAndEndDots()
-        {         
+        {
             if (Arc)
             {
                 int arcOffset = 18;
                 arcDot = new Point(
                     startState.paintDot.X - arcOffset,
                     startState.paintDot.Y - arcOffset);
-            } else
+            }
+            else
             {
                 int radius = Properties.Settings.Default.StateDiametr / 2;
                 float x = radius * cosx;
@@ -108,7 +133,7 @@ namespace sku_to_smv
                 startDot.Y = startState.paintDot.Y + radius + (int)y;
                 endDot.X = endState.paintDot.X + radius - (int)x;
                 endDot.Y = endState.paintDot.Y + radius - (int)y;
-            }       
+            }
         }
 
         public void calculateLocation()
@@ -117,7 +142,16 @@ namespace sku_to_smv
             setCosX();
             setSinX();
             calculateStartAndEndDots();
-            caluclateArrowDots();           
+            caluclateArrowDots();
+        }
+
+        private bool isInvert(Signal s)
+        {
+            foreach (Signal invS in inventeredSignals)
+            {
+                if (invS.Equals(s)) return true;
+            }
+            return false;
         }
 
         public bool linkActive()
@@ -125,7 +159,9 @@ namespace sku_to_smv
             bool isActive = signals.Length > 0;
             foreach (Signal s in signals)
             {
-                isActive = isActive && s.Active;
+                bool signalActive = s.Active;
+                if (isInvert(s)) signalActive = !signalActive;
+                isActive = isActive && signalActive;
             }
             return isActive;
         }
