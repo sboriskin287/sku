@@ -1,4 +1,6 @@
 ﻿using sku_to_smv;
+using System.Windows.Forms;
+
 namespace sku_to_smv
 {
     partial class Form1
@@ -511,6 +513,8 @@ namespace sku_to_smv
             this.pictureBox1.Size = new System.Drawing.Size(802, 425);
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.SizeMode = PictureBoxSizeMode.AutoSize;
+            this.AutoScroll = true;
             this.pictureBox1.Click += new System.EventHandler(this.tabPage2_Click);
             // 
             // openFileDialog1

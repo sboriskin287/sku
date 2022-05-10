@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using Microsoft.CSharp;
 using sku_to_smv.Properties;
 using sku_to_smv.src;
+using sku_to_smv.src.components;
 
 namespace sku_to_smv
 {
@@ -105,6 +106,7 @@ namespace sku_to_smv
             drawLinks(g);
             drawSignals(g);
             drawTimeMarks(g);
+
         }
 
         public void createStates()
@@ -222,6 +224,8 @@ namespace sku_to_smv
                     Signals[Signals.Length - 1] = s;
                 }
             }
+            Array.Sort(Signals);
+            SignalPanel.updateInstance();
         }
 
         public void drawSignals(Graphics g)
@@ -299,7 +303,7 @@ namespace sku_to_smv
             return null;
         }
 
-        private Signal getSignalByName(String name)
+        public Signal getSignalByName(String name)
         {
             foreach (Signal signal in Signals)
             {
@@ -494,6 +498,7 @@ namespace sku_to_smv
                 isChanged = isChanged || s.Active ^ newActivityStatus;
                 s.Active = newActivityStatus;
             }
+            SignalPanel.getInstance().Refresh();
             return isChanged;
         }
 
@@ -612,6 +617,12 @@ namespace sku_to_smv
         public void re()
         {
             Refresh();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            SignalPanel.getInstance().Refresh();
         }
 
         public Parser Parser

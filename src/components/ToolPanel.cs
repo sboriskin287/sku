@@ -9,6 +9,7 @@ using sku_to_smv.Properties;
 using sku_to_smv.src;
 using System.Threading;
 using System.Timers;
+using System.Threading.Tasks;
 
 namespace sku_to_smv
 {
@@ -35,12 +36,10 @@ namespace sku_to_smv
         public delegate void cToolButtonEventHandler(object sender, ToolButtonEventArgs a);
         public event cToolButtonEventHandler ButtonClicked;
         private delegate void Run(DrawArea area);
-        private Run run_del;
         DrawArea area;
 
         private ToolPanel()
         {
-            run_del = new Run(run);
             Buttons = new Collection<Button>();
             PanelOrientation = Orientation.Vertical;
             Location = new Point(0, 0);
@@ -162,30 +161,24 @@ namespace sku_to_smv
             Buttons[0].Enabled = false;
             Buttons[1].Enabled = true;
             Buttons[2].Enabled = true;
-            Thread t = new Thread(new ParameterizedThreadStart(this.run));
-            t.Start(area);
+            new Thread(() => runAsync(area)).Start();
         }
 
-        private void run(Object ar)
+        private void runAsync(Object ar)
         {
-            DrawArea area = (DrawArea)ar;
+            DrawArea area = (DrawArea) ar;
             while (area.SimulStarted)
             {
                 step();
-                if (area.InvokeRequired)
-                {
-                    area.Invoke(run_del, new object[] { area });
-                } else
-                {
-                    area.Refresh();
-                }
-                Thread.Sleep(1000);
+                area.BeginInvoke((MethodInvoker)(() => area.Refresh()));
+                Thread.Sleep(100);
             }
         }
 
         private void onClickStep(object sender, EventArgs e)
         {
             step();
+            area.BeginInvoke((MethodInvoker)(() => area.Refresh()));
         }
 
         private void step()

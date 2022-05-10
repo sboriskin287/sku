@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
+using sku_to_smv.src.components;
 
 // TODO Дописать таблицу входных сигналов
 
@@ -219,6 +220,7 @@ namespace sku_to_smv
             pictureBox1.createSignals();
             pictureBox1.createTimeMarks();
             pictureBox1.Controls.Add(ToolPanel.getInstance());
+            pictureBox1.Controls.Add(SignalPanel.getInstance());
             RefreshScreen();
             this.toolStripProgressBar1.Value = 100;
         }

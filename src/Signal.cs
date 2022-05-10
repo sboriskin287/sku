@@ -6,7 +6,7 @@ using System.Text;
 
 namespace sku_to_smv.src
 {
-	public class Signal
+	public class Signal : IComparable
 	{
 		public String name;
 		public Point[] paintDots;
@@ -93,5 +93,10 @@ namespace sku_to_smv.src
 		{
 			calculatePaintDots();
 		}
-	}
+
+        public int CompareTo(object obj)
+        {
+			return name.CompareTo(((Signal) obj).name);
+        }
+    }
 }
